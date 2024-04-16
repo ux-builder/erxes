@@ -51,7 +51,7 @@ class Channels extends React.Component<Props, {}> {
 
     const rightActionBar = currentChannel._id && (
       <ModalTrigger
-        title="Manage Integration"
+        title={__('Manage Integration')}
         trigger={trigger}
         size="lg"
         autoOpenKey="showManageIntegrationModal"

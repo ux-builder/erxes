@@ -5,7 +5,7 @@ import React from 'react';
 import Histories from '../../containers/Histories';
 import { IAutomation, ITrigger } from '../../types';
 import { HistoriesWrapper, FilterWrapper, FilterDateItem } from './styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 
@@ -146,7 +146,10 @@ class HistoriesHeader extends React.Component<Props, State> {
                 placeholder={__('Filter by Trigger Type')}
                 value={triggerType}
                 options={[
-                  ...triggersConst.map(t => ({ value: t.type, label: t.label }))
+                  ...triggersConst.map(t => ({
+                    value: t.type,
+                    label: t.label
+                  }))
                 ]}
                 onChange={this.onSelect.bind(this, 'triggerType')}
               />
@@ -158,7 +161,7 @@ class HistoriesHeader extends React.Component<Props, State> {
             onClick={this.onFilter}
             size="small"
           >
-            {'Filter'}
+            {__('Filter')}
           </Button>
         </FilterWrapper>
         <Histories {...this.props} filterParams={filterParams} />

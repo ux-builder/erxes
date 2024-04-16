@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import { IConditionsRule } from '../../types';
 import ModalTrigger from '../ModalTrigger';
 import RuleForm from './RuleForm';
+import { __ } from 'coreui/utils';
 
 const RuleDescription = styled.p`
   text-transform: initial;
@@ -58,23 +59,19 @@ class ConditionsRule extends React.Component<Props, State> {
 
     switch (rule.kind) {
       case 'browserLanguage':
-        description =
-          'Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.';
+        description = __('recLanguage');
         break;
       case 'currentPageUrl':
-        description =
-          'Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing';
+        description = __('writeURL');
         break;
       case 'country':
-        description =
-          'Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.';
+        description = __('countryResolution');
         break;
       case 'city':
-        description =
-          'Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.';
+        description = __('cityResolution');
         break;
       default:
-        description = 'Counts individual visitor’s visitting number.';
+        description = __('visitingNumber');
         break;
     }
 
@@ -122,22 +119,21 @@ class ConditionsRule extends React.Component<Props, State> {
         </ControlLabel>
         <InlineForm>
           <FormControl
+            type="text"
+            value={rule.value}
+            onChange={onChangeValue}
+          />
+          <FormControl
             componentClass="select"
             defaultValue={rule.condition}
             onChange={onChangeCondition}
           >
             {RULE_CONDITIONS[rule.kind].map((cond, index) => (
               <option key={index} value={cond.value}>
-                {cond.text}
+                {__(cond.text)}
               </option>
             ))}
           </FormControl>
-
-          <FormControl
-            type="text"
-            value={rule.value}
-            onChange={onChangeValue}
-          />
           <Button
             size="small"
             onClick={remove}
@@ -152,7 +148,7 @@ class ConditionsRule extends React.Component<Props, State> {
   renderAddRule = () => {
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add another rule
+        {__('Add another rule')}
       </Button>
     );
 
@@ -169,15 +165,12 @@ class ConditionsRule extends React.Component<Props, State> {
     return (
       <FlexPad overflow="auto" direction="column">
         <FormGroup>
-          <ControlLabel>Add rules</ControlLabel>
-          <RuleDescription>
-            {description ||
-              'Rules are used when you wish to target the audience of the form according to custom rules. For example, you can show the form only if a visitor views the webpage more than 5 times.'}
-          </RuleDescription>
+          <ControlLabel>{__('Add rules')}</ControlLabel>
+          <RuleDescription>{description || __('customRules')}</RuleDescription>
           <FormControl componentClass="select" onChange={this.addRule}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
-                {rule.text}
+                {__(rule.text)}
               </option>
             ))}
           </FormControl>

@@ -5,7 +5,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 
 import React from 'react';
 
@@ -21,7 +21,7 @@ const PasswordConfig = (props: Props) => {
   const [config, setConfig] = React.useState<PasswordVerificationConfig>(
     props.config || {
       verifyByOTP: false,
-      emailSubject: 'Reset your password',
+      emailSubject: __('Reset your password'),
       emailContent: ' {{ link }} ',
       smsContent: ' {{ link }} '
     }
@@ -125,7 +125,7 @@ const PasswordConfig = (props: Props) => {
     >
       <ToggleWrap>
         <FormGroup>
-          <ControlLabel>Use code</ControlLabel>
+          <ControlLabel>{__('Use code')}</ControlLabel>
           <p>{__('Use random code instead of link')}</p>
           <Toggle
             checked={config?.verifyByOTP}
@@ -139,7 +139,7 @@ const PasswordConfig = (props: Props) => {
       </ToggleWrap>
 
       <FormGroup>
-        <ControlLabel required={true}>SMS Content</ControlLabel>
+        <ControlLabel required={true}>{__('SMS Content')}</ControlLabel>
         <FlexContent>
           <FormControl
             id="content"
@@ -151,7 +151,7 @@ const PasswordConfig = (props: Props) => {
       </FormGroup>
 
       <FormGroup>
-        <ControlLabel required={true}>Subject</ControlLabel>
+        <ControlLabel required={true}>{__('Subject')}</ControlLabel>
         <p>{__('Forgot password mail subject')}</p>
         <FlexContent>
           <FormControl
@@ -164,7 +164,7 @@ const PasswordConfig = (props: Props) => {
       </FormGroup>
 
       <FormGroup>
-        <ControlLabel required={true}>Mail Content</ControlLabel>
+        <ControlLabel required={true}>{__('Mail Content')}</ControlLabel>
         <p>{__('Forgot password mail body')}</p>
         <FlexContent>
           <EditorCK

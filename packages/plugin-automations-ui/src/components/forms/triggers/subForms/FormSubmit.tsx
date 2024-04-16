@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
@@ -100,7 +100,7 @@ class FormSubmit extends React.Component<Props, State> {
           </Button>
 
           <Button btnStyle="success" icon="checked-1" onClick={this.onSave}>
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </>

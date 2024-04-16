@@ -6,7 +6,7 @@ import { IDepartment } from '../types';
 import { IOption } from '@erxes/ui/src/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 
 type Props = {
   departments: IDepartment[];
@@ -39,7 +39,7 @@ class SelectDepartments extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel required={isRequired}>Departments</ControlLabel>
+        <ControlLabel required={isRequired}>{__('Departments')}</ControlLabel>
         <Row>
           <LeftContent>
             <Select

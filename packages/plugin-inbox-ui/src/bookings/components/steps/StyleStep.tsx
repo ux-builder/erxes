@@ -7,17 +7,14 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Select from 'react-select-plus';
-import {
-  SubHeading,
-  WidgetBackgrounds
-} from '@erxes/ui-settings/src/styles';
+import { SubHeading, WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import React from 'react';
 import { BOOKING_ITEM_SHAPE } from '../../constants';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { FONTS } from '@erxes/ui-settings/src/constants';
-
+import { __ } from 'coreui/utils';
 type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
 
 type Props = {
@@ -37,10 +34,10 @@ function Style({
 }: Props) {
   const renderColorSelect = (item, color) => {
     const popoverBottom = (
-      <Popover id='color-picker'>
+      <Popover id="color-picker">
         <TwitterPicker
-          width='266px'
-          triangle='hide'
+          width="266px"
+          triangle="hide"
           color={color}
           onChange={e => onChangeBooking(item, e.hex)}
           colors={COLORS}
@@ -50,9 +47,9 @@ function Style({
 
     return (
       <OverlayTrigger
-        trigger='click'
+        trigger="click"
         rootClose={true}
-        placement='bottom-start'
+        placement="bottom-start"
         overlay={popoverBottom}
       >
         <ColorPick>
@@ -68,14 +65,14 @@ function Style({
         <Flex>
           <FlexItem>
             <FormGroup>
-              <ControlLabel required={true}>Item Shape</ControlLabel>
+              <ControlLabel required={true}>{__('Item Shape')}</ControlLabel>
               <Select
                 clearable={false}
                 value={itemShape}
                 onChange={(e: any) => onChangeBooking('itemShape', e.value)}
                 options={BOOKING_ITEM_SHAPE.ALL_LIST.map(e => ({
                   value: e.value,
-                  label: e.label
+                  label: __(e.label)
                 }))}
               />
             </FormGroup>
@@ -85,9 +82,9 @@ function Style({
         <Flex>
           <FlexItem>
             <FormGroup>
-              <ControlLabel>Base Font</ControlLabel>
+              <ControlLabel>{__('Base Font')}</ControlLabel>
               <Select
-                placeholder='Please select a font'
+                placeholder={__('Please select a font')}
                 value={baseFont}
                 options={FONTS.map(item => ({
                   label: item.label,
@@ -102,14 +99,14 @@ function Style({
         </Flex>
 
         <SubHeading>
-          Colors
-          <span>Choose a widget main and navigation colors</span>
+          {__('Colors')}
+          <span>{__('Choose a widget main and navigation colors')}</span>
         </SubHeading>
 
         <Flex>
           <FlexItem>
             <FormGroup>
-              <ControlLabel>Main Widget Color</ControlLabel>
+              <ControlLabel>{__('Main Widget Color')}</ControlLabel>
               <WidgetBackgrounds>
                 {renderColorSelect('widgetColor', widgetColor)}
               </WidgetBackgrounds>
@@ -117,7 +114,7 @@ function Style({
           </FlexItem>
 
           <FlexItem>
-            <ControlLabel>Available Product Color</ControlLabel>
+            <ControlLabel>{__('Available Product Color')}</ControlLabel>
             <WidgetBackgrounds>
               {renderColorSelect('productAvailable', productAvailable)}
             </WidgetBackgrounds>

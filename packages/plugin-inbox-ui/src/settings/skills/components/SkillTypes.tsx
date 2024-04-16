@@ -84,7 +84,7 @@ function SkillTypes({
 
     return (
       <ModalTrigger
-        title="New skill type"
+        title={__('New skill type')}
         trigger={trigger}
         content={content}
       />
@@ -99,7 +99,7 @@ function SkillTypes({
         icon="plus-circle"
         block={true}
       >
-        Create skill type
+        {__('Create skill type')}
       </Button>
     );
 

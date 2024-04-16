@@ -1,5 +1,5 @@
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -36,7 +36,7 @@ function SkillTypeForm({ closeModal, object, renderButton }: Props) {
 
     return (
       <>
-        <ControlLabel>Name</ControlLabel>
+        <ControlLabel>{__('Name')}</ControlLabel>
         <FormControl
           {...formProps}
           name="name"
@@ -51,7 +51,7 @@ function SkillTypeForm({ closeModal, object, renderButton }: Props) {
             onClick={closeModal}
             icon="times-circle"
           >
-            Cancel
+            {__('Cancel')}
           </Button>
 
           {renderButton({

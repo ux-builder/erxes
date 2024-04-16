@@ -1,6 +1,6 @@
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { UnEnroll } from '../../../styles';
@@ -13,7 +13,7 @@ class UnEnrollment extends React.Component<Props> {
       <UnEnroll>
         <h3>{__('Unenrollment and suppression')}</h3>
         <div>
-          <p>{'When contacts enroll in this workflow'}</p>
+          <p>{__('When contacts enroll in this workflow')}</p>
           <FormGroup>
             <FormControl componentClass="radio" value="any" inline={true}>
               {__('Do not remove them from other workflows')}
@@ -30,9 +30,9 @@ class UnEnrollment extends React.Component<Props> {
 
         <div>
           <p>
-            {
+            {__(
               'When a contact no longer meets the enrollment conditions, remove them from this workflow'
-            }
+            )}
           </p>
           <FormGroup>
             <FormControl componentClass="radio" value="any" inline={true}>
@@ -47,9 +47,9 @@ class UnEnrollment extends React.Component<Props> {
 
         <div>
           <p>
-            {
+            {__(
               'When two contacts are merged, shoud the newly created contact enroll in this workflow if they meet the trigger criteria'
-            }
+            )}
             ?
           </p>
           <FormGroup>
@@ -64,11 +64,11 @@ class UnEnrollment extends React.Component<Props> {
         </div>
 
         <div>
-          <b>Suppression lists for this workflow</b>
+          <b>{__('Suppression lists for this workflow')}</b>
           <p>
-            {
+            {__(
               'Contacts on these lists will be removed from the workflow. You can add up to 20 suppression lists'
-            }
+            )}
           </p>
           <Select
             isRequired={true}

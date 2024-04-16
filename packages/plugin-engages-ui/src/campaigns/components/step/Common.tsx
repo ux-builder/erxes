@@ -112,17 +112,27 @@ class Common<Target, OnSubmit> extends React.Component<
   renderActionSelector() {
     const { show } = this.state;
     const { messageType } = this.props;
+    const localizedMessageType = __(messageType);
+
+    const chooseMessage = __('ChooseMessageType').replace(
+      '{messageType}',
+      localizedMessageType
+    );
+    const createMessage = __('CreateMessageType').replace(
+      '{messageType}',
+      localizedMessageType
+    );
 
     return (
       <RadioContainer>
         {this.renderRadioControl({
           checked: show === false,
-          title: __(`Choose a ${messageType}`)
+          title: chooseMessage
         })}
 
         {this.renderRadioControl({
           checked: show === true,
-          title: __(`Create a ${messageType}`)
+          title: createMessage
         })}
       </RadioContainer>
     );

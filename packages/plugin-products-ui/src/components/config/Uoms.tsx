@@ -10,7 +10,7 @@ import {
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from './UomsForm';
 import { Wrapper } from '@erxes/ui/src/layout';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import Sidebar from './Sidebar';
 import { IUom } from '../../types';
@@ -30,7 +30,11 @@ class Uoms extends React.Component<Props, {}> {
 
     if (uoms.length === 0) {
       return (
-        <EmptyState image="/images/actions/8.svg" text="No Uoms" size="small" />
+        <EmptyState
+          image="/images/actions/8.svg"
+          text={__('No Uoms')}
+          size="small"
+        />
       );
     }
 
@@ -76,7 +80,7 @@ class Uoms extends React.Component<Props, {}> {
         block={true}
         icon="plus-circle"
       >
-        Add Uom
+        {__('Add Uom')}
       </Button>
     );
 
@@ -100,7 +104,7 @@ class Uoms extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title={'Uoms'}
+            title={__('Uoms')}
             description={__('Add uoms ...')}
           />
         }
@@ -111,7 +115,7 @@ class Uoms extends React.Component<Props, {}> {
             data={this.renderContent()}
             loading={loading}
             count={uomsTotalCount}
-            emptyText="Add an integration in this Uom"
+            emptyText={__('Add an integration in this Uom')}
             emptyImage="/images/actions/2.svg"
           />
         }

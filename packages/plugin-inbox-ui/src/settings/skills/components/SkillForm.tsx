@@ -92,7 +92,7 @@ function SkillForm({
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>name</ControlLabel>
+          <ControlLabel required={true}>{__('name')}</ControlLabel>
           <FormControl
             required={true}
             autoFocus={true}
@@ -101,7 +101,7 @@ function SkillForm({
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>Skill type</ControlLabel>
+          <ControlLabel required={true}>{__('Skill type')}</ControlLabel>
           <Select
             placeholder={__('Choose a skill type')}
             value={type}
@@ -110,9 +110,9 @@ function SkillForm({
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>Team members</ControlLabel>
+          <ControlLabel required={true}>{__('Team members')}</ControlLabel>
           <SelectTeamMembers
-            label="Choose team members"
+            label={__('Choose team members')}
             name="memberIds"
             initialValue={memberIds}
             onSelect={handleTeamMemberSelect}
@@ -140,7 +140,7 @@ function SkillForm({
           onClick={closeModal}
           icon="times-circle"
         >
-          Cancel
+          {__('Cancel')}
         </Button>
         <ButtonMutate
           {...mutateProps}

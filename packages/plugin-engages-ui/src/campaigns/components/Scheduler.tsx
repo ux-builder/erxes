@@ -3,7 +3,7 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import { SCHEDULE_TYPES } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import { SelectMonth } from '@erxes/ui-engage/src/styles';
@@ -69,7 +69,7 @@ class Scheduler extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <ControlLabel>Choose month:</ControlLabel>
+        <ControlLabel>{__('Choose month:')}</ControlLabel>
         <FormControl componentClass="select" value={month} onChange={onChange}>
           <option /> {this.generateOptions(12)}
         </FormControl>
@@ -89,7 +89,7 @@ class Scheduler extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <ControlLabel>Choose day:</ControlLabel>
+        <ControlLabel>{__('Choose day:')}</ControlLabel>
         <FormControl componentClass="select" value={day} onChange={onChange}>
           <option /> {this.generateOptions(31)}
         </FormControl>
@@ -117,7 +117,7 @@ class Scheduler extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <ControlLabel>Choose date:</ControlLabel>
+        <ControlLabel>{__('Choose date:')}</ControlLabel>
         <DateContainer>
           <DateControl
             dateFormat="YYYY/MM/DD"
@@ -141,7 +141,7 @@ class Scheduler extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>Schedule:</ControlLabel>
+        <ControlLabel>{__('Schedule:')}</ControlLabel>
         <FormControl componentClass="select" value={type} onChange={onChange}>
           {SCHEDULE_TYPES.map(scheduleType => (
             <option key={scheduleType.value} value={scheduleType.value}>

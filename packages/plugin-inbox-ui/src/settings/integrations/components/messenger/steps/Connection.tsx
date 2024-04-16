@@ -51,7 +51,9 @@ class Connection extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel required={true}>Integration Name</ControlLabel>
+            <ControlLabel required={true}>
+              {__('Integration Name')}
+            </ControlLabel>
             <p>{__('Name this integration to differentiate from the rest')}</p>
 
             <FormControl
@@ -77,7 +79,7 @@ class Connection extends React.Component<Props, State> {
           />
 
           <FormGroup>
-            <ControlLabel>Bot Press Endpoint URL</ControlLabel>
+            <ControlLabel>{__('Bot Press Endpoint URL')}</ControlLabel>
             <p>{__('Please enter your Bot Press endpoint URL')}</p>
 
             <FormControl
@@ -87,7 +89,7 @@ class Connection extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Bot show initial message</ControlLabel>
+            <ControlLabel>{__('Bot show initial message')}</ControlLabel>
             <p>{__('Please build initial message in BotPress builder')}</p>
 
             <Toggle

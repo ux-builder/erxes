@@ -4,7 +4,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -90,7 +90,7 @@ function Appearance({
       <FormGroup>
         <ColorChooserTile>{label}</ColorChooserTile>
         <Select
-          placeholder="Please select a font"
+          placeholder={__('Please select a font')}
           value={value}
           options={generateOptions()}
           onChange={handleSelect}
@@ -146,7 +146,7 @@ function Appearance({
         <LogoWrapper>
           <FlexContent>
             <FormGroup>
-              <ControlLabel>Main Logo</ControlLabel>
+              <ControlLabel>{__('Main Logo')}</ControlLabel>
               <p>{__('Business portal main logo PNG')}.</p>
               <AvatarUpload
                 avatar={logo}
@@ -157,7 +157,7 @@ function Appearance({
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Favicon</ControlLabel>
+              <ControlLabel>{__('Favicon')}</ControlLabel>
               <p>{__('16x16px transparent PNG')}.</p>
               <AvatarUpload
                 avatar={icon}
@@ -177,7 +177,7 @@ function Appearance({
       <Block>
         <h4>{__('Main colors')}</h4>
         <FormGroup>
-          <ControlLabel>Background color</ControlLabel>
+          <ControlLabel>{__('Background color')}</ControlLabel>
           <FlexContent>
             <ColorPickerWrap>
               {renderColor({
@@ -223,15 +223,15 @@ function Appearance({
         <h4>{__('Fonts and color')}</h4>
         <FlexRow>
           <FormGroup>
-            <ControlLabel>Base Font</ControlLabel>
+            <ControlLabel>{__('Base Font')}</ControlLabel>
             <ColorPickerWrap>
               {renderSelect({
-                label: 'Base font',
+                label: __('Base font'),
                 name: 'baseFont',
                 value: baseFont
               })}
               {renderColor({
-                label: 'Base Color',
+                label: __('Base Color'),
                 name: 'baseColor',
                 value: baseColor
               })}
@@ -239,15 +239,15 @@ function Appearance({
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Heading Font</ControlLabel>
+            <ControlLabel>{__('Heading Font')}</ControlLabel>
             <ColorPickerWrap>
               {renderSelect({
-                label: 'Heading font',
+                label: __('Heading font'),
                 name: 'headingFont',
                 value: headingFont
               })}
               {renderColor({
-                label: 'Heading Color',
+                label: __('Heading Color'),
                 name: 'headingColor',
                 value: headingColor
               })}
@@ -255,16 +255,16 @@ function Appearance({
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Link color</ControlLabel>
+            <ControlLabel>{__('Link color')}</ControlLabel>
 
             <ColorPickerWrap>
               {renderColor({
-                label: 'Link text',
+                label: __('Link text'),
                 name: 'linkColor',
                 value: linkColor
               })}
               {renderColor({
-                label: 'Link hover text',
+                label: __('Link hover text'),
                 name: 'linkHoverColor',
                 value: linkHoverColor
               })}
@@ -282,17 +282,17 @@ function Appearance({
         <FlexContent>
           <ColorPickerWrap>
             {renderColor({
-              label: 'Primary action button',
+              label: __('Primary action button'),
               name: 'primaryBtnColor',
               value: primaryBtnColor
             })}
             {renderColor({
-              label: 'Secondary action button',
+              label: __('Secondary action button'),
               name: 'secondaryBtnColor',
               value: secondaryBtnColor
             })}
             {renderColor({
-              label: 'Heading divider & Input focus glow',
+              label: __('Heading divider & Input focus glow'),
               name: 'dividerColor',
               value: dividerColor
             })}
@@ -322,7 +322,7 @@ function Appearance({
 
         <FlexContent>
           <FormGroup>
-            <ControlLabel>Header html</ControlLabel>
+            <ControlLabel>{__('Header html')}</ControlLabel>
 
             <EditorCK
               content={headerHtml}
@@ -335,7 +335,7 @@ function Appearance({
 
         <FlexContent>
           <FormGroup>
-            <ControlLabel>Footer html</ControlLabel>
+            <ControlLabel>{__('Footer html')}</ControlLabel>
 
             <EditorCK
               content={footerHtml}

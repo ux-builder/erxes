@@ -11,7 +11,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import timezones from '@erxes/ui/src/constants/timezones';
 
 type Props = {
@@ -79,14 +79,16 @@ class Availability extends React.Component<Props> {
 
     return (
       <FormGroup>
-        <ControlLabel>Visible online to visitor or customer</ControlLabel>
+        <ControlLabel>
+          {__('Visible online to visitor or customer')}
+        </ControlLabel>
         <ToggleWrapper>
           <Toggle
             checked={this.props.isOnline}
             onChange={onChange}
             icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              checked: <span>{__('Yes')}</span>,
+              unchecked: <span>{__('No')}</span>
             }}
           />
         </ToggleWrapper>
@@ -106,11 +108,7 @@ class Availability extends React.Component<Props> {
       <React.Fragment>
         <FormGroup>
           <ControlLabel>{__('Default Timezone')}</ControlLabel>
-          <Description>
-            {__(
-              "This timezone will be calculated if supporters haven't chosen one."
-            )}
-          </Description>
+          <Description>{__('defaultTimezone')}</Description>
           <Select
             value={timezone}
             options={timezones}
@@ -132,8 +130,8 @@ class Availability extends React.Component<Props> {
               checked={this.props.showTimezone}
               onChange={onChange}
               icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                checked: <span>{__('Yes')}</span>,
+                unchecked: <span>{__('No')}</span>
               }}
             />
           </ToggleWrapper>
@@ -158,19 +156,15 @@ class Availability extends React.Component<Props> {
           <ControlLabel>
             {__('Hide messenger during offline hours')}
           </ControlLabel>
-          <Description>
-            {__(
-              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
-            )}
-          </Description>
+          <Description>{__('hideMessenger')}</Description>
 
           <ToggleWrapper>
             <Toggle
               checked={hideWhenOffline}
               onChange={onChange}
               icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                checked: <span>{__('Yes')}</span>,
+                unchecked: <span>{__('No')}</span>
               }}
             />
           </ToggleWrapper>
@@ -217,7 +211,7 @@ class Availability extends React.Component<Props> {
           {this.renderOnlineHours()}
 
           <FormGroup>
-            <ControlLabel required={true}>Response rate</ControlLabel>
+            <ControlLabel required={true}>{__('Response rate')}</ControlLabel>
             <Description>
               {__('Set to display your pre defined response rate')}
             </Description>

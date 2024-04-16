@@ -5,7 +5,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import { IFieldLogic } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React, { useEffect, useState } from 'react';
 import { FieldsCombinedByType } from '../types';
 
@@ -20,8 +20,8 @@ type Props = {
 };
 
 const showOptions = [
-  { value: 'show', label: 'Show this field' },
-  { value: 'hide', label: 'Hide this field' }
+  { value: 'show', label: __('Show this field') },
+  { value: 'hide', label: __('Hide this field') }
 ];
 
 function FieldLogics(props: Props) {
@@ -110,7 +110,7 @@ function FieldLogics(props: Props) {
           ))}
 
           <LinkButton onClick={addLogic}>
-            <Icon icon="plus-1" /> Add Logic Rule
+            <Icon icon="plus-1" /> {__('Add Logic Rule')}
           </LinkButton>
         </>
       );
@@ -123,7 +123,7 @@ function FieldLogics(props: Props) {
         icon="check-circle"
         onClick={onEnableLogic}
       >
-        Enable Logic
+        {__('Enable Logic')}
       </Button>
     );
   };

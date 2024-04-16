@@ -647,7 +647,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
-          Add a Trigger
+          {__('Add a Trigger')}
         </Button>
         <Button
           btnStyle="primary"
@@ -655,7 +655,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
-          Add an Action
+          {__('Add an Action')}
         </Button>
       </>
     );
@@ -680,7 +680,7 @@ class AutomationForm extends React.Component<Props, State> {
               icon={'check-circle'}
               onClick={this.handleTemplateModal}
             >
-              Save as a template
+              {__('Save as a template')}
             </Button>
           }
           <Button

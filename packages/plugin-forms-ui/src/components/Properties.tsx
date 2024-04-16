@@ -16,7 +16,7 @@ import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 // Props
 type Props = {
@@ -140,7 +140,7 @@ class Properties extends React.Component<
       return (
         <EmptyState
           icon="paragraph"
-          text="There aren't any groups and fields"
+          text={__("There aren't any groups and fields")}
         />
       );
     }
@@ -217,16 +217,16 @@ class Properties extends React.Component<
 
   render() {
     const { currentType, services } = this.props;
-
+    const message = __('currentProperties', { currentType: __(currentType) });
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Properties'), link: '/settings/properties' },
-      { title: __(`${currentType} properties`) }
+      { title: __(message) }
     ];
 
     const title = (
       <Title capitalize={true}>
-        {currentType} {__('properties')}
+        {__(currentType)} {__('properties')}
       </Title>
     );
 

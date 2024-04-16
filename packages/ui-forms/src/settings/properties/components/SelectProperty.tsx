@@ -13,7 +13,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PropertyForm from '../containers/PropertyForm';
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   queryParams: any;
@@ -31,7 +31,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
     const trigger = (
       <Button btnStyle="primary" icon="plus-circle">
-        Create
+        {__('Create')}
       </Button>
     );
 
@@ -45,7 +45,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger
-        title="Create property"
+        title={__('Create property')}
         trigger={trigger}
         content={content}
       />
@@ -53,7 +53,7 @@ class SelectProperty extends React.Component<Props, {}> {
   };
 
   generateUserOptions(array: IField[] = []): IOption[] {
-    return array.map(e => ({ label: e.text || '', value: e._id }));
+    return array.map(e => ({ label: __(e.text) || '', value: e._id }));
   }
 
   onChangeProperty = option => {
@@ -71,7 +71,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel>Property</ControlLabel>
+        <ControlLabel>{__('Property')}</ControlLabel>
         <p>{description}</p>
         <Row>
           <LeftContent>

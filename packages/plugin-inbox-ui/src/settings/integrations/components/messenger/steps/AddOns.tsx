@@ -12,7 +12,7 @@ import {
   IWebsite,
   IWebsiteMessengerApp
 } from '@erxes/ui-inbox/src/settings/integrations/types';
-
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -21,7 +21,6 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
 import styled from 'styled-components';
-import { __ } from '@erxes/ui/src/utils';
 
 const WebsiteItem = styled.div`
   padding: 12px 16px 0 16px;
@@ -192,7 +191,7 @@ class AddOns extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Knowledge Base</ControlLabel>
+            <ControlLabel>{__('Knowledge Base')}</ControlLabel>
             <p>
               {__(
                 'Which specific knowledgebase do you want to display in a separate tab in this messenger'
@@ -207,7 +206,7 @@ class AddOns extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Forms</ControlLabel>
+            <ControlLabel>{__('Forms')}</ControlLabel>
             <p>
               {__('Which form(s) do you want to display in this messenger')}?
             </p>
@@ -220,7 +219,7 @@ class AddOns extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Websites</ControlLabel>
+            <ControlLabel>{__('Websites')}</ControlLabel>
             <p>
               {__('Which website(s) do you want to display in this messenger')}?
             </p>
@@ -229,7 +228,9 @@ class AddOns extends React.Component<Props, State> {
             <FormGroup key={index}>
               <WebsiteItem>
                 <FormGroup>
-                  <ControlLabel required={true}>Website Title</ControlLabel>
+                  <ControlLabel required={true}>
+                    {__('Website Title')}
+                  </ControlLabel>
                   <FormControl
                     name="description"
                     onChange={this.onChangeInput.bind(
@@ -242,7 +243,9 @@ class AddOns extends React.Component<Props, State> {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <ControlLabel required={true}>Website Url</ControlLabel>
+                  <ControlLabel required={true}>
+                    {__('Website Url')}
+                  </ControlLabel>
                   <FormControl
                     value={website.url}
                     onChange={this.onChangeInput.bind(null, index, 'url')}
@@ -251,7 +254,9 @@ class AddOns extends React.Component<Props, State> {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <ControlLabel required={true}>Button text</ControlLabel>
+                  <ControlLabel required={true}>
+                    {__('Button text')}
+                  </ControlLabel>
                   <FormControl
                     onChange={this.onChangeInput.bind(
                       null,
@@ -272,7 +277,7 @@ class AddOns extends React.Component<Props, State> {
             icon="plus-circle"
             btnStyle="primary"
           >
-            Add a Website
+            {__('Add a Website')}
           </Button>
         </LeftItem>
       </FlexItem>

@@ -8,7 +8,7 @@ import React from 'react';
 import BrandStep from '../../containers/BrandStep';
 import SegmentStep from '../../containers/SegmentStep';
 import TagStep from '../../containers/TagStep';
-
+import { __ } from 'coreui/utils';
 type Props = {
   clearState: () => void;
   onChange: (
@@ -59,19 +59,19 @@ class MessageTypeStep extends React.Component<Props, State> {
     return (
       <SelectMessageType>
         <FormGroup>
-          <ControlLabel>Segment type:</ControlLabel>
+          <ControlLabel>{__('Segment type:')}</ControlLabel>
           <FormControl
             id="segmentType"
             value={this.state.segmentType}
             componentClass="select"
             options={[
-              { value: 'contacts:lead', label: 'Leads' },
-              { value: 'contacts:customer', label: 'Customers' },
-              { value: 'contacts:company', label: 'Company contacts' },
-              { value: 'cards:deal', label: 'Deal contacts' },
-              { value: 'cards:task', label: 'Task contacts' },
-              { value: 'cards:ticket', label: 'Ticket contacts' },
-              { value: 'cards:purchase', label: 'Purchase contacts' }
+              { value: 'contacts:lead', label: __('Leads') },
+              { value: 'contacts:customer', label: __('Customers') },
+              { value: 'contacts:company', label: __('Company contacts') },
+              { value: 'cards:deal', label: __('Deal contacts') },
+              { value: 'cards:task', label: __('Task contacts') },
+              { value: 'cards:ticket', label: __('Ticket contacts') },
+              { value: 'cards:purchase', label: __('Purchase contacts') }
             ]}
             onChange={this.onChange.bind(this, 'segmentType')}
           />
@@ -83,13 +83,13 @@ class MessageTypeStep extends React.Component<Props, State> {
   renderSelector() {
     const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
       value: opt,
-      label: opt.split(':')[1]
+      label: __(opt.split(':')[1])
     }));
 
     return (
       <SelectMessageType>
         <FormGroup>
-          <ControlLabel>Choose a message type:</ControlLabel>
+          <ControlLabel>{__('Choose a message type:')}</ControlLabel>
           <FormControl
             id="messageType"
             value={this.state.messageType}

@@ -3,7 +3,7 @@ import { ITrigger } from '../../../types';
 import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
 import { Description, FlexContainer, TriggerTabs } from '../../../styles';
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
-import { __ } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import ReEnrollmentContainer from '../../../containers/forms/triggers/ReEnrollment';
 import { Button, ModalTrigger } from '@erxes/ui/src';
@@ -101,7 +101,7 @@ class TriggerDetailForm extends React.Component<
 
     return (
       <ModalTrigger
-        title="Trigger Settings"
+        title={__('Trigger Settings')}
         trigger={trigger}
         content={content}
         hideHeader={true}
@@ -117,11 +117,11 @@ class TriggerDetailForm extends React.Component<
         <Description>
           <FlexContainer>
             <h4>
-              {activeTrigger.label} {__('based')}
+              {__(activeTrigger.label)} {__('based')}
             </h4>
             {this.renderSettings()}
           </FlexContainer>
-          <p>{activeTrigger.description}</p>
+          <p>{__(activeTrigger.description)}</p>
         </Description>
         <TriggerTabs>
           <Tabs full={true}>

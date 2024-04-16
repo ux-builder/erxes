@@ -8,7 +8,7 @@ import { IButtonMutateProps, IFormProps } from '../../types';
 import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
 import React, { useState } from 'react';
 import { IBrand } from '../types';
-import { __, router } from '../../utils';
+import { __ } from 'coreui/utils';
 type Props = {
   brand?: IBrand;
   closeModal?: () => void;
@@ -44,7 +44,7 @@ const BrandForm = (props: Props) => {
           icon="times-circle"
           onClick={closeModal}
         >
-          Cancel
+          {__('Cancel')}
         </Button>
 
         {renderButton({
@@ -80,7 +80,7 @@ const BrandForm = (props: Props) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -92,7 +92,7 @@ const BrandForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
 
           <FormControl
             {...formProps}

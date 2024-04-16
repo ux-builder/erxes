@@ -210,13 +210,13 @@ export default memo(({ id, data }: Props) => {
           </div>
           <div>
             <i className={`icon-${data.icon}`} />
-            {data.label}
+            {__(data.label)}
           </div>
         </div>
 
         {renderOptionalContent()}
 
-        <p>{data.description}</p>
+        <p>{__(data.description)}</p>
       </Trigger>
       {handleOptions.map(
         option =>
@@ -236,7 +236,7 @@ export default memo(({ id, data }: Props) => {
                     color: option.style.background
                   }}
                 >
-                  {option.label}
+                  {__(option.label)}
                 </div>
               )}
             </Handle>

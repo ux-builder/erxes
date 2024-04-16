@@ -18,10 +18,10 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField } from '@erxes/ui/src/types';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-
+import { __ } from 'coreui/utils';
 type Props = {
   group: IFieldGroup;
   groupsWithParents: IFieldGroup[];
@@ -178,8 +178,8 @@ class PropertyRow extends React.Component<Props, State> {
               id="isVisibleToCreate"
               defaultChecked={field.isVisibleToCreate}
               icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                checked: <span>{__('Yes')}</span>,
+                unchecked: <span>{__('No')}</span>
               }}
               onChange={e => this.updateSystemFieldsHandler(e, field)}
             />
@@ -192,8 +192,8 @@ class PropertyRow extends React.Component<Props, State> {
                 defaultChecked={field.isVisible}
                 disabled={!field.canHide}
                 icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
+                  checked: <span>{__('Yes')}</span>,
+                  unchecked: <span>{__('No')}</span>
                 }}
                 onChange={onChange}
               />
@@ -207,8 +207,8 @@ class PropertyRow extends React.Component<Props, State> {
                   defaultChecked={field.isVisibleInDetail}
                   disabled={!field.canHide}
                   icons={{
-                    checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    checked: <span>{__('Yes')}</span>,
+                    unchecked: <span>{__('No')}</span>
                   }}
                   onChange={onChange}
                 />
@@ -224,8 +224,8 @@ class PropertyRow extends React.Component<Props, State> {
                 id="isVisibleToCreate"
                 defaultChecked={field.isVisibleToCreate}
                 icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
+                  checked: <span>{__('Yes')}</span>,
+                  unchecked: <span>{__('No')}</span>
                 }}
                 onChange={e => this.updateSystemFieldsHandler(e, field)}
               />
@@ -235,8 +235,8 @@ class PropertyRow extends React.Component<Props, State> {
                 id="isRequired"
                 defaultChecked={field.isRequired}
                 icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
+                  checked: <span>{__('Yes')}</span>,
+                  unchecked: <span>{__('No')}</span>
                 }}
                 onChange={e => this.updateSystemFieldsHandler(e, field)}
               />
@@ -268,7 +268,7 @@ class PropertyRow extends React.Component<Props, State> {
       return (
         <EmptyState
           icon="circular"
-          text="There aren't any fields in this group"
+          text={__("There aren't any fields in this group")}
         />
       );
     }

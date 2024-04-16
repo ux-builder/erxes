@@ -11,7 +11,7 @@ import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import IntegrationListItem from './IntegrationListItem';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   integrations: IIntegration[];
@@ -80,7 +80,7 @@ class IntegrationList extends React.Component<Props, State> {
 
       return (
         <EmptyState
-          text="Start adding integrations now!"
+          text={__('Start adding integrations now!')}
           image="/images/actions/2.svg"
         />
       );
@@ -89,7 +89,8 @@ class IntegrationList extends React.Component<Props, State> {
     return (
       <>
         <Count>
-          {integrationsCount} {kind} integration{integrationsCount > 1 && 's'}
+          {integrationsCount} {kind} {__('integration')}
+          {integrationsCount > 1 && 's'}
         </Count>
         <Table>
           <thead>

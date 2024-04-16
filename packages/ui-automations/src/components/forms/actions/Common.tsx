@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrolledContent } from '../../../styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import { IAction } from '../../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
@@ -39,7 +39,7 @@ function Common(props: Props) {
           </Button>
 
           <Button btnStyle="success" icon="checked-1" onClick={onSave}>
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </ActionFooter>

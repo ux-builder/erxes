@@ -1,7 +1,7 @@
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ICategory } from '@erxes/ui/src/utils/categories';
 import React from 'react';
 import Select from 'react-select-plus';
@@ -37,7 +37,7 @@ class SelectCategories extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel>{'Categories'}</ControlLabel>
+        <ControlLabel>{__('Categories')}</ControlLabel>
         <p>
           {__('In which Category(s) do you want to add this property group?')}
         </p>

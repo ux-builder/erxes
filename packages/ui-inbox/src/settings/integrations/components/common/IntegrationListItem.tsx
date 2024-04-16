@@ -21,7 +21,7 @@ import React from 'react';
 import RefreshPermissionForm from '../facebook/RefreshPermission';
 import Tip from '@erxes/ui/src/components/Tip';
 import WithPermission from 'coreui/withPermission';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -174,7 +174,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       <WithPermission action="integrationsEdit">
         <ActionButtons>
           <ModalTrigger
-            title="Edit integration"
+            title={__('Edit integration')}
             trigger={editTrigger}
             content={content}
           />

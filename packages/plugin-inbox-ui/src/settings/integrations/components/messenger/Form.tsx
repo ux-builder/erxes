@@ -1,4 +1,5 @@
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import {
   Content,
@@ -319,7 +320,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const cancelButton = (
       <Link to="/settings/integrations">
         <Button btnStyle="simple" icon="times-circle">
-          Cancel
+          {__('Cancel')}
         </Button>
       </Link>
     );
@@ -334,7 +335,7 @@ class CreateMessenger extends React.Component<Props, State> {
           onClick={this.save}
         >
           {isLoading && <SmallLoader />}
-          Save
+          {__('Save')}
         </Button>
       </Button.Group>
     );
@@ -395,7 +396,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Steps>
               <Step
                 img="/images/icons/erxes-04.svg"
-                title="Appearance"
+                title={__('Appearance')}
                 onClick={this.onStepClick.bind(null, 'appearance')}
               >
                 <Appearance
@@ -409,7 +410,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-09.svg"
-                title="Greeting"
+                title={__('Greeting')}
                 onClick={this.onStepClick.bind(null, 'greeting')}
               >
                 <Greeting
@@ -427,7 +428,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-07.svg"
-                title="Intro"
+                title={__('Intro')}
                 onClick={this.onStepClick.bind(null, 'intro')}
               >
                 <Intro
@@ -457,7 +458,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-06.svg"
-                title="Default Settings"
+                title={__('Default Settings')}
                 onClick={this.onStepClick.bind(null, 'default')}
               >
                 <Options

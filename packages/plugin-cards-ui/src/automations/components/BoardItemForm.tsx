@@ -12,6 +12,7 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { BoardItemWrapper } from '../styles';
 import SelectFields from '@erxes/ui-automations/src/containers/forms/actions/SelectFields';
+import { __ } from 'coreui/utils';
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
@@ -128,7 +129,7 @@ class BoardItemForm extends React.Component<Props, State> {
     }));
 
     const labelOptions = (pipelineLabels || []).map(l => ({
-      label: l.name,
+      label: __(l.name),
       value: l._id || ''
     }));
 
@@ -140,7 +141,7 @@ class BoardItemForm extends React.Component<Props, State> {
           {this.renderSelect()}
           <PlaceHolderInput
             inputName="cardName"
-            label="Name"
+            label={__('Name')}
             config={config}
             onChange={this.onChange}
             triggerType={triggerType}
@@ -149,7 +150,7 @@ class BoardItemForm extends React.Component<Props, State> {
           />
           <PlaceHolderInput
             inputName="description"
-            label="Description"
+            label={__('Description')}
             config={config}
             onChange={this.onChange}
             triggerConfig={triggerConfig}
@@ -158,7 +159,7 @@ class BoardItemForm extends React.Component<Props, State> {
           />
           <PlaceHolderInput
             inputName="assignedTo"
-            label="Assigned To"
+            label={__('Assigned To')}
             config={config}
             onChange={this.onChange}
             triggerType={triggerType}
@@ -169,7 +170,7 @@ class BoardItemForm extends React.Component<Props, State> {
           />
           <PlaceHolderInput
             inputName="closeDate"
-            label="Close Date"
+            label={__('Close Date')}
             config={config}
             onChange={this.onChange}
             triggerType={triggerType}
@@ -204,7 +205,7 @@ class BoardItemForm extends React.Component<Props, State> {
           />
           <PlaceHolderInput
             inputName="labelIds"
-            label="Labels"
+            label={__('Labels')}
             config={config}
             onChange={this.onChange}
             triggerType={triggerType}
@@ -215,7 +216,7 @@ class BoardItemForm extends React.Component<Props, State> {
           />
           <PlaceHolderInput
             inputName="priority"
-            label="Priority"
+            label={__('Priority')}
             config={config}
             onChange={this.onChange}
             triggerType={triggerType}
@@ -240,7 +241,7 @@ class BoardItemForm extends React.Component<Props, State> {
                   })
               }
             ]}
-            label="Add Fields"
+            label={__('Add Fields')}
             excludedNames={[
               'name',
               'description',

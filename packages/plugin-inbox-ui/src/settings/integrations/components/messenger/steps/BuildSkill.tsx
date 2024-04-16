@@ -138,9 +138,9 @@ function BuildSkill({
       return (
         <Item key={index}>
           <FormGroup>
-            <ControlLabel required={true}>Select a skill</ControlLabel>
+            <ControlLabel required={true}>{__('Select a skill')}</ControlLabel>
             <Select
-              placeholder="Choose a select"
+              placeholder={__('Choose a select')}
               value={option.skillId}
               isLoading={loading}
               options={generateOptions(skills)}
@@ -149,7 +149,7 @@ function BuildSkill({
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel required={true}>Write a label</ControlLabel>
+            <ControlLabel required={true}>{__('Write a label')}</ControlLabel>
             <Description>
               {__('Display this text for visitors as an option')}
             </Description>
@@ -157,7 +157,7 @@ function BuildSkill({
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Message response</ControlLabel>
+            <ControlLabel>{__('Message response')}</ControlLabel>
             <FormControl
               value={option.response}
               onChange={handleResponseChange}
@@ -177,7 +177,7 @@ function BuildSkill({
     return (
       <Link to={'/settings/skills'} target="_blank">
         <Button btnStyle="primary" icon="plus-circle">
-          Create skill
+          {__('Create skill')}
         </Button>
       </Link>
     );
@@ -216,10 +216,10 @@ function BuildSkill({
     return (
       <>
         <FormGroup>
-          <ControlLabel>Choose a skill type</ControlLabel>
+          <ControlLabel>{__('Choose a skill type')}</ControlLabel>
           <Row>
             <Select
-              placeholder="Please select a skill type"
+              placeholder={__('Please select a skill type')}
               value={skillType}
               options={generateOptions(skillTypes)}
               onChange={handleSelectChange}
@@ -230,7 +230,7 @@ function BuildSkill({
         {skillType ? (
           <FormGroup>
             <Button btnStyle="simple" icon="plus-circle" onClick={handleAdd}>
-              Add skill option
+              {__('Add skill option')}
             </Button>
           </FormGroup>
         ) : null}
@@ -242,7 +242,7 @@ function BuildSkill({
   return (
     <>
       <FormGroup>
-        <ControlLabel>Show skill in messenger</ControlLabel>
+        <ControlLabel>{__('Show skill in messenger')}</ControlLabel>
         <Description>
           {__('Direct conversations by skills to team members')}
         </Description>

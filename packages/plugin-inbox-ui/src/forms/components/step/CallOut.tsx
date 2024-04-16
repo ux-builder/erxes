@@ -7,7 +7,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import { uploadHandler } from '@erxes/ui/src/utils';
 import ActionBar from '@erxes/ui/src/layout/components/ActionBar';
 import React from 'react';
@@ -227,13 +227,9 @@ class CallOut extends React.Component<Props, State> {
       <FlexItem>
         <FlexColumn>
           <LeftItem deactive={skip}>
-            <Info>
-              {__(
-                'Call Out is a brief message you wish to display before showing the full form.'
-              )}
-            </Info>
+            <Info>{__('calloutMessage')}</Info>
             <FormGroup>
-              <ControlLabel>Callout title</ControlLabel>
+              <ControlLabel>{__('Callout title')}</ControlLabel>
               <FormControl
                 id="callout-title"
                 type="text"
@@ -244,7 +240,7 @@ class CallOut extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Callout body</ControlLabel>
+              <ControlLabel>{__('Callout body')}</ControlLabel>
               <FormControl
                 id="callout-body"
                 componentClass="textarea"
@@ -255,7 +251,7 @@ class CallOut extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Callout button text</ControlLabel>
+              <ControlLabel>{__('Callout button text')}</ControlLabel>
               <FormControl
                 id="callout-btn-text"
                 value={calloutBtnText}
@@ -265,13 +261,13 @@ class CallOut extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Featured image</ControlLabel>
+              <ControlLabel>{__('Featured image')}</ControlLabel>
               <p>{__('You can upload only image file')}</p>
               {this.renderUploadImage()}
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Callout image size</ControlLabel>
+              <ControlLabel>{__('Callout image size')}</ControlLabel>
               <FormControl
                 id="validation"
                 componentClass="select"

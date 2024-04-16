@@ -10,9 +10,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-
+import { __ } from 'coreui/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -188,7 +188,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="validation">Validation:</ControlLabel>
+        <ControlLabel htmlFor="validation">{__('Validation:')}</ControlLabel>
 
         <FormControl
           id="validation"
@@ -222,7 +222,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="type">Options:</ControlLabel>
+        <ControlLabel htmlFor="type">{__('Options:')}</ControlLabel>
 
         <FormControl
           id="options"
@@ -243,7 +243,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        <ControlLabel htmlFor="locationOptions">{__('Options:')}</ControlLabel>
         <LocationOptions
           locationOptions={field.locationOptions || []}
           onChange={this.onChangeLocation}
@@ -266,7 +266,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <Button btnStyle="danger" onClick={onDelete} icon="minus-circle-1">
-        Delete
+        {__('Delete')}
       </Button>
     );
   }
@@ -294,8 +294,8 @@ class FieldForm extends React.Component<Props, State> {
           <Toggle
             defaultChecked={field.type === 'multiSelect'}
             icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              checked: <span>{__('Yes')}</span>,
+              unchecked: <span>{__('No')}</span>
             }}
             onChange={onChange}
           />
@@ -371,7 +371,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="pageNumber">Page number</ControlLabel>
+        <ControlLabel htmlFor="pageNumber">{__('Page number')}</ControlLabel>
         <Select
           isRequired={true}
           value={field.pageNumber || 1}
@@ -420,7 +420,7 @@ class FieldForm extends React.Component<Props, State> {
         >
           <FormGroup>
             <ControlLabel htmlFor="text" required={true}>
-              Field Label
+              {__('Field Label')}
             </ControlLabel>
 
             <FormControl
@@ -433,7 +433,9 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel htmlFor="description">Field description</ControlLabel>
+            <ControlLabel htmlFor="description">
+              {__('Field description')}
+            </ControlLabel>
             <EditorCK
               content={field.description || ''}
               toolbar={[
@@ -472,8 +474,8 @@ class FieldForm extends React.Component<Props, State> {
               <Toggle
                 defaultChecked={field.isRequired || false}
                 icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
+                  checked: <span>{__('Yes')}</span>,
+                  unchecked: <span>{__('No')}</span>
                 }}
                 onChange={toggle}
               />
@@ -537,7 +539,7 @@ class FieldForm extends React.Component<Props, State> {
               icon="times-circle"
               onClick={onCancel}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
 
             {this.renderExtraButton()}
@@ -589,7 +591,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Property type:</ControlLabel>
+          <ControlLabel>{__('Property type:')}</ControlLabel>
           <FormControl
             id="propertyGroup"
             componentClass="select"
@@ -597,8 +599,8 @@ class FieldForm extends React.Component<Props, State> {
             onChange={this.onPropertyGroupChange}
           >
             <option value={''} />
-            <option value={'contacts:customer'}>Customer</option>
-            <option value={'contacts:company'}>Company</option>
+            <option value={'contacts:customer'}>{__('Customer')}</option>
+            <option value={'contacts:company'}>{__('Company')}</option>
           </FormControl>
         </FormGroup>
       </>
@@ -623,7 +625,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Categories:</ControlLabel>
+          <ControlLabel>{__('Categories:')}</ControlLabel>
           <FormControl
             id="productCategories"
             componentClass="select"
@@ -657,7 +659,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="validation">Field width:</ControlLabel>
+        <ControlLabel htmlFor="validation">{__('Field width:')}</ControlLabel>
 
         <FormControl
           id="validation"
@@ -665,10 +667,10 @@ class FieldForm extends React.Component<Props, State> {
           value={field.column || ''}
           onChange={onChangeColumn}
         >
-          <option value={1}>Full width</option>
-          <option value={2}>Half width</option>
-          <option value={3}>1/3 width</option>
-          <option value={4}>1/4 width</option>
+          <option value={1}>{__('Full width')}</option>
+          <option value={2}>{__('Half width')}</option>
+          <option value={3}>{__('1/3 width')}</option>
+          <option value={4}>{__('1/4 width')}</option>
         </FormControl>
       </FormGroup>
     );
@@ -683,7 +685,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="html">HTML:</ControlLabel>
+        <ControlLabel htmlFor="html">{__('HTML:')}</ControlLabel>
         <EditorCK
           content={field.content || ''}
           toolbar={[
@@ -727,9 +729,9 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="text" required={false}>
-          Group Name
+          {__('Group Name')}
         </ControlLabel>
-        <p>Use with logic and group multiple fields</p>
+        <p>{__('Use with logic and group multiple fields')}</p>
         <FormControl
           id="GroupName"
           type="text"
@@ -758,7 +760,9 @@ class FieldForm extends React.Component<Props, State> {
           <SelectProperty
             queryParams={{ type: group }}
             defaultValue={defaultValue}
-            description="Any data collected through this field will copy to:"
+            description={__(
+              'Any data collected through this field will copy to:'
+            )}
             onChange={this.onPropertyChange}
           />
         </FormGroup>
@@ -779,7 +783,8 @@ class FieldForm extends React.Component<Props, State> {
       >
         <Modal.Header closeButton={true}>
           <Modal.Title>
-            {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
+            {mode === 'create' ? __('Add') : __('Edit')} {__(field.type)}{' '}
+            {__('field')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body id="ModalBody" className="md-padding">

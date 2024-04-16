@@ -32,12 +32,15 @@ class ClientPortal extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title="Business portal" breadcrumb={breadcrumb} />
+          <Wrapper.Header
+            title={__('Business portal')}
+            breadcrumb={breadcrumb}
+          />
         }
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title="Business Portal"
+            title={__('Business Portal')}
             description={__(
               'Add unlimited Business Portals with unlimited support to further your growth and accelerate your business'
             )}
@@ -55,7 +58,7 @@ class ClientPortal extends React.Component<Props, {}> {
             }
             count={count}
             loading={loading}
-            emptyText="Getting Started with Business Portal"
+            emptyText={__('Getting Started with Business Portal')}
             emptyImage="/images/actions/13.svg"
           />
         }

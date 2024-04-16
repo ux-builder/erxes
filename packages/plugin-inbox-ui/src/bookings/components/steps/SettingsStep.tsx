@@ -9,7 +9,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-
+import { __ } from 'coreui/utils';
 type Name = 'languageCode';
 
 type Props = {
@@ -40,10 +40,8 @@ function SettingsStep({
     <FlexItemContainer>
       <LeftItem>
         <FormGroup>
-          <ControlLabel required={true}>Booking Title</ControlLabel>
-          <Description>
-            Name this widget to differentiate from the rest internally.
-          </Description>
+          <ControlLabel required={true}>{__('Booking Title')}</ControlLabel>
+          <Description>{__('widgetName')}</Description>
           <FormControl
             type="text"
             onChange={(e: any) => onChange('title', e.target.value)}
@@ -67,7 +65,7 @@ function SettingsStep({
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Language</ControlLabel>
+          <ControlLabel required={true}>{__('Language')}</ControlLabel>
           <Select
             placeholder="Choose language"
             options={LANGUAGES.map(el => ({

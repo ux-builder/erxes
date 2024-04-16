@@ -9,7 +9,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { IUom } from '../../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   uom?: IUom;
   closeModal?: () => void;
@@ -42,7 +42,7 @@ const BrandForm = (props: Props) => {
           icon="times-circle"
           onClick={closeModal}
         >
-          Cancel
+          {__('Cancel')}
         </Button>
 
         {renderButton({
@@ -60,7 +60,7 @@ const BrandForm = (props: Props) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -72,7 +72,7 @@ const BrandForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Code</ControlLabel>
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
 
           <FormControl
             {...formProps}

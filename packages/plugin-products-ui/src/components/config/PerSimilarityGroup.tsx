@@ -10,7 +10,7 @@ import {
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { IConfigsMap } from '../../types';
 
@@ -119,7 +119,7 @@ class PerSettings extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Title</ControlLabel>
+              <ControlLabel>{__('Title')}</ControlLabel>
               <FormControl
                 name="title"
                 value={rule.title}
@@ -129,7 +129,7 @@ class PerSettings extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Field Group</ControlLabel>
+              <ControlLabel>{__('Field Group')}</ControlLabel>
               <FormControl
                 name="groupId"
                 componentClass="select"
@@ -147,7 +147,7 @@ class PerSettings extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Field</ControlLabel>
+              <ControlLabel>{__('Field')}</ControlLabel>
               <FormControl
                 name="fieldId"
                 componentClass="select"
@@ -220,7 +220,7 @@ class PerSettings extends React.Component<Props, State> {
             icon="plus"
             uppercase={false}
           >
-            Add Rule
+            {__('Add Rule')}
           </Button>
           <Button
             btnStyle="simple"
@@ -228,7 +228,7 @@ class PerSettings extends React.Component<Props, State> {
             onClick={this.onDelete}
             uppercase={false}
           >
-            Delete
+            {__('Delete')}
           </Button>
 
           <Button
@@ -238,7 +238,7 @@ class PerSettings extends React.Component<Props, State> {
             uppercase={false}
             disabled={config.codeMask ? false : true}
           >
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>

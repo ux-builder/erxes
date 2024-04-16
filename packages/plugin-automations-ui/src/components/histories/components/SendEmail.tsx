@@ -6,9 +6,9 @@ import {
   FormGroup,
   Label,
   ModalTrigger,
-  Tip,
-  __
+  Tip
 } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import { Column } from '@erxes/ui/src/styles/main';
 import { LabelContainer } from '../styles';

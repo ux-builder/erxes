@@ -3,7 +3,7 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { PRODUCT_INFO } from '@erxes/ui-products/src/constants';
 import { InfoDetail } from '../../../styles';
@@ -154,11 +154,11 @@ class ProductsMerge extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <Columns>
-          <Column className='multiple'>
+          <Column className="multiple">
             {this.renderProduct(product1, 'plus-1')}
           </Column>
 
-          <Column className='multiple'>
+          <Column className="multiple">
             {this.renderProduct(product2, 'plus-1')}
           </Column>
 
@@ -166,12 +166,12 @@ class ProductsMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
           <Button
-            type='submit'
-            btnStyle='success'
+            type="submit"
+            btnStyle="success"
             icon={mergeProductLoading ? undefined : 'check-circle'}
             disabled={mergeProductLoading}
           >

@@ -76,7 +76,7 @@ class DefaultForm extends React.Component<Props> {
           </Button>
 
           <Button btnStyle="success" icon="checked-1" onClick={onSave}>
-            Saves
+            {__('Saves')}
           </Button>
         </ModalFooter>
       </>

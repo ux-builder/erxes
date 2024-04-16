@@ -12,7 +12,8 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { __, uploadHandler } from '@erxes/ui/src/utils';
+import { uploadHandler } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChange: (
@@ -162,7 +163,7 @@ class Appearance extends React.Component<Props, State> {
           </SubItem>
 
           <SubItem>
-            <ControlLabel>Choose a wallpaper</ControlLabel>
+            <ControlLabel>{__('Choose a wallpaper')}</ControlLabel>
 
             <WidgetBackgrounds>
               {this.renderWallpaperSelect('1')}

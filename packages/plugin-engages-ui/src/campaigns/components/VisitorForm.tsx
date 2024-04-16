@@ -7,7 +7,7 @@ import {
   StepWrapper,
   TitleContainer
 } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import { MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageMessage,
@@ -112,7 +112,7 @@ class VisitorForm extends React.Component<Props, State> {
     const cancelButton = (
       <Link to="/campaigns">
         <Button btnStyle="simple" icon="times-circle">
-          Cancel
+          {__('Cancel')}
         </Button>
       </Link>
     );
@@ -127,7 +127,7 @@ class VisitorForm extends React.Component<Props, State> {
               icon={isActionLoading ? undefined : 'file-alt'}
               onClick={this.handleSubmit.bind(this, 'draft')}
             >
-              Save & Draft
+              {__('Save & Draft')}
             </Button>
             <Button
               disabled={isActionLoading}
@@ -135,7 +135,7 @@ class VisitorForm extends React.Component<Props, State> {
               icon={isActionLoading ? undefined : 'check-circle'}
               onClick={this.handleSubmit.bind(this, 'live')}
             >
-              Save & Live
+              {__('Save & Live')}
             </Button>
           </>
         );
@@ -185,7 +185,7 @@ class VisitorForm extends React.Component<Props, State> {
         <Steps maxStep={maxStep} active={activeStep}>
           <Step
             img="/images/icons/erxes-02.svg"
-            title="Who is this campaign for?"
+            title={__('Who is this campaign for?')}
           >
             <ConditionsRule
               rules={this.state.rules}
@@ -195,7 +195,7 @@ class VisitorForm extends React.Component<Props, State> {
 
           <Step
             img="/images/icons/erxes-08.svg"
-            title="Compose your campaign"
+            title={__('Compose your campaign')}
             noButton={true}
           >
             <MessengerForm

@@ -30,7 +30,7 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-
+import { __ } from 'coreui/utils';
 import CategoryForm from '../containers/CategoryForm';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import React from 'react';
@@ -208,15 +208,15 @@ function AssetForm({
 
       return (
         <FormGroup>
-          <ControlLabel required={true}>Category</ControlLabel>
+          <ControlLabel required={true}>{__('Category')}</ControlLabel>
           <FormWrapper>
             <SelectWithAssetCategory
-              label="Choose Asset Category"
+              label={__('Choose Asset Category')}
               name="categoryId"
               multi={false}
               initialValue={categoryDefaultValue()}
               onSelect={handleSelect}
-              customOption={{ value: '', label: 'Choose Asset Category' }}
+              customOption={{ value: '', label: __('Choose Asset Category') }}
             />
             {renderFormTrigger(addCategoryTrigger)}
           </FormWrapper>
@@ -229,7 +229,7 @@ function AssetForm({
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
+              <ControlLabel required={true}>{__('Name')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="name"
@@ -240,11 +240,11 @@ function AssetForm({
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Code</ControlLabel>
+              <ControlLabel required={true}>{__('Code')}</ControlLabel>
               <p>
-                Depending on your business type, you may type in a barcode or
-                any other UPC (Universal Asset Code). If you don't use UPC, type
-                in any numeric value to differentiate your assets.
+                {__(
+                  "Depending on your business type, you may type in a barcode or any other UPC (Universal Asset Code). If you don't use UPC, type in any numeric value to differentiate your assets."
+                )}
               </p>
               <FormControl
                 {...formProps}
@@ -256,11 +256,11 @@ function AssetForm({
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Vendor</ControlLabel>
+              <ControlLabel>{__('Vendor')}</ControlLabel>
               <SelectCompanies
-                label="Choose an vendor"
+                label={__('Choose an vendor')}
                 name="vendorId"
-                customOption={{ value: '', label: 'No vendor chosen' }}
+                customOption={{ value: '', label: __('No vendor chosen') }}
                 initialValue={object.vendorId}
                 onSelect={onComboEvent.bind(this, 'vendorId')}
                 multi={false}
@@ -269,11 +269,11 @@ function AssetForm({
 
             <FormGroup>
               <div>
-                <ControlLabel required={true}>Unit price</ControlLabel>
+                <ControlLabel required={true}>{__('Unit price')}</ControlLabel>
                 <p>
-                  Please ensure you have set the default currency in the{' '}
-                  <a href="/settings/general"> {'General Settings'}</a> of the
-                  System Configuration.
+                  {__('Please ensure you have set the default currency in the')}{' '}
+                  <a href="/settings/general"> {'General Settings'}</a>{' '}
+                  {__('of the System Configuration.')}
                 </p>
               </div>
               <FormControl
@@ -306,7 +306,7 @@ function AssetForm({
         </TabContainer>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FlexItem>
             <EditorCK
               content={description}
@@ -337,7 +337,7 @@ function AssetForm({
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Featured image</ControlLabel>
+              <ControlLabel>{__('Featured image')}</ControlLabel>
 
               <Uploader
                 defaultFileList={attachments}
@@ -349,7 +349,7 @@ function AssetForm({
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Secondary Images</ControlLabel>
+              <ControlLabel>{__('Secondary Images')}</ControlLabel>
 
               <Uploader
                 defaultFileList={attachmentsMore}
@@ -368,7 +368,7 @@ function AssetForm({
             icon="times-circle"
             uppercase={false}
           >
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

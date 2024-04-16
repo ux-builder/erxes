@@ -8,7 +8,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type CommonTypes = {
@@ -69,7 +69,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={false}>Token</ControlLabel>
+          <ControlLabel required={false}>{__('Token')}</ControlLabel>
           <FormControl
             name="token"
             required={false}
@@ -80,7 +80,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={false}>Origin</ControlLabel>
+          <ControlLabel required={false}>{__('Origin')}</ControlLabel>
           <FormControl
             name="origin"
             required={false}
@@ -191,7 +191,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             onClick={closeModal}
             icon="times-circle"
           >
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button
             onClick={saveIntegration}

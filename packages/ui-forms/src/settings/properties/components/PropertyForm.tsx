@@ -18,9 +18,9 @@ import {
   ILocationOption,
   IObjectListConfig
 } from '@erxes/ui/src/types';
-import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
-
+import { __ } from 'coreui/utils';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import PropertyLogics from '../containers/PropertyLogics';
 import { IFieldGroup } from '../types';
@@ -253,7 +253,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>Object List Configs:</ControlLabel>
+        <ControlLabel>{__('Object List Configs:')}</ControlLabel>
 
         <ObjectListConfigs
           objectListConfigs={objectListConfigs}
@@ -272,7 +272,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        <ControlLabel htmlFor="locationOptions">{__('Options:')}</ControlLabel>
         {locationOptions.length > 0 && (
           <Map
             id={this.props.field?._id || Math.random().toString(10)}
@@ -306,13 +306,13 @@ class PropertyForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>Show in card</ControlLabel>
+        <ControlLabel>{__('Show in card')}</ControlLabel>
         <Toggle
           checked={showInCard}
           onChange={this.onSwitchChange}
           icons={{
-            checked: <span>Yes</span>,
-            unchecked: <span>No</span>
+            checked: <span>{__('Yes')}</span>,
+            unchecked: <span>{__('No')}</span>
           }}
         />
       </FormGroup>
@@ -322,14 +322,18 @@ class PropertyForm extends React.Component<Props, State> {
   renderAddGroup = () => {
     const { queryParams } = this.props;
 
-    const trigger = <Button>Create group</Button>;
+    const trigger = <Button>{__('Create group')}</Button>;
 
     const content = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
 
     return (
-      <ModalTrigger title="Create group" trigger={trigger} content={content} />
+      <ModalTrigger
+        title={__('Create group')}
+        trigger={trigger}
+        content={content}
+      />
     );
   };
 
@@ -344,7 +348,7 @@ class PropertyForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name:</ControlLabel>
+          <ControlLabel required={true}>{__('Name:')}</ControlLabel>
           <FormControl
             {...formProps}
             name="text"
@@ -355,7 +359,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description:</ControlLabel>
+          <ControlLabel>{__('Description:')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -365,7 +369,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Code:</ControlLabel>
+          <ControlLabel>{__('Code:')}</ControlLabel>
           <FormControl
             {...formProps}
             name="code"
@@ -374,7 +378,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Group:</ControlLabel>
+          <ControlLabel required={true}>{__('Group:')}</ControlLabel>
           <Row>
             <FormControl
               {...formProps}
@@ -398,7 +402,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Type:</ControlLabel>
+          <ControlLabel required={true}>{__('Type:')}</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -412,7 +416,7 @@ class PropertyForm extends React.Component<Props, State> {
             {inputTypes.map(inputType => {
               return (
                 <option value={inputType.value} key={Math.random()}>
-                  {inputType.label}
+                  {__(inputType.label)}
                 </option>
               );
             })}
@@ -425,7 +429,7 @@ class PropertyForm extends React.Component<Props, State> {
 
         {type === 'input' && (
           <FormGroup>
-            <ControlLabel>Validation:</ControlLabel>
+            <ControlLabel>{__('Validation:')}</ControlLabel>
 
             <FormControl
               {...formProps}
@@ -434,10 +438,10 @@ class PropertyForm extends React.Component<Props, State> {
               defaultValue={object.validation || ''}
             >
               <option />
-              <option value="email">Email</option>
-              <option value="number">Number</option>
-              <option value="date">Date</option>
-              <option value="datetime">Date Time</option>
+              <option value="email">{__('Email')}</option>
+              <option value="number">{__('Number')}</option>
+              <option value="date">{__('Date')}</option>
+              <option value="datetime">{__('Date Time')}</option>
             </FormControl>
           </FormGroup>
         )}
@@ -469,7 +473,7 @@ class PropertyForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

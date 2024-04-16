@@ -1,6 +1,6 @@
 import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { __, getEnv } from '@erxes/ui/src/utils';
-
+import { getEnv } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
@@ -220,7 +220,7 @@ class BulkDocuments extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Copies</ControlLabel>
+                <ControlLabel>{__('Copies')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="copies"
@@ -229,7 +229,7 @@ class BulkDocuments extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Width</ControlLabel>
+                <ControlLabel>{__('Width')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="width"
@@ -238,7 +238,7 @@ class BulkDocuments extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Branch</ControlLabel>
+                <ControlLabel>{__('Branch')}</ControlLabel>
                 <SelectBranches
                   label={__('Choose branch')}
                   name="branchId"
@@ -250,7 +250,7 @@ class BulkDocuments extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Department</ControlLabel>
+                <ControlLabel>{__('Department')}</ControlLabel>
                 <SelectDepartments
                   label={__('Choose branch')}
                   name="departmentId"
@@ -262,7 +262,7 @@ class BulkDocuments extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Date</ControlLabel>
+                <ControlLabel>{__('Date')}</ControlLabel>
                 <Datetime
                   inputProps={{ placeholder: 'Click to select a date' }}
                   dateFormat="YYYY-MM-DD"
@@ -278,7 +278,7 @@ class BulkDocuments extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>is Date</ControlLabel>
+                <ControlLabel>{__('is Date')}</ControlLabel>
                 <FormControl
                   componentClass="checkbox"
                   required={true}
@@ -320,14 +320,14 @@ class BulkDocuments extends React.Component<Props, State> {
               ))}
             </FormColumn>
           </FormWrapper>
-          <Button onClick={this.print}>Print</Button>
+          <Button onClick={this.print}>{__('Print')}</Button>
         </>
       );
     };
 
     return (
       <ModalTrigger
-        title="Print documents"
+        title={__('Print documents')}
         size="lg"
         isOpen={true}
         content={content}

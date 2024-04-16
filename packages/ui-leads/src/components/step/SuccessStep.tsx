@@ -3,8 +3,8 @@ import {
   ImagePreview,
   ImageUpload
 } from '@erxes/ui/src/components/step/style';
-import { __, readFile, uploadHandler } from '@erxes/ui/src/utils';
-
+import { readFile, uploadHandler } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
@@ -159,7 +159,9 @@ class SuccessStep extends React.Component<Props, State> {
       <div>
         <FormGroup>
           <ControlLabel>
-            Verify the responder's email address with a confirmation email
+            {__(
+              "Verify the responder's email address with a confirmation email"
+            )}
           </ControlLabel>
           <p>{__('Verification button would be added to the email.')}</p>
           <Toggle
@@ -169,13 +171,13 @@ class SuccessStep extends React.Component<Props, State> {
               this.onChangeFunction('verifyEmail', e.target.checked);
             }}
             icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              checked: <span>{__('Yes')}</span>,
+              unchecked: <span>{__('No')}</span>
             }}
           />
         </FormGroup>
         <FormGroup>
-          <label>Send from</label>
+          <label>{__('Send from')}</label>
           <FormControl
             type="text"
             id="fromEmail"
@@ -184,7 +186,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Subject Line</label>
+          <label>{__('Subject Line')}</label>
           <FormControl
             type="text"
             id="userEmailTitle"
@@ -195,7 +197,7 @@ class SuccessStep extends React.Component<Props, State> {
 
         {isEnabled('engages') && (
           <FormGroup>
-            <label>Email templates:</label>
+            <label>{__('Email templates:')}</label>
             <p>{__('Insert email template to content')}</p>
 
             <Select
@@ -207,7 +209,7 @@ class SuccessStep extends React.Component<Props, State> {
           </FormGroup>
         )}
         <FormGroup>
-          <label>Message</label>
+          <label>{__('Message')}</label>
           <EditorCK
             content={leadData.userEmailContent || ''}
             onChange={e => this.onEditorChange(e, 'userEmailContent')}
@@ -216,17 +218,19 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Attachments: </ControlLabel>
+          <ControlLabel>{__('Attachments:')} </ControlLabel>
           <Uploader
             defaultFileList={leadData.attachments || []}
             onChange={this.onChangeAttachment}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Get email notifications for new responses</ControlLabel>
+          <ControlLabel>
+            {__('Get email notifications for new responses')}
+          </ControlLabel>
         </FormGroup>
         <FormGroup>
-          <label>Admin emails</label>
+          <label>{__('Admin emails')}</label>
           <FormControl
             id="adminEmails"
             type="text"
@@ -237,7 +241,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Subject Line</label>
+          <label>{__('Subject Line')}</label>
           <FormControl
             type="text"
             defaultValue={leadData.adminEmailTitle}
@@ -246,7 +250,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Message</label>
+          <label>{__('Message')}</label>
           <EditorCK
             content={leadData.adminEmailContent || ''}
             onChange={e => this.onEditorChange(e, 'adminEmailContent')}
@@ -272,7 +276,9 @@ class SuccessStep extends React.Component<Props, State> {
     return (
       <div>
         <FormGroup>
-          <ControlLabel>Redirect to this page after submission</ControlLabel>
+          <ControlLabel>
+            {__('Redirect to this page after submission')}
+          </ControlLabel>
           <FormControl
             type="text"
             defaultValue={leadData.redirectUrl}
@@ -315,7 +321,7 @@ class SuccessStep extends React.Component<Props, State> {
     return (
       <div>
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel>{__('Title')}</ControlLabel>
           <FormControl
             id="thankTitle"
             type="text"
@@ -325,7 +331,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Confirmation message</ControlLabel>
+          <ControlLabel>{__('Confirmation message')}</ControlLabel>
           <FormControl
             id="thankContent"
             type="text"
@@ -335,12 +341,12 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Featured image</ControlLabel>
+          <ControlLabel>{__('Featured image')}</ControlLabel>
           <p>{__('You can upload only image file')}</p>
           {this.renderUploadImage()}
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Confirm image size</ControlLabel>
+          <ControlLabel>{__('Confirm image size')}</ControlLabel>
           <FormControl
             id="validation"
             componentClass="select"
@@ -367,7 +373,7 @@ class SuccessStep extends React.Component<Props, State> {
 
       return (
         <option key={e.value} value={e.value}>
-          {e.text}
+          {__(e.text)}
         </option>
       );
     });
@@ -453,10 +459,8 @@ class SuccessStep extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Confirmation message type</ControlLabel>
-            <p>
-              {__(`You can set only one confirmation message type at a time.`)}
-            </p>
+            <ControlLabel>{__('Confirmation message type')}</ControlLabel>
+            <p>{__(`confirmMessage`)}</p>
             <FormControl
               componentClass="select"
               defaultValue={successAction}

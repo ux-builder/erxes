@@ -1,5 +1,5 @@
 import { days, hours } from '@erxes/ui/src/constants/integrations';
-
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
@@ -96,7 +96,7 @@ class OnlineHours extends React.Component<Props, State> {
           clearable={false}
         />
 
-        <span>from</span>
+        <span>{__('from')}</span>
         <Select
           className="flex-item"
           onChange={onFromChange}
@@ -105,7 +105,7 @@ class OnlineHours extends React.Component<Props, State> {
           clearable={false}
         />
 
-        <span>to</span>
+        <span>{__('to')}</span>
         <Select
           className="flex-item"
           onChange={onToChange}
@@ -124,7 +124,7 @@ class OnlineHours extends React.Component<Props, State> {
   render() {
     return (
       <FormGroup>
-        <ControlLabel>Online hours</ControlLabel>
+        <ControlLabel>{__('Online hours')}</ControlLabel>
 
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour)
@@ -137,7 +137,7 @@ class OnlineHours extends React.Component<Props, State> {
           onClick={this.addTime}
           icon="add"
         >
-          Add another time
+          {__('Add another time')}
         </Button>
       </FormGroup>
     );

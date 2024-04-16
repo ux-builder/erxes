@@ -9,7 +9,7 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { TopHeader } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -76,7 +76,7 @@ function ClientPortalList({
         uppercase={false}
         icon="plus-circle"
       >
-        {`Add New ${title}`}
+        {__('newTitle', { title: __(title) })}
       </Button>
     );
 
@@ -93,7 +93,7 @@ function ClientPortalList({
       <TopHeader>
         <ModalTrigger
           size="xl"
-          title={`New ${title}`}
+          title={__(`newTit`, { title: __(title) })}
           trigger={addBrand}
           enforceFocus={false}
           content={content}
@@ -112,7 +112,7 @@ function ClientPortalList({
       {!loading && totalCount === 0 && (
         <EmptyState
           image="/images/actions/18.svg"
-          text={`There is no ${title}`}
+          text={__('noPortal', { title: title })}
         />
       )}
     </LeftSidebar>

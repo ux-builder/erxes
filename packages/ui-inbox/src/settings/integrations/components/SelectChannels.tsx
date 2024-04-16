@@ -9,7 +9,7 @@ import { IChannel } from '../../channels/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   channels: IChannel[];
@@ -36,7 +36,7 @@ class SelectChannels extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger
-        title="Create channel"
+        title={__('Create channel')}
         trigger={trigger}
         content={content}
       />
@@ -72,7 +72,7 @@ class SelectChannels extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel required={isRequired}>Channel</ControlLabel>
+        <ControlLabel required={isRequired}>{__('Channel')}</ControlLabel>
         <p>{description}</p>
         <Row>
           <LeftContent>

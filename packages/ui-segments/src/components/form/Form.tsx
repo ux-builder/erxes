@@ -746,9 +746,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       state === 'list' &&
       isModal
     ) {
+      const displayCount = count === -1 ? __('없음') : count;
       return (
         <Count>
-          {__('Items Found')}: <span>{count}</span>
+          {__('Items Found')}: <span>{displayCount}</span>
         </Count>
       );
     }

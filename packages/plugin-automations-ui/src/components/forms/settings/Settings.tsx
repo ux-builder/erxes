@@ -8,7 +8,7 @@ import {
 } from '../../../styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import OnlineHours from '../../OnlineHours';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
@@ -113,7 +113,7 @@ class Settings extends React.Component<Props, State> {
           required={false}
           name="date"
           onChange={date => this.onDateChange(date)}
-          placeholder={'Start date'}
+          placeholder={__('Start date')}
           dateFormat={'YYYY-MM-DD'}
         />
 
@@ -140,7 +140,7 @@ class Settings extends React.Component<Props, State> {
         <div>
           <h3>{currentTab}</h3>
           <div>
-            <p>{'What times do you want the actions to execute'}?</p>
+            <p>{__('What times do you want the actions to execute')}?</p>
             <FormGroup>
               <FormControl
                 componentClass="checkbox"
@@ -165,9 +165,9 @@ class Settings extends React.Component<Props, State> {
 
           <div>
             <p>
-              {
+              {__(
                 'What upcoming dates do you want to pause actions from executing?'
-              }
+              )}
               ?
             </p>
             <DateControlWrapper>
@@ -182,7 +182,7 @@ class Settings extends React.Component<Props, State> {
                 onClick={this.add}
                 icon="add"
               >
-                Add another dates
+                {__('Add another dates')}
               </Button>
             </DateControlWrapper>
           </div>
@@ -203,13 +203,13 @@ class Settings extends React.Component<Props, State> {
             className={currentTab === 'general' ? 'active' : ''}
             onClick={this.onClickTab.bind(this, 'general')}
           >
-            General
+            {__('General')}
           </li>
           <li
             className={currentTab === 'suppression' ? 'active' : ''}
             onClick={this.onClickTab.bind(this, 'suppression')}
           >
-            Unenrollment and Suppression
+            {__('Unenrollment and Suppression')}
           </li>
         </LeftSidebar>
         <SettingsContent>{this.renderContent()}</SettingsContent>

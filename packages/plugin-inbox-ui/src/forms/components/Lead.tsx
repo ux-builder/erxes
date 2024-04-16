@@ -27,7 +27,7 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import StyleSheetStep from './step/StyleSheetStep';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -467,8 +467,8 @@ class Lead extends React.Component<Props, State> {
             </Steps>
             <ControlWrapper>
               <Indicator>
-                {__('You are')} {integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> {__('form')}
+                {__('You are')} <strong>{__(title)}</strong> {__('form')}
+                {integration ? __('editing') : __('creating')}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>

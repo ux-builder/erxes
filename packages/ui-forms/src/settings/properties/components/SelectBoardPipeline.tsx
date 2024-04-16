@@ -4,7 +4,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IOption } from '@erxes/ui/src/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { LinkButton } from '@erxes/ui/src/styles/main';
@@ -178,7 +178,7 @@ class SelectBoards extends React.Component<Props, State> {
   render() {
     return (
       <FormGroup>
-        <ControlLabel>{'Board & PipeLines'}</ControlLabel>
+        <ControlLabel>{__('Board & PipeLines')}</ControlLabel>
         <p>{__('In which Board(s) do you want to add this property group?')}</p>
 
         {this.state.selectItems.map(item => this.renderSelect(item))}

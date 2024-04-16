@@ -5,8 +5,8 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { InfoWrapper } from '@erxes/ui/src/styles/main';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { Action, Name } from '@erxes/ui-contacts/src/customers/styles';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {

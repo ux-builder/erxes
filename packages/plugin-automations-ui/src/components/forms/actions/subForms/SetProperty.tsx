@@ -1,7 +1,7 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert, __ } from '@erxes/ui/src';
-
+import { Alert } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
@@ -184,7 +184,7 @@ class SetProperty extends React.Component<Props, State> {
       return (
         <GroupWrapper key={rule.id}>
           <FormGroup>
-            <ControlLabel>Field</ControlLabel>
+            <ControlLabel>{__('Field')}</ControlLabel>
 
             <Select
               value={rule.field}
@@ -198,7 +198,7 @@ class SetProperty extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Operator</ControlLabel>
+            <ControlLabel>{__('Operator')}</ControlLabel>
 
             <Select
               value={rule.operator}
@@ -213,7 +213,7 @@ class SetProperty extends React.Component<Props, State> {
 
           <PlaceHolderInput
             inputName="value"
-            label="Value"
+            label={__('Value')}
             config={rule}
             onChange={onChangeValue}
             triggerType={triggerType}
@@ -255,13 +255,13 @@ class SetProperty extends React.Component<Props, State> {
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Property type</ControlLabel>
+          <ControlLabel>{__('Property type')}</ControlLabel>
 
           <Select
             isRequired={true}
             value={type || ''}
             options={propertyTypesConst.map(p => ({
-              label: p.label,
+              label: __(p.label),
               value: p.value
             }))}
             onChange={this.onChangeType}

@@ -1,5 +1,5 @@
-import { Alert, __ } from '@erxes/ui/src/utils';
-
+import { Alert } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
@@ -97,7 +97,7 @@ class Signature extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>Signature</ControlLabel>
+        <ControlLabel>{__('Signature')}</ControlLabel>
         <p>
           {__(
             'An email signature is an opportunity to share information that helps build recognition and trust.'
@@ -141,11 +141,11 @@ class Signature extends React.Component<Props, State> {
           {this.renderSignatureEditor()}
           <ModalFooter>
             <Button btnStyle="simple" onClick={this.close} icon="times-circle">
-              Close
+              {__('Close')}
             </Button>
 
             <Button btnStyle="success" type="submit" icon="check-circle">
-              Save
+              {__('Save')}
             </Button>
           </ModalFooter>
         </form>

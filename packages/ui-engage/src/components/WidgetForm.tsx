@@ -23,7 +23,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Select from 'react-select-plus';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { generateEmailTemplateParams } from '../utils';
 
 type Props = {
@@ -131,7 +131,7 @@ class WidgetForm extends React.Component<Props, State> {
   renderReceivers() {
     return (
       <FormGroup>
-        <ControlLabel>Sending to:</ControlLabel>
+        <ControlLabel>{__('Sending to:')}</ControlLabel>
         <Recipients>
           {this.props.customers.map(customer => (
             <Recipient key={customer._id}>
@@ -152,7 +152,7 @@ class WidgetForm extends React.Component<Props, State> {
     return (
       <Half>
         <FormGroup>
-          <ControlLabel>Channel:</ControlLabel>
+          <ControlLabel>{__('Channel:')}</ControlLabel>
           <FormControl
             componentClass="select"
             onChange={this.onChannelChange}
@@ -194,7 +194,7 @@ class WidgetForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem>
             <FormGroup>
-              <ControlLabel required={true}>Brand:</ControlLabel>
+              <ControlLabel required={true}>{__('Brand:')}</ControlLabel>
 
               <FormControl id="brandId" componentClass="select" required={true}>
                 <option />
@@ -209,7 +209,9 @@ class WidgetForm extends React.Component<Props, State> {
               <FlexContent>
                 <FlexItem>
                   <FormGroup>
-                    <ControlLabel required={true}>Messenger kind:</ControlLabel>
+                    <ControlLabel required={true}>
+                      {__('Messenger kind:')}
+                    </ControlLabel>
 
                     <FormControl
                       id="messengerKind"
@@ -227,7 +229,7 @@ class WidgetForm extends React.Component<Props, State> {
                 </FlexItem>
                 <FlexItem hasSpace={true}>
                   <FormGroup>
-                    <ControlLabel>Sent as:</ControlLabel>
+                    <ControlLabel>{__('Sent as:')}</ControlLabel>
 
                     <FormControl
                       id="sentAs"
@@ -268,12 +270,12 @@ class WidgetForm extends React.Component<Props, State> {
       <>
         <Half>
           <FormGroup>
-            <ControlLabel>Email subject:</ControlLabel>
+            <ControlLabel>{__('Email subject:')}</ControlLabel>
             <FormControl id="emailSubject" type="text" required={true} />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email templates:</ControlLabel>
+            <ControlLabel>{__('Email templates:')}</ControlLabel>
             <p>{__('Insert email template to content')}</p>
 
             <Select
@@ -288,7 +290,7 @@ class WidgetForm extends React.Component<Props, State> {
         <FormGroup>{editor({ height: 300 })}</FormGroup>
 
         <FormGroup>
-          <ControlLabel>Attachments:</ControlLabel>
+          <ControlLabel>{__('Attachments:')}</ControlLabel>
           <Uploader defaultFileList={attachments} onChange={onChange} />
         </FormGroup>
       </>
@@ -303,7 +305,7 @@ class WidgetForm extends React.Component<Props, State> {
 
         <Half>
           <FormGroup>
-            <ControlLabel required={true}>Title:</ControlLabel>
+            <ControlLabel required={true}>{__('Title:')}</ControlLabel>
             <FormControl
               autoFocus={true}
               id="title"
@@ -317,10 +319,10 @@ class WidgetForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" icon="times-circle" onClick={this.close}>
-            Close
+            {__('Close')}
           </Button>
           <Button type="submit" btnStyle="success" icon="message">
-            Send
+            {__('Send')}
           </Button>
         </ModalFooter>
       </form>

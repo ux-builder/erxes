@@ -63,7 +63,7 @@ class Intro extends React.Component<Props, State> {
           <SubHeading>{__('Online messaging')}</SubHeading>
 
           <FormGroup>
-            <ControlLabel>Welcome message</ControlLabel>
+            <ControlLabel>{__('Welcome message')}</ControlLabel>
 
             <FormControl
               componentClass="textarea"
@@ -77,7 +77,7 @@ class Intro extends React.Component<Props, State> {
           <SubHeading>{__('Offline messaging')}</SubHeading>
 
           <FormGroup>
-            <ControlLabel>Away message</ControlLabel>
+            <ControlLabel>{__('Away message')}</ControlLabel>
 
             <FormControl
               componentClass="textarea"
@@ -89,7 +89,7 @@ class Intro extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Thank you message</ControlLabel>
+            <ControlLabel>{__('Thank you message')}</ControlLabel>
 
             <FormControl
               componentClass="textarea"

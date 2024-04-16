@@ -12,7 +12,7 @@ import {
   IFieldLogic,
   IFormProps
 } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
@@ -128,12 +128,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
       return null;
     }
 
-    const Checked = () => <span>And</span>;
+    const Checked = () => <span>{__('And')}</span>;
     const UnChecked = () => <span>Or</span>;
 
     return (
       <FormGroup>
-        <ControlLabel>Visible</ControlLabel>
+        <ControlLabel>{__('Visible')}</ControlLabel>
         <div>
           <Toggle
             id="visible"
@@ -153,15 +153,15 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>Visible in detail</ControlLabel>
+        <ControlLabel>{__('Visible in detail')}</ControlLabel>
         <div>
           <Toggle
             id="visibleDetail"
             checked={this.state.isVisibleInDetail}
             onChange={this.visibleHandler}
             icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              checked: <span>{__('Yes')}</span>,
+              unchecked: <span>{__('No')}</span>
             }}
           />
         </div>
@@ -220,7 +220,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -231,7 +231,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Description</ControlLabel>
+          <ControlLabel required={true}>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -241,12 +241,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
+          <ControlLabel>{__('Code')}</ControlLabel>
           <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Parent group:</ControlLabel>
+          <ControlLabel>{__('Parent group:')}</ControlLabel>
           <Row>
             <FormControl
               {...formProps}
@@ -286,23 +286,23 @@ class PropertyGroupForm extends React.Component<Props, State> {
               checked={this.state.alwaysOpen}
               onChange={this.alwaysOpenHandler}
               icons={{
-                checked: <span>Checked</span>,
-                unchecked: <span>Unchecked</span>
+                checked: <span>{__('Checked')}</span>,
+                unchecked: <span>{__('Unchecked')}</span>
               }}
             />
           </div>
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Multiple</ControlLabel>
+          <ControlLabel>{__('Multiple')}</ControlLabel>
           <div>
             <Toggle
               id="multiple"
               checked={this.state.isMultiple}
               onChange={this.multipleHandler}
               icons={{
-                checked: <span>Checked</span>,
-                unchecked: <span>Unchecked</span>
+                checked: <span>{__('Checked')}</span>,
+                unchecked: <span>{__('Unchecked')}</span>
               }}
             />
           </div>
@@ -320,7 +320,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

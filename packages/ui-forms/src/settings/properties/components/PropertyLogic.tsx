@@ -4,7 +4,7 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Column, DateWrapper } from '@erxes/ui/src/styles/main';
 import { IFieldLogic } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 
 import {
@@ -53,6 +53,7 @@ function PropertyLogic(props: Props) {
   const onChangeFieldId = e => {
     const value = e.target.value;
     onChangeLogic('fieldId', '', index);
+    onChangeLogic('logicValue', '', index);
     onChangeLogic(
       value.startsWith('tempId') ? 'tempFieldId' : 'fieldId',
       value,
@@ -60,7 +61,11 @@ function PropertyLogic(props: Props) {
     );
 
     const operators = getOperatorOptions();
-    onChangeLogic('logicOperator', operators[1].value, index);
+    onChangeLogic(
+      'logicOperator',
+      operators.length > 0 ? operators[0].value : '',
+      index
+    );
   };
 
   const onChangeLogicOperator = e => {
@@ -98,7 +103,7 @@ function PropertyLogic(props: Props) {
             {selectedField.selectOptions &&
               selectedField.selectOptions.map(option => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {__(option.label)}
                 </option>
               ))}
           </FormControl>
@@ -157,12 +162,13 @@ function PropertyLogic(props: Props) {
               <option value="" />
               {fields.map(field => (
                 <option key={field.name} value={field.name}>
-                  {field.label}
+                  {__(field.label)}
                 </option>
               ))}
             </FormControl>
           </FormGroup>
           <LogicRow>
+            <Column>{renderLogicValue()}</Column>
             <RowSmall>
               <FormControl
                 componentClass="select"
@@ -172,7 +178,6 @@ function PropertyLogic(props: Props) {
                 onChange={onChangeLogicOperator}
               />
             </RowSmall>
-            <Column>{renderLogicValue()}</Column>
           </LogicRow>
         </Column>
         <Button onClick={remove} btnStyle="danger" icon="times" />

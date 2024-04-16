@@ -3,7 +3,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -68,7 +68,7 @@ class ChooseType extends React.Component<Props, {}> {
         <LeftItem>
           <FormGroup>
             <LabelWrapper>
-              <ControlLabel>Theme color</ControlLabel>
+              <ControlLabel>{__('Theme color')}</ControlLabel>
             </LabelWrapper>
             <div>
               <OverlayTrigger
@@ -85,7 +85,7 @@ class ChooseType extends React.Component<Props, {}> {
           </FormGroup>
 
           <LabelWrapper>
-            <ControlLabel>Choose a flow type</ControlLabel>
+            <ControlLabel>{__('Choose a flow type')}</ControlLabel>
           </LabelWrapper>
           <BoxRow>
             {this.renderBox('ShoutBox', 'comment-1', 'shoutbox')}

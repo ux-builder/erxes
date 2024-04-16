@@ -143,7 +143,7 @@ class Options extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Default Language</ControlLabel>
+            <ControlLabel>{__('Default Language')}</ControlLabel>
             <Select
               id="languageCode"
               value={this.props.languageCode}

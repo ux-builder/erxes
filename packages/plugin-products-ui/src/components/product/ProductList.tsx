@@ -1,7 +1,7 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
 import { Count, Title } from '@erxes/ui/src/styles/main';
 import { IProduct, IProductCategory } from '../../types';
-
+import { __ } from 'coreui/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import CategoryList from '../../containers/productCategory/CategoryList';
@@ -211,7 +211,7 @@ class List extends React.Component<IProps, State> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add items
+        {__('Add items')}
       </Button>
     );
 
@@ -236,7 +236,7 @@ class List extends React.Component<IProps, State> {
           </Button>
         </Link>
         <ModalTrigger
-          title="Add Product/Services"
+          title={__('Add Product/Services')}
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
@@ -259,7 +259,7 @@ class List extends React.Component<IProps, State> {
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
+          {__('Tag')}
         </Button>
       );
 
@@ -274,7 +274,7 @@ class List extends React.Component<IProps, State> {
 
       const mergeButton = (
         <Button btnStyle="primary" size="small" icon="merge">
-          Merge
+          {__('Merge')}
         </Button>
       );
 
@@ -322,7 +322,7 @@ class List extends React.Component<IProps, State> {
             icon="cancel-1"
             onClick={onClick}
           >
-            Remove
+            {__('Remove')}
           </Button>
         </BarItems>
       );

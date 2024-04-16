@@ -1,6 +1,6 @@
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
-import { __, getEnv } from '@erxes/ui/src/utils';
-
+import { getEnv } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -542,7 +542,7 @@ class InstallCode extends React.PureComponent<Props, State> {
             icon="plus-circle"
             onClick={this.onSimulate}
           >
-            Simulate
+            {__('Simulate')}
           </Button>
 
           <Button
@@ -550,7 +550,7 @@ class InstallCode extends React.PureComponent<Props, State> {
             icon="times-circle"
             onClick={this.props.closeModal}
           >
-            Close
+            {__('Close')}
           </Button>
           {this.props.positivButton}
         </ModalFooter>

@@ -5,7 +5,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -231,13 +231,13 @@ function General({
       <CollapseContent title={__('Mobile OTP')} compact={true} open={false}>
         <ToggleWrap>
           <FormGroup>
-            <ControlLabel>Enable OTP config</ControlLabel>
+            <ControlLabel>{__('Enable OTP config')}</ControlLabel>
             <Toggle
               checked={otpEnabled}
               onChange={() => onChangeToggle('otpEnabled', !otpEnabled)}
               icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                checked: <span>{__('Yes')}</span>,
+                unchecked: <span>{__('No')}</span>
               }}
             />
           </FormGroup>
@@ -246,9 +246,9 @@ function General({
         {otpEnabled && (
           <>
             <FormGroup>
-              <ControlLabel>Sms Configuration</ControlLabel>
+              <ControlLabel>{__('Sms Configuration')}</ControlLabel>
               <Select
-                placeholder="Choose a configuration"
+                placeholder={__('Choose a configuration')}
                 value={obj.smsTransporterType}
                 options={CONFIGURATIONS}
                 name="SMS Configuration"
@@ -256,8 +256,8 @@ function General({
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel required={true}>Content</ControlLabel>
-              <p>OTP message body</p>
+              <ControlLabel required={true}>{__('Content')}</ControlLabel>
+              <p>{__('OTP message body')}</p>
               <FlexContent>
                 <FormControl
                   id="content"
@@ -269,8 +269,10 @@ function General({
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>OTP code length</ControlLabel>
-              <p>OTP code length</p>
+              <ControlLabel required={true}>
+                {__('OTP code length')}
+              </ControlLabel>
+              <p>{__('OTP code length')}</p>
               <FlexContent>
                 <FormControl
                   id="codeLength"
@@ -284,8 +286,8 @@ function General({
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>OTP expiry</ControlLabel>
-              <p>{'OTP expiration duration (min)'}</p>
+              <ControlLabel required={true}>{__('OTP expiry')}</ControlLabel>
+              <p>{__('OTP expiration duration (min)')}</p>
               <FlexContent>
                 <FormControl
                   id="expireAfter"
@@ -300,8 +302,10 @@ function General({
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Login with OTP</ControlLabel>
-              <p>Enable this option to accept customer login with OTP</p>
+              <ControlLabel>{__('Login with OTP')}</ControlLabel>
+              <p>
+                {__('Enable this option to accept customer login with OTP')}
+              </p>
               <FlexContent>
                 <FormControl
                   id="loginWithOTP"
@@ -340,7 +344,7 @@ function General({
         open={false}
       >
         <FormGroup>
-          <ControlLabel required={true}>Certificate ID</ControlLabel>
+          <ControlLabel required={true}>{__('Certificate ID')}</ControlLabel>
 
           <FlexContent>
             <FormControl
@@ -353,7 +357,7 @@ function General({
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Public key</ControlLabel>
+          <ControlLabel required={true}>{__('Public key')}</ControlLabel>
 
           <FlexContent>
             <FormControl
@@ -402,7 +406,7 @@ function General({
       >
         <ToggleWrap>
           <FormGroup>
-            <ControlLabel>Enable mail config</ControlLabel>
+            <ControlLabel>{__('Enable mail config')}</ControlLabel>
             <Toggle
               checked={mailEnabled}
               onChange={() => onChangeToggle('mailEnabled', !mailEnabled)}
@@ -416,8 +420,8 @@ function General({
         {mailEnabled && (
           <>
             <FormGroup>
-              <ControlLabel required={true}>Subject</ControlLabel>
-              <p>Invitation mail subject</p>
+              <ControlLabel required={true}>{__('Subject')}</ControlLabel>
+              <p>{__('Invitation mail subject')}</p>
               <FlexContent>
                 <FormControl
                   id="subject"
@@ -430,9 +434,9 @@ function General({
 
             <FormGroup>
               <ControlLabel required={true}>
-                Registration Mail Content
+                {__('Registration Mail Content')}
               </ControlLabel>
-              <p>Registration mail body</p>
+              <p>{__('Registration mail body')}</p>
               <FlexContent>
                 <EditorCK
                   content={obj.registrationContent || ''}
@@ -455,9 +459,9 @@ function General({
 
             <FormGroup>
               <ControlLabel required={true}>
-                Invitation Mail Content
+                {__('Invitation Mail Content')}
               </ControlLabel>
-              <p>Invitation mail body</p>
+              <p>{__('Invitation mail body')}</p>
               <FlexContent>
                 <EditorCK
                   content={obj.invitationContent || ''}
@@ -496,7 +500,7 @@ function General({
       >
         <ToggleWrap>
           <FormGroup>
-            <ControlLabel>Enable</ControlLabel>
+            <ControlLabel>{__('Enable')}</ControlLabel>
             <Toggle
               checked={manualVerificationEnabled}
               onChange={() =>
@@ -519,7 +523,7 @@ function General({
 
               <p>{__('Select team members who can verify')}</p>
               <SelectTeamMembers
-                label="Select team members"
+                label={__('Select team members')}
                 name="userIds"
                 initialValue={userIds}
                 onSelect={onSelectUsers}
@@ -529,7 +533,7 @@ function General({
 
             <ToggleWrap>
               <FormGroup>
-                <ControlLabel>Verify customer</ControlLabel>
+                <ControlLabel>{__('Verify customer')}</ControlLabel>
                 <Toggle
                   checked={verifyCustomer}
                   onChange={() =>
@@ -545,7 +549,7 @@ function General({
 
             <ToggleWrap>
               <FormGroup>
-                <ControlLabel>Verify company</ControlLabel>
+                <ControlLabel>{__('Verify company')}</ControlLabel>
                 <Toggle
                   checked={verifyCompany}
                   onChange={() =>
@@ -566,13 +570,18 @@ function General({
 
   return (
     <>
-      <CollapseContent title="User Authentication" compact={true} open={false}>
+      <CollapseContent
+        title={__('User Authentication')}
+        compact={true}
+        open={false}
+      >
         <BlockRow>
           <Formgroup>
-            <ControlLabel>Token pass method</ControlLabel>
+            <ControlLabel>{__('Token pass method')}</ControlLabel>
             <p>
-              It is recommended to use cookies, if hosting the client portal on
-              a different domain use bearer token
+              {__(
+                'It is recommended to use cookies, if hosting the client portal on a different domain use bearer token'
+              )}
             </p>
             <FormControl
               componentClass="select"
@@ -582,17 +591,14 @@ function General({
                 handleFormChange('tokenPassMethod', e.currentTarget.value)
               }
             >
-              <option value="cookie">Cookie</option>
-              <option value="header">Bearer token</option>
+              <option value="cookie">{__('Cookie')}</option>
+              <option value="header">{__('Bearer token')}</option>
             </FormControl>
           </Formgroup>
 
           <Formgroup>
-            <ControlLabel>Token expiration duration</ControlLabel>
-            <p>
-              In order to be a more secure, it is recommended to set a short
-              expiration duration.
-            </p>
+            <ControlLabel>{__('Token expiration duration')}</ControlLabel>
+            <p>{__('shortDuration')}</p>
             <FormControl
               componentClass="input"
               placeholder="token expiration duration"
@@ -610,13 +616,13 @@ function General({
           </Formgroup>
 
           <Formgroup>
-            <ControlLabel>Refresh Token expiration duration</ControlLabel>
-            <p>
-              Refresh token expiration duration can be set to a longer duration.
-            </p>
+            <ControlLabel>
+              {__('Refresh Token expiration duration')}
+            </ControlLabel>
+            <p>{__('refreshToken')}</p>
             <FormControl
               componentClass="input"
-              placeholder="refresh token expiration duration"
+              placeholder={__('refresh token expiration duration')}
               type="number"
               min={7}
               max={30}
@@ -638,24 +644,24 @@ function General({
       >
         <BlockRow>
           {renderControl({
-            label: 'Test User Email',
+            label: __('Test User Email'),
             formValueName: 'testUserEmail',
             formValue: testUserEmail
           })}
           {renderControl({
-            label: 'Test User Phone',
+            label: __('Test User Phone'),
             formValueName: 'testUserPhone',
             formValue: testUserPhone
           })}
         </BlockRow>
         <BlockRow>
           {renderControl({
-            label: 'Test User Password',
+            label: __('Test User Password'),
             formValueName: 'testUserPassword',
             formValue: testUserPassword
           })}
           {renderControl({
-            label: 'Test User OTP',
+            label: __('Test User OTP'),
             formProps: { type: 'number' },
             formValueName: 'testUserOTP',
             formValue: testUserOTP
@@ -677,22 +683,22 @@ function General({
         open={false}
       >
         {renderControl({
-          label: 'Google Application Credentials',
+          label: __('Google Application Credentials'),
           formValueName: 'googleCredentials',
           formValue: googleCredentials
         })}
         {renderControl({
-          label: 'Google Client Id',
+          label: __('Google Client Id'),
           formValueName: 'googleClientId',
           formValue: googleClientId
         })}
         {renderControl({
-          label: 'Google Client Secret',
+          label: __('Google Client Secret'),
           formValueName: 'googleClientSecret',
           formValue: googleClientSecret
         })}
         {renderControl({
-          label: 'Google Client Redirect Uri',
+          label: __('Google Client Redirect Uri'),
           formValueName: 'googleRedirectUri',
           formValue: googleRedirectUri
         })}
@@ -703,7 +709,7 @@ function General({
         open={false}
       >
         {renderControl({
-          label: 'Facebook App Id',
+          label: __('Facebook App Id'),
           formValueName: 'facebookAppId',
           formValue: facebookAppId
         })}
@@ -714,7 +720,7 @@ function General({
         open={false}
       >
         {renderControl({
-          label: 'Erxes App Token',
+          label: __('Erxes App Token'),
           formValueName: 'erxesAppToken',
           formValue: erxesAppToken
         })}

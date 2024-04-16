@@ -12,7 +12,6 @@ import {
   TabTitle,
   Tabs,
   Toggle,
-  __,
   colors
 } from '@erxes/ui/src';
 import { Columns } from '@erxes/ui/src/styles/chooser';
@@ -20,7 +19,7 @@ import { Column } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { Padding, TopContainer } from '../styles';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-
+import { __ } from 'coreui/utils';
 type Props = {
   activeAction: IAction;
   triggerType: string;
@@ -66,7 +65,7 @@ class SendNotification extends React.Component<Props, State> {
           <ControlLabel>{__('Team Members')}</ControlLabel>
           <SelectTeamMembers
             name="teamMemberIds"
-            label="select team members"
+            label={__('select team members')}
             multi
             onSelect={onSelect}
           />
@@ -75,7 +74,7 @@ class SendNotification extends React.Component<Props, State> {
           <ControlLabel>{__('Customers')}</ControlLabel>
           <SelectCustomers
             name="customerIds"
-            label="select customers"
+            label={__('select customers')}
             multi
             onSelect={onSelect}
           />
@@ -124,7 +123,7 @@ class SendNotification extends React.Component<Props, State> {
               </ControlLabel>
               <p>{__('Firebase config for notifications')}</p>
               <FormControl
-                placeholder="paste a config"
+                placeholder={__('paste a config')}
                 onChange={handleChange}
                 value={config?.customConfig}
               />
@@ -164,7 +163,7 @@ class SendNotification extends React.Component<Props, State> {
           config={config}
           inputName="sendTo"
           attrTypes={['user', 'contact', 'segment']}
-          label="Send To"
+          label={__('Send To')}
           onChange={this.onChange}
           customAttributions={customAttributions}
           required
@@ -194,7 +193,7 @@ class SendNotification extends React.Component<Props, State> {
       <>
         <PlaceHolderInput
           inputName="subject"
-          label="Subject"
+          label={__('Subject')}
           config={config}
           onChange={this.onChange}
           triggerType={triggerType}
@@ -202,7 +201,7 @@ class SendNotification extends React.Component<Props, State> {
         />
         <PlaceHolderInput
           inputName="body"
-          label="Body"
+          label={__('Body')}
           config={config}
           onChange={this.onChange}
           triggerType={triggerType}

@@ -27,7 +27,7 @@ import {
   extractAttachment,
   generateCategoryOptions
 } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { TAX_TYPES, TYPES } from '../constants';
 import CategoryForm from '../containers/CategoryForm';
@@ -206,7 +206,11 @@ class Form extends React.Component<Props, State> {
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger
+        title={__('Add category')}
+        trigger={trigger}
+        content={content}
+      />
     );
   }
 
@@ -240,7 +244,7 @@ class Form extends React.Component<Props, State> {
         <FormWrapper key={subUom._id}>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Sub UOM</ControlLabel>
+              <ControlLabel>{__('Sub UOM')}</ControlLabel>
               <AutoCompletionSelect
                 defaultValue={subUom.uom}
                 defaultOptions={(uoms || []).map(e => e.code)}
@@ -254,7 +258,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Ratio</ControlLabel>
+              <ControlLabel>{__('Ratio')}</ControlLabel>
               <Row>
                 <FormControl
                   name="ratio"
@@ -267,7 +271,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>~Inverse Ratio</ControlLabel>
+              <ControlLabel>{__('~Inverse Ratio')}</ControlLabel>
               <Row>
                 <FormControl
                   name="inverse"
@@ -421,9 +425,9 @@ class Form extends React.Component<Props, State> {
       <TableBarcode>
         <thead>
           <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Image</th>
+            <th>{__('Code')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Image')}</th>
             <th></th>
           </tr>
         </thead>
@@ -504,7 +508,7 @@ class Form extends React.Component<Props, State> {
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add category
+        {__('Add category')}
       </Button>
     );
 
@@ -531,7 +535,7 @@ class Form extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>Category</ControlLabel>
+              <ControlLabel required={true}>{__('Category')}</ControlLabel>
               <Row>
                 <FormControl
                   {...formProps}
@@ -549,12 +553,9 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Code</ControlLabel>
+              <ControlLabel required={true}>{__('Code')}</ControlLabel>
               <p>
-                Depending on your business type, you may type in a barcode or
-                any other UPC (Universal Product Code). If you don't use UPC,
-                type in any numeric value to differentiate your products. With
-                pattern {maskStr}
+                {__('businessWithP')} {maskStr}
               </p>
               <FormControl
                 {...formProps}
@@ -570,7 +571,7 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
+              <ControlLabel required={true}>{__('Name')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="name"
@@ -581,7 +582,7 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Short name</ControlLabel>
+              <ControlLabel required={true}>{__('Short name')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="shortName"
@@ -591,7 +592,7 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Type</ControlLabel>
+              <ControlLabel required={true}>{__('Type')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="type"
@@ -601,14 +602,14 @@ class Form extends React.Component<Props, State> {
               >
                 {Object.keys(TYPES).map((typeName, index) => (
                   <option key={index} value={TYPES[typeName]}>
-                    {typeName}
+                    {__(typeName)}
                   </option>
                 ))}
               </FormControl>
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Description</ControlLabel>
+              <ControlLabel>{__('Description')}</ControlLabel>
               <EditorCK
                 content={description}
                 onChange={this.onChangeDescription}
@@ -635,11 +636,11 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Unit price</ControlLabel>
+              <ControlLabel required={true}>{__('Unit price')}</ControlLabel>
               <p>
-                Please ensure you have set the default currency in the{' '}
-                <a href="/settings/general"> {'General Settings'}</a> of the
-                System Configuration.
+                {__('Please ensure you have set the default currency in the')}{' '}
+                <a href="/settings/general"> {__('General Settings')}</a>{' '}
+                {__('ofSystem')}
               </p>
               <FormControl
                 {...formProps}
@@ -651,9 +652,9 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Vendor</ControlLabel>
+              <ControlLabel>{__('Vendor')}</ControlLabel>
               <SelectCompanies
-                label="Choose an vendor"
+                label={__('Choose an vendor')}
                 name="vendorId"
                 customOption={{ value: '', label: 'No vendor chosen' }}
                 initialValue={vendorId}
@@ -662,7 +663,7 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Tax Type</ControlLabel>
+              <ControlLabel>{__('Tax Type')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="taxType"
@@ -670,16 +671,16 @@ class Form extends React.Component<Props, State> {
                 onChange={this.onTaxChange}
                 defaultValue={taxType}
                 options={[
-                  { value: '', label: 'default' },
+                  { value: '', label: __('default') },
                   ...Object.keys(TAX_TYPES).map(type => ({
                     value: type,
-                    label: TAX_TYPES[type].label
+                    label: __(TAX_TYPES[type].label)
                   }))
                 ]}
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Tax Code</ControlLabel>
+              <ControlLabel>{__('Tax Code')}</ControlLabel>
 
               <FormControl
                 {...formProps}
@@ -693,7 +694,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Brand</ControlLabel>
+              <ControlLabel>{__('Brand')}</ControlLabel>
               <SelectBrands
                 label={__('Choose brands')}
                 onSelect={brandIds => this.onChangeBrand(brandIds as string[])}
@@ -703,7 +704,7 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Featured image</ControlLabel>
+              <ControlLabel>{__('Featured image')}</ControlLabel>
               <Uploader
                 defaultFileList={attachments}
                 onChange={this.onChangeAttachment}
@@ -713,7 +714,7 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Secondary Images</ControlLabel>
+              <ControlLabel>{__('Secondary Images')}</ControlLabel>
               <Uploader
                 defaultFileList={attachmentsMore}
                 onChange={this.onChangeAttachmentMore}
@@ -723,7 +724,7 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Barcodes</ControlLabel>
+              <ControlLabel>{__('Barcodes')}</ControlLabel>
               <Row>
                 <FormControl
                   {...formProps}
@@ -738,14 +739,14 @@ class Form extends React.Component<Props, State> {
                   icon="plus-circle"
                   onClick={() => this.updateBarcodes()}
                 >
-                  Add barcode
+                  {__('Add barcode')}
                 </Button>
               </Row>
               {this.renderBarcodes()}
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Barcode Description</ControlLabel>
+              <ControlLabel>{__('Barcode Description')}</ControlLabel>
               <EditorCK
                 content={barcodeDescription}
                 onChange={this.onChangeBarcodeDescription}
@@ -771,7 +772,7 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>UOM</ControlLabel>
+              <ControlLabel>{__('UOM')}</ControlLabel>
               <Row>
                 <AutoCompletionSelect
                   defaultValue={this.state.uom}
@@ -789,7 +790,7 @@ class Form extends React.Component<Props, State> {
                   onClick={this.onClickAddSub}
                 >
                   {' '}
-                  Add sub
+                  {__('Add sub')}
                 </Button>
               </Row>
             </FormGroup>
@@ -805,7 +806,7 @@ class Form extends React.Component<Props, State> {
             icon="times-circle"
             uppercase={false}
           >
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

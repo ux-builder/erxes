@@ -174,7 +174,7 @@ const OptionStep = (props: Props) => {
     <FlexItem>
       <LeftItem>
         <FormGroup>
-          <ControlLabel required={true}>Form Name</ControlLabel>
+          <ControlLabel required={true}>{__('Form Name')}</ControlLabel>
           <p>
             {__('Name this form to differentiate from the rest internally')}
           </p>
@@ -198,12 +198,12 @@ const OptionStep = (props: Props) => {
         <SelectChannels
           defaultValue={props.channelIds}
           isRequired={false}
-          description="Choose a channel, if you wish to see every new form in your Team Inbox."
+          description={__('inboxForm')}
           onChange={channelOnChange}
         />
 
         <FormGroup>
-          <ControlLabel required={true}>Visibility</ControlLabel>
+          <ControlLabel required={true}>{__('Visibility')}</ControlLabel>
           <FormControl
             name="visibility"
             componentClass="select"
@@ -218,7 +218,7 @@ const OptionStep = (props: Props) => {
         {renderDepartments()}
 
         <FormGroup>
-          <ControlLabel>Language</ControlLabel>
+          <ControlLabel>{__('Language')}</ControlLabel>
           <Select
             id="language"
             value={language}
@@ -229,11 +229,8 @@ const OptionStep = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Limit to 1 response</ControlLabel>
-          <Description>
-            Turn on to receive a submission from the visitor only once. Once a
-            submission is received, the form will not display again.
-          </Description>
+          <ControlLabel>{__('Limit to 1 response')}</ControlLabel>
+          <Description>{__('visitorSubmission')}</Description>
           <div>
             <Toggle
               id="isRequireOnce"
@@ -248,8 +245,8 @@ const OptionStep = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Save as customer</ControlLabel>
-          <Description>Forcibly turn lead to customer.</Description>
+          <ControlLabel>{__('Save as customer')}</ControlLabel>
+          <Description>{__('turnCustomer')}</Description>
           <div>
             <Toggle
               id="saveAsCustomer"

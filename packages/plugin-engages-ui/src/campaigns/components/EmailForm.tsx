@@ -202,8 +202,12 @@ class EmailForm extends React.Component<Props, State> {
     return (
       <TestEmailWrapper>
         <FormGroup>
-          <ControlLabel>Send to the following email as test:</ControlLabel>
-          <HelpPopover>Only one email address must be typed</HelpPopover>
+          <ControlLabel>
+            {__('Send to the following email as test:')}
+          </ControlLabel>
+          <HelpPopover>
+            {__('Only one email address must be typed')}
+          </HelpPopover>
           <FormControl
             type="text"
             onChange={onChange}
@@ -215,7 +219,7 @@ class EmailForm extends React.Component<Props, State> {
             icon="send"
             onClick={sendAsTest}
           >
-            Send
+            {__('Send')}
           </Button>
         </FormGroup>
       </TestEmailWrapper>
@@ -246,23 +250,29 @@ class EmailForm extends React.Component<Props, State> {
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>
-              From:
-              <HelpPopover title="The email address is not verified (x) by Amazon Ses services.">
+              {__('From:')}
+              <HelpPopover title={__('emailSes')}>
                 <div>
-                  If you want to verify your email:
+                  {__('If you want to verify your email:')}
                   <ol>
-                    <li>Log in to your AWS Management Console</li>
-                    <li>Click on the Services menu from the dropdown menu</li>
+                    <li>{__('Log in to your AWS Management Console')}</li>
                     <li>
-                      Click on the Simple Email Services menu from the left
-                      sidebar
+                      {__('Click on the Services menu from the dropdown menu')}
                     </li>
                     <li>
-                      Click on the Email Addresses menu from the left sidebar
+                      {__(
+                        'Click on the Simple Email Services menu from the left sidebar'
+                      )}
                     </li>
                     <li>
-                      Finally, click on the button that named "Verify a new
-                      email address"
+                      {__(
+                        'Click on the Email Addresses menu from the left sidebar'
+                      )}
+                    </li>
+                    <li>
+                      {__(
+                        "Finally, click on the button that named 'Verify a new email address'"
+                      )}
                     </li>
                   </ol>
                 </div>
@@ -272,7 +282,7 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Sender:</ControlLabel>
+            <ControlLabel>{__('Sender:')}</ControlLabel>
             <FormControl
               onChange={onChangeSender}
               defaultValue={this.state.email.sender}
@@ -280,8 +290,8 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Reply to:</ControlLabel>
-            <HelpPopover>Emails must be space separated</HelpPopover>
+            <ControlLabel>{__('Reply to:')}</ControlLabel>
+            <HelpPopover>{__('Emails must be space separated')}</HelpPopover>
             <FormControl
               onChange={onChangeReplyTo}
               defaultValue={this.state.email.replyTo}
@@ -289,7 +299,7 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email subject:</ControlLabel>
+            <ControlLabel>{__('Email subject:')}</ControlLabel>
             <FormControl
               onChange={onChangeSubject}
               defaultValue={this.state.email.subject}
@@ -297,7 +307,7 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email template:</ControlLabel>
+            <ControlLabel>{__('Email template:')}</ControlLabel>
             <p>{__('Insert email template to content')}</p>
 
             <Select
@@ -308,7 +318,7 @@ class EmailForm extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Attachments: </ControlLabel>
+            <ControlLabel>{__('Attachments:')} </ControlLabel>
             <Uploader
               defaultFileList={attachments || []}
               onChange={onChangeAttachment}
@@ -321,7 +331,7 @@ class EmailForm extends React.Component<Props, State> {
 
         <FlexItem overflow="auto" count="2">
           <EditorContainer>
-            <ControlLabel>Content:</ControlLabel>
+            <ControlLabel>{__('Content:')}</ControlLabel>
             <EditorCK
               content={this.state.content}
               isSubmitted={this.props.isSaved}

@@ -5,7 +5,7 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { BoardHeader, DrawerDetail } from '@erxes/ui-automations/src/styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import FormControl from '@erxes/ui/src/components/form/Control';
 
 type Props = {
@@ -56,11 +56,11 @@ class Delay extends React.Component<Props, State> {
             value={config.type || 'hour'}
             options={[
               {
-                label: 'Hour',
+                label: __('Hour'),
                 value: 'hour'
               },
               {
-                label: 'Day',
+                label: __('Day'),
                 value: 'day'
               }
             ]}

@@ -8,7 +8,7 @@ import {
   TemplateInfo
 } from '../styles';
 import { Icon, ModalTrigger } from '@erxes/ui/src';
-
+import { __ } from 'coreui/utils';
 import React from 'react';
 import dayjs from 'dayjs';
 
@@ -26,21 +26,23 @@ class EmailTemplate extends React.Component<Props> {
   }
 
   renderDate(createdAt, modifiedAt) {
+    const createdAtLabel = __('Created at');
+    const modifiedAtLabel = __('Modified at');
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
         return '-';
       }
 
-      return dayjs(createdAt).format('DD MMM YYYY');
+      return `${createdAtLabel}: ${dayjs(createdAt).format('DD MMM YYYY')}`;
     }
 
-    return dayjs(modifiedAt).format('DD MMM YYYY');
+    return `${modifiedAtLabel}: ${dayjs(modifiedAt).format('DD MMM YYYY')}`;
   }
 
   renderView(content) {
     const trigger = (
       <div>
-        <Icon icon="eye" /> View
+        <Icon icon="eye" /> {__('View')}
       </div>
     );
     const form = () => {
@@ -75,7 +77,7 @@ class EmailTemplate extends React.Component<Props> {
         {this.renderView(content)}
         {!onlyPreview && (
           <div onClick={handleSelect && handleSelect.bind(this, templateId)}>
-            <Icon icon="clicker" /> Select
+            <Icon icon="clicker" /> {__('Select')}
           </div>
         )}
       </Actions>
@@ -101,11 +103,15 @@ class EmailTemplate extends React.Component<Props> {
           <h5>{name}</h5>
           <div>
             <TemplateInfo>
-              <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+              <p>
+                {createdAt === modifiedAt
+                  ? `${__('Created at')}`
+                  : `${__('Modified at')}`}
+              </p>
               <p>{this.renderDate(createdAt, modifiedAt)}</p>
             </TemplateInfo>
             <TemplateInfo>
-              <p>Created by</p>
+              <p>{__('Created by')}</p>
               {createdUser ? (
                 createdUser.details.fullName && (
                   <p>{createdUser.details.fullName}</p>

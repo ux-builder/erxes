@@ -1,7 +1,7 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { FlexItem } from '@erxes/ui/src/components/step/style';
@@ -23,7 +23,7 @@ class StyleSheetStep extends React.Component<Props, {}> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Custom stylesheet</ControlLabel>
+            <ControlLabel>{__('Custom stylesheet')}</ControlLabel>
             <p>
               {__(
                 'Add or overwrite default theme styles with your own custom css'

@@ -7,7 +7,7 @@ import React from 'react';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IEmailTemplate } from '../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   object?: IEmailTemplate;
   contentType?: string;
@@ -51,7 +51,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -63,7 +63,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Content</ControlLabel>
+          <ControlLabel>{__('Content')}</ControlLabel>
           <EditorCK
             content={this.state.content}
             onChange={this.onEditorChange}

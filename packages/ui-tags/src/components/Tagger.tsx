@@ -4,7 +4,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   type: ITagTypes | string;

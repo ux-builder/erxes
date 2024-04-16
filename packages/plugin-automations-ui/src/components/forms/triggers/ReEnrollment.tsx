@@ -4,7 +4,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 
 import { Checkbox, EnrollmentWrapper, StyledToggle } from '../../../styles';

@@ -65,7 +65,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     return (
       <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
-        Add Account
+        {__('Add Account')}
       </Button>
     );
   }

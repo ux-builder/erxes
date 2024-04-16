@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 export const LANGUAGES = [
   { label: 'Albanian', value: 'sq' },
@@ -17,7 +17,7 @@ export const LANGUAGES = [
   { label: 'Japanese', value: 'ja' },
   { label: 'Javanese', value: 'jv' },
   { label: 'Kazakh', value: 'kk' },
-  { label: 'Korean', value: 'ko' },
+  { label: __('Korean'), value: 'ko' },
   { label: 'Marathi', value: 'mr' },
   { label: 'Mongolian', value: 'mn' },
   { label: 'Persian', value: 'fa_IR' },

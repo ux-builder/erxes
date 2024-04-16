@@ -10,6 +10,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { __ } from 'coreui/utils';
 
 type Props = {
   channels: IChannel[];
@@ -41,7 +42,7 @@ class Sidebar extends React.Component<Props, {}> {
 
     const addChannel = (
       <Button btnStyle="success" block={true} icon="plus-circle">
-        Add New Channel
+        {__('Add New Channel')}
       </Button>
     );
 
@@ -52,7 +53,7 @@ class Sidebar extends React.Component<Props, {}> {
     return (
       <Header>
         <ModalTrigger
-          title="New Channel"
+          title={__('New Channel')}
           autoOpenKey="showChannelAddModal"
           trigger={addChannel}
           content={content}
@@ -77,7 +78,7 @@ class Sidebar extends React.Component<Props, {}> {
         {!loading && channelsTotalCount === 0 && (
           <EmptyState
             image="/images/actions/18.svg"
-            text="There is no channel"
+            text={__('There is no channel')}
           />
         )}
       </LeftSidebar>

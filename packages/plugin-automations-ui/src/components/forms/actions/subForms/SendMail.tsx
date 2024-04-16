@@ -15,9 +15,9 @@ import {
   ModalTrigger,
   SelectTeamMembers,
   TabTitle,
-  Tabs,
-  __
+  Tabs
 } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
 import React from 'react';
 import { BackIcon } from '../../../../styles';
@@ -95,7 +95,10 @@ class SendMail extends React.Component<Props, State> {
             {customMail}
           </Chip>
         ))}
-        <FormControl onKeyPress={onChange} placeholder="enter a some email" />
+        <FormControl
+          onKeyPress={onChange}
+          placeholder={__('enter a some email')}
+        />
       </FormGroup>
     );
   }
@@ -131,7 +134,7 @@ class SendMail extends React.Component<Props, State> {
           config={config}
           triggerType={triggerType}
           inputName="attributionMails"
-          label="Attribution Mails"
+          label={__('Attribution Mails')}
           attrTypes={['user', 'contact', 'segment']}
           attrWithSegmentConfig={triggerType === 'forms:form_submission'}
           triggerConfig={triggerConfig}
@@ -140,7 +143,9 @@ class SendMail extends React.Component<Props, State> {
           additionalContent={
             <HelpPopover>
               <br>
-                This type does not include (From Mail) and (Not Verified mails)
+                {__(
+                  'This type does not include (From Mail) and (Not Verified mails)'
+                )}
               </br>
             </HelpPopover>
           }
@@ -196,7 +201,7 @@ class SendMail extends React.Component<Props, State> {
             <SelectTeamMembers
               name={name}
               initialValue={config[name]}
-              label={label}
+              label={__(label)}
               onSelect={onSelect}
               filterParams={{
                 status: 'Verified'
@@ -264,11 +269,11 @@ class SendMail extends React.Component<Props, State> {
             <Icon icon="angle-left" size={20} /> {__('Back')}
           </BackIcon>
           <FormGroup>
-            <ControlLabel>{'From'}</ControlLabel>
+            <ControlLabel>{__('From')}</ControlLabel>
             <SelectTeamMembers
               name="fromUserId"
               initialValue={config?.fromUserId}
-              label="Select from user"
+              label={__('Select from user')}
               onSelect={onSelect}
               filterParams={{
                 status: 'Verified'
@@ -279,7 +284,7 @@ class SendMail extends React.Component<Props, State> {
 
           <PlaceHolderInput
             inputName="sender"
-            label="Sender"
+            label={__('Sender')}
             config={config}
             onChange={() => null}
             onKeyPress={onChange}
@@ -288,7 +293,7 @@ class SendMail extends React.Component<Props, State> {
 
           <PlaceHolderInput
             inputName="subject"
-            label="Email Subject"
+            label={__('Email Subject')}
             config={config}
             onChange={() => null}
             onKeyPress={onChange}
@@ -341,7 +346,7 @@ class SendMail extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title="Add New"
+        title={__('Add New')}
         content={content}
         trigger={trigger}
         size="lg"
@@ -376,9 +381,9 @@ class SendMail extends React.Component<Props, State> {
           text=""
           extra={
             <span>
-              The send email action is not available.
+              {__('The send email action is not available.')}
               <br />
-              Because the email template plugin is not working
+              {__('Because the email template plugin is not working')}
             </span>
           }
         />
@@ -396,7 +401,7 @@ class SendMail extends React.Component<Props, State> {
           <BarItems>
             <FormControl
               name="searchValue"
-              placeholder="type a search"
+              placeholder={__('type a search')}
               value={searchValue}
               onChange={onSearch}
             />

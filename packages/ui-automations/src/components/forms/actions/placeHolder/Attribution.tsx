@@ -4,7 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
-import { __ } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -110,7 +110,7 @@ export default class Attribution extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('Search')}</ControlLabel>
               <FormControl
-                placeholder="type a search"
+                placeholder={__('type a search')}
                 value={searchValue}
                 onChange={onSearch}
               />

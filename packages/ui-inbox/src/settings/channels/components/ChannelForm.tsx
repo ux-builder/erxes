@@ -9,6 +9,7 @@ import { IChannel } from '../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __ } from 'coreui/utils';
 
 type Props = {
   channel?: IChannel;
@@ -62,7 +63,7 @@ class ChannelForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -74,7 +75,7 @@ class ChannelForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -86,7 +87,7 @@ class ChannelForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Members</ControlLabel>
+          <ControlLabel>{__('Members')}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose members"
@@ -102,7 +103,7 @@ class ChannelForm extends React.Component<Props, State> {
             icon="cancel-1"
             onClick={closeModal}
           >
-            Cancel
+            {__('Cancel')}
           </Button>
 
           {renderButton({

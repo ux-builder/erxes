@@ -12,7 +12,8 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import { Link } from 'react-router-dom';
 import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import WithPermission from 'coreui/withPermission';
 
 type Props = {

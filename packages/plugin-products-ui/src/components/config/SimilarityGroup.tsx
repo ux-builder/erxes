@@ -6,7 +6,7 @@ import client from '@erxes/ui/src/apolloClient';
 import { Button, HeaderDescription } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { ContentBox } from '../../styles';
@@ -59,7 +59,7 @@ class GeneralSettings extends React.Component<Props, State> {
         similarityGroup: {
           ...configsMap.similarityGroup,
           newSimilarityGroup: {
-            title: 'New similiraty group',
+            title: __('New similiraty group'),
             codeMask: '',
             rules: []
           }
@@ -120,7 +120,7 @@ class GeneralSettings extends React.Component<Props, State> {
         icon="plus"
         uppercase={false}
       >
-        New config
+        {__('New config')}
       </Button>
     );
 

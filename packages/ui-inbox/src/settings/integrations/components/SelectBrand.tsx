@@ -9,7 +9,7 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { Row } from '../styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   brands: IBrand[];
@@ -32,7 +32,7 @@ class SelectBrand extends React.Component<Props, {}> {
 
     const trigger = (
       <Button btnStyle="primary" icon="plus-circle">
-        Create brand
+        {__('Create brand')}
       </Button>
     );
 
@@ -41,7 +41,11 @@ class SelectBrand extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger title="Create brand" trigger={trigger} content={content} />
+      <ModalTrigger
+        title={__('Create brand')}
+        trigger={trigger}
+        content={content}
+      />
     );
   };
 
@@ -57,7 +61,7 @@ class SelectBrand extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel required={isRequired}>Brand</ControlLabel>
+        <ControlLabel required={isRequired}>{__('Brand')}</ControlLabel>
         {description && <p>{description}</p>}
         <Row>
           <FormControl

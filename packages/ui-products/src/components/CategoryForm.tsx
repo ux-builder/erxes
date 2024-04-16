@@ -23,7 +23,7 @@ import {
   generateCategoryOptions
 } from '@erxes/ui/src/utils';
 import { ICategory } from '@erxes/ui/src/utils/categories';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { PRODUCT_CATEGORY_STATUSES } from '../constants';
 import CategoryMask from '../containers/CategoryMask';
@@ -211,7 +211,7 @@ class CategoryForm extends React.Component<Props, State> {
       <>
         {(parentCategory && parentCategory.maskType === 'soft' && (
           <>
-            <ControlLabel>Is similar of parent</ControlLabel>
+            <ControlLabel>{__('Is similar of parent')}</ControlLabel>
             <FormControl
               name="isSimilar"
               componentClass="checkbox"
@@ -286,7 +286,7 @@ class CategoryForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Title</ControlLabel>
+              <ControlLabel>{__('Title')}</ControlLabel>
               <FormControl
                 name="title"
                 value={rule.title}
@@ -296,7 +296,7 @@ class CategoryForm extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Field Group</ControlLabel>
+              <ControlLabel>{__('Field Group')}</ControlLabel>
               <FormControl
                 name="groupId"
                 componentClass="select"
@@ -314,7 +314,7 @@ class CategoryForm extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Field</ControlLabel>
+              <ControlLabel>{__('Field')}</ControlLabel>
               <FormControl
                 name="fieldId"
                 componentClass="select"
@@ -376,7 +376,7 @@ class CategoryForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Parent Category</ControlLabel>
+          <ControlLabel>{__('Parent Category')}</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -391,7 +391,7 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Code</ControlLabel>
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
           <FormControl
             {...formProps}
             name="code"
@@ -402,7 +402,7 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Mask type</ControlLabel>
+          <ControlLabel>{__('Mask type')}</ControlLabel>
           <FormControl
             {...formProps}
             componentClass="select"
@@ -417,7 +417,7 @@ class CategoryForm extends React.Component<Props, State> {
         {this.renderMask()}
 
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>{__('Name')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -428,12 +428,12 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Meta</ControlLabel>
+          <ControlLabel>{__('Meta')}</ControlLabel>
           <FormControl {...formProps} name="meta" defaultValue={object.meta} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Brand</ControlLabel>
+          <ControlLabel>{__('Brand')}</ControlLabel>
           <SelectBrands
             label={__('Choose brands')}
             onSelect={brandIds => {
@@ -446,7 +446,7 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -456,7 +456,7 @@ class CategoryForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Has Similarities group</ControlLabel>
+          <ControlLabel>{__('Has Similarities group')}</ControlLabel>
           <FormControl
             {...formProps}
             name="isSimilarity"
@@ -471,7 +471,7 @@ class CategoryForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>State</ControlLabel>
+              <ControlLabel>{__('State')}</ControlLabel>
 
               <FormControl
                 {...formProps}
@@ -484,7 +484,7 @@ class CategoryForm extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Image</ControlLabel>
+              <ControlLabel>{__('Image')}</ControlLabel>
 
               <Uploader
                 defaultFileList={attachments}
@@ -503,7 +503,7 @@ class CategoryForm extends React.Component<Props, State> {
               icon="plus"
               uppercase={false}
             >
-              Add Rule
+              {__('Add Rule')}
             </Button>
           )) ||
             ''}
@@ -514,7 +514,7 @@ class CategoryForm extends React.Component<Props, State> {
             icon="times-circle"
             uppercase={false}
           >
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

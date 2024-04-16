@@ -1,5 +1,5 @@
 import { ControlLabel, Form, FormGroup } from '../form';
-
+import { __ } from 'coreui/utils';
 import Button from '../Button';
 import FormControl from '../form/Control';
 import { ModalFooter } from '../../styles/main';
@@ -31,13 +31,13 @@ class RuleForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Rules</ControlLabel>
-          <p> Add rules as many as you want</p>
+          <ControlLabel>{__('Rules')}</ControlLabel>
+          <p> {__('Add rules as many as you want')}</p>
 
           <FormControl componentClass="select" onChange={this.onSelect}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
-                {rule.text}
+                {__(rule.text)}
               </option>
             ))}
           </FormControl>
@@ -49,7 +49,7 @@ class RuleForm extends React.Component<Props, State> {
             icon="cancel-1"
             onClick={closeModal}
           >
-            Close
+            {__('Close')}
           </Button>
         </ModalFooter>
       </>

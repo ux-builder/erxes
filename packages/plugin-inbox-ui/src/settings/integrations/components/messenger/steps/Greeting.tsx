@@ -102,7 +102,7 @@ class Greeting extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Greeting title</ControlLabel>
+            <ControlLabel>{__('Greeting title')}</ControlLabel>
 
             <FormControl
               placeholder={__('Write here Greeting title') + '.'}
@@ -113,7 +113,7 @@ class Greeting extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Greeting message</ControlLabel>
+            <ControlLabel>{__('Greeting message')}</ControlLabel>
 
             <FormControl
               componentClass="textarea"
@@ -125,7 +125,7 @@ class Greeting extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Supporters</ControlLabel>
+            <ControlLabel>{__('Supporters')}</ControlLabel>
 
             <SelectTeamMembers
               label="Choose users"
@@ -138,7 +138,7 @@ class Greeting extends React.Component<Props, State> {
           <SubHeading>{__('Links')}</SubHeading>
 
           <FormGroup>
-            <ControlLabel>Facebook</ControlLabel>
+            <ControlLabel>{__('Facebook')}</ControlLabel>
 
             <FormControl
               rows={3}
@@ -148,7 +148,7 @@ class Greeting extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Instagram</ControlLabel>
+            <ControlLabel>{__('Instagram')}</ControlLabel>
 
             <FormControl
               rows={3}
@@ -157,7 +157,7 @@ class Greeting extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Twitter</ControlLabel>
+            <ControlLabel>{__('Twitter')}</ControlLabel>
 
             <FormControl
               rows={3}
@@ -167,7 +167,7 @@ class Greeting extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Youtube</ControlLabel>
+            <ControlLabel>{__('Youtube')}</ControlLabel>
 
             <FormControl
               rows={3}

@@ -81,12 +81,12 @@ function Manage({ integration, closeModal }: Props) {
           <ReactMarkdown children={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
-              <Button btnStyle='primary' icon='copy-1'>
+              <Button btnStyle="primary" icon="copy-1">
                 {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
-            <EmptyState icon='copy' text='No copyable code' size='small' />
+            <EmptyState icon="copy" text="No copyable code" size="small" />
           )}
         </MarkdownWrapper>
       </>
@@ -102,11 +102,11 @@ function Manage({ integration, closeModal }: Props) {
 
       {renderContent()}
       <ModalFooter>
-        <Button btnStyle='primary' icon='plus-circle' onClick={onSimulate}>
+        <Button btnStyle="primary" icon="plus-circle" onClick={onSimulate}>
           Simulate
         </Button>
 
-        <Button btnStyle='simple' icon='times-circle' onClick={closeModal}>
+        <Button btnStyle="simple" icon="times-circle" onClick={closeModal}>
           Close
         </Button>
       </ModalFooter>

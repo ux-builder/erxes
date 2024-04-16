@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import { IconWrapper, ModalFooter, ModalBody } from './styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 
 type Props = {
   isOpen: boolean;
@@ -43,7 +43,7 @@ class ConfirmationPopup extends React.Component<Props> {
             icon="times-circle"
             uppercase={false}
           >
-            {cancelText}
+            {__(cancelText)}
           </Button>
           <Button
             btnStyle="success"
@@ -51,7 +51,7 @@ class ConfirmationPopup extends React.Component<Props> {
             icon="check-circle"
             uppercase={false}
           >
-            {confirmText}
+            {__(confirmText)}
           </Button>
         </ModalFooter>
       </Modal>

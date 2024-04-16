@@ -2,7 +2,7 @@ import { ITrigger } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Title } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { Sidebar, Wrapper, FlexContent } from '@erxes/ui/src/layout';
 import React from 'react';
 import { IEvent, ISegment, ISegmentCondition } from '../../types';
@@ -75,9 +75,8 @@ const SegmentsForm = (props: Props) => {
     );
   };
 
-  const title = props.segment
-    ? __(`Editing ${contentType} segment`)
-    : __(`Creating ${contentType} segment`);
+  const titleKey = props.segment ? 'editingSegment' : 'creatingSegment';
+  const title = __(titleKey, { contentType: __(props.contentType) });
 
   const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [

@@ -123,13 +123,13 @@ export const EMPTY_CONTENT_SCRIPT = {
   ),
   steps: [
     {
-      title: 'Generate the combination of scripts',
+      title: __('Generate the combination of scripts'),
       description: __(
         'Click on “New Script” and choose which widgets you’re going to display in a single page'
       )
     },
     {
-      title: 'Install the script',
+      title: __('Install the script'),
       description: __(
         'Copy the updated script and paste it into your website or Google Tag Manager'
       )
@@ -150,7 +150,7 @@ export const EMPTY_CONTENT_POPUPS = {
       urlText: __('Create Form')
     },
     {
-      title: 'Install the script',
+      title: __('Install the script'),
       description: __(
         'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets'
       ),
@@ -189,7 +189,7 @@ export const EMPTY_CONTENT_ENGAGE = {
     ) + '.',
   steps: [
     {
-      title: 'Email',
+      title: __('Email'),
       description: __(
         "<ul><li><strong><a href='/settings/campaign-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>"
       ),
@@ -197,7 +197,7 @@ export const EMPTY_CONTENT_ENGAGE = {
       icon: 'envelope-edit'
     },
     {
-      title: 'Messenger',
+      title: __('Messenger'),
       description: __(
         '<strong>Prepare your contacts by Segment / Tag / Brand</strong><br/> For more targeted marketing, create a Segment'
       ),
@@ -412,117 +412,121 @@ export const EMPTY_CONTENT_TASK_PIPELINE = {
 };
 
 export const WEBHOOK_ACTIONS = [
-  { label: 'Customer created', action: 'create', type: 'customer' },
-  { label: 'Customer updated', action: 'update', type: 'customer' },
-  { label: 'Customer deleted', action: 'delete', type: 'customer' },
-  { label: 'Company created', action: 'create', type: 'company' },
-  { label: 'Company updated', action: 'update', type: 'company' },
-  { label: 'Company deleted', action: 'delete', type: 'company' },
+  { label: __('Customer created'), action: 'create', type: 'customer' },
+  { label: __('Customer updated'), action: 'update', type: 'customer' },
+  { label: __('Customer deleted'), action: 'delete', type: 'customer' },
+  { label: __('Company created'), action: 'create', type: 'company' },
+  { label: __('Company updated'), action: 'update', type: 'company' },
+  { label: __('Company deleted'), action: 'delete', type: 'company' },
   {
-    label: 'Knowledge Base created',
+    label: __('Knowledge Base created'),
     action: 'create',
     type: 'knowledgeBaseArticle'
   },
   {
-    label: 'Knowledge Base updated',
+    label: __('Knowledge Base updated'),
     action: 'update',
     type: 'knowledgeBaseArticle'
   },
   {
-    label: 'Knowledge Base deleted',
+    label: __('Knowledge Base deleted'),
     action: 'delete',
     type: 'knowledgeBaseArticle'
   },
-  { label: 'Admin messages', action: 'create', type: 'userMessages' },
+  { label: __('Admin messages'), action: 'create', type: 'userMessages' },
   {
-    label: 'Customer create conversation',
+    label: __('Customer create conversation'),
     action: 'create',
     type: 'conversation'
   },
-  { label: 'Customer messages', action: 'create', type: 'customerMessages' },
-  { label: 'Campaign', action: 'create', type: 'engageMessages' },
   {
-    label: 'Form submission received',
+    label: __('Customer messages'),
+    action: 'create',
+    type: 'customerMessages'
+  },
+  { label: __('Campaign'), action: 'create', type: 'engageMessages' },
+  {
+    label: __('Form submission received'),
     action: 'create',
     type: 'popupSubmitted'
   },
   {
-    label: 'Deal created',
+    label: __('Deal created'),
     action: 'create',
     type: 'deal'
   },
   {
-    label: 'Deal updated',
+    label: __('Deal updated'),
     action: 'update',
     type: 'deal'
   },
   {
-    label: 'Deal deleted',
+    label: __('Deal deleted'),
     action: 'delete',
     type: 'deal'
   },
   {
-    label: 'Deal moved',
+    label: __('Deal moved'),
     action: 'createBoardItemMovementLog',
     type: 'deal'
   },
   {
-    label: 'Purchase created',
+    label: __('Purchase created'),
     action: 'create',
     type: 'purchase'
   },
   {
-    label: 'Purchase updated',
+    label: __('Purchase updated'),
     action: 'update',
     type: 'purchase'
   },
   {
-    label: 'Purchase deleted',
+    label: __('Purchase deleted'),
     action: 'delete',
     type: 'purchase'
   },
   {
-    label: 'Purchase moved',
+    label: __('Purchase moved'),
     action: 'createBoardItemMovementLog',
     type: 'purchase'
   },
   {
-    label: 'Task created',
+    label: __('Task created'),
     action: 'create',
     type: 'task'
   },
   {
-    label: 'Task updated',
+    label: __('Task updated'),
     action: 'update',
     type: 'task'
   },
   {
-    label: 'Task deleted',
+    label: __('Task deleted'),
     action: 'delete',
     type: 'task'
   },
   {
-    label: 'Task moved',
+    label: __('Task moved'),
     action: 'createBoardItemMovementLog',
     type: 'task'
   },
   {
-    label: 'Ticket created',
+    label: __('Ticket created'),
     action: 'create',
     type: 'ticket'
   },
   {
-    label: 'Ticket updated',
+    label: __('Ticket updated'),
     action: 'update',
     type: 'ticket'
   },
   {
-    label: 'Ticket deleted',
+    label: __('Ticket deleted'),
     action: 'delete',
     type: 'ticket'
   },
   {
-    label: 'Ticket moved',
+    label: __('Ticket moved'),
     action: 'createBoardItemMovementLog',
     type: 'ticket'
   }
@@ -540,7 +544,7 @@ export const EMPTY_CONTENT_BOOKINGS = {
         'This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.'
       ),
       url: '/settings/properties?type=products:product',
-      urlText: 'Create Custom Properties'
+      urlText: __('Create Custom Properties')
     },
     {
       title: __('Organize Your Products'),
@@ -548,7 +552,7 @@ export const EMPTY_CONTENT_BOOKINGS = {
         'The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first.'
       ),
       url: '/settings/product-service',
-      urlText: 'Manage Products & Services'
+      urlText: __('Manage Products & Services')
     }
   ]
 };

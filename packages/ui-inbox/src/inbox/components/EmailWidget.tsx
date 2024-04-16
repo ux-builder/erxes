@@ -12,7 +12,7 @@ import { ModalWrapper } from '../styles';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   disabled?: boolean;

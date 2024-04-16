@@ -6,7 +6,7 @@ import Label from '@erxes/ui/src/components/Label';
 import Table from '@erxes/ui/src/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { EMPTY_SEGMENT_CONTENT } from '@erxes/ui-settings/src/constants';
 import React from 'react';
@@ -141,7 +141,7 @@ class SegmentsList extends React.Component<Props, State> {
 
     const title = (
       <Title capitalize={true}>
-        {contentType} {__('segments')}
+        {__(contentType)} {__('segments')}
       </Title>
     );
 
@@ -151,7 +151,7 @@ class SegmentsList extends React.Component<Props, State> {
         to={`/segments/new?contentType=${contentType}`}
       >
         <Button btnStyle="success" icon="plus-circle">
-          New segment
+          {__('New segment')}
         </Button>
       </Link>
     );

@@ -18,7 +18,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import List from '@erxes/ui-settings/src/common/components/List';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import { router } from '@erxes/ui/src';
 
@@ -52,11 +52,11 @@ class EmailTemplateList extends React.Component<Props> {
     return (
       <ModalTrigger
         enforceFocus={false}
-        title="Edit"
+        title={__('Edit')}
         size="lg"
         trigger={
           <div>
-            <Icon icon="edit" /> Edit
+            <Icon icon="edit" /> {__('Edit')}
           </div>
         }
         content={content}
@@ -68,7 +68,7 @@ class EmailTemplateList extends React.Component<Props> {
     return (
       <div onClick={this.duplicateTemplate.bind(this, object._id)}>
         <Icon icon="copy-1" />
-        Duplicate
+        {__('Duplicate')}
       </div>
     );
   }
@@ -96,7 +96,7 @@ class EmailTemplateList extends React.Component<Props> {
             <Actions>
               {this.renderEditAction(object)}
               <div onClick={this.removeTemplate.bind(this, object)}>
-                <Icon icon="cancel-1" /> Delete
+                <Icon icon="cancel-1" /> {__('Delete')}
               </div>
               {this.renderDuplicateAction(object)}
             </Actions>
@@ -108,11 +108,15 @@ class EmailTemplateList extends React.Component<Props> {
             <h5>{name}</h5>
             <div>
               <TemplateInfo>
-                <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+                <p>
+                  {createdAt === modifiedAt
+                    ? `${__('Created at')}`
+                    : `${__('Modified at')}`}
+                </p>
                 <p>{this.renderDate(createdAt, modifiedAt)}</p>
               </TemplateInfo>
               <TemplateInfo>
-                <p>Created by</p>
+                <p>{__('Created by')}</p>
                 {createdUser ? (
                   createdUser.details.fullName && (
                     <p>{createdUser.details.fullName}</p>
@@ -158,7 +162,7 @@ class EmailTemplateList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New email template"
+        formTitle={__('New email template')}
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },

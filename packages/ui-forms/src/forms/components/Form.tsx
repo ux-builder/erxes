@@ -12,7 +12,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IField } from '@erxes/ui/src/types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 type Props = {
   fields: IField[];
@@ -242,9 +242,7 @@ class Form extends React.Component<Props, State> {
         <LeftItem>
           <FormTop>{this.renderOptionalFields()}</FormTop>
           <Title>{__('Add a new field')}</Title>
-          <Description>
-            {__('Choose a field type from the options below.')}
-          </Description>
+          <Description>{__('fieldType')}</Description>
           <FieldChoices
             type={this.props.type}
             onChoiceClick={this.onChoiceClick}
