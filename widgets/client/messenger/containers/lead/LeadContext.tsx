@@ -2,13 +2,13 @@ import * as React from "react";
 import {
   increaseViewCount,
   saveLead,
-  sendEmail
+  sendEmail,
 } from "../../../form/containers/utils";
 import {
   ICurrentStatus,
   IForm,
   IFormDoc,
-  ISaveFormResponse
+  ISaveFormResponse,
 } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
 import { connection } from "../../connection";
@@ -17,6 +17,10 @@ interface IState {
   currentStatus: ICurrentStatus;
   isCallOutVisible: boolean;
   isSubmitting?: boolean;
+}
+
+interface AppProviderProps {
+  children: React.ReactNode;
 }
 
 interface IStore extends IState {
@@ -32,13 +36,13 @@ const LeadContext = React.createContext({} as IStore);
 
 export const LeadConsumer = LeadContext.Consumer;
 
-export class LeadProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class LeadProvider extends React.Component<AppProviderProps, IState> {
+  constructor(props: AppProviderProps) {
     super(props);
 
     this.state = {
       currentStatus: { status: "INITIAL" },
-      isCallOutVisible: true
+      isCallOutVisible: true,
     };
   }
 
@@ -68,10 +72,10 @@ export class LeadProvider extends React.Component<{}, IState> {
           isSubmitting: false,
           currentStatus: {
             status: status === "ok" ? "SUCCESS" : "ERROR",
-            errors
-          }
+            errors,
+          },
         });
-      }
+      },
     });
   };
 

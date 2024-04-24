@@ -3,6 +3,10 @@ import * as fe from "fast-equals";
 
 interface IMapProps extends google.maps.MapOptions {
   style: { [key: string]: string };
+  children?: React.ReactNode;
+}
+interface IMapChildProps {
+  map?: google.maps.Map;
 }
 
 const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
@@ -11,9 +15,9 @@ const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
 
   React.useEffect(() => {
     if (ref.current && !map) {
-      setMap(new window.google.maps.Map(ref.current, {}));
+      setMap(new window.google.maps.Map(ref.current, options));
     }
-  }, [ref, map]);
+  }, [ref, map, options]);
 
   useDeepCompareEffectForMaps(() => {
     if (map) {
@@ -25,9 +29,10 @@ const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
     <>
       <div ref={ref} style={style} />
       {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
+        if (React.isValidElement<IMapChildProps>(child)) {
           return React.cloneElement(child, { map });
         }
+        return child;
       })}
     </>
   );

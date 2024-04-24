@@ -11,6 +11,10 @@ interface IState {
   searchString: string;
 }
 
+interface AppProviderProps {
+  children: React.ReactNode;
+}
+
 interface IStore extends IState {
   goToCategory: (category: IKbCategory) => void;
   goToArticle: (article: IKbArticle) => void;
@@ -24,36 +28,36 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<AppProviderProps, IState> {
+  constructor(props: AppProviderProps) {
     super(props);
 
     this.state = {
       activeRoute: "CATEGORIES",
       activeCategory: null,
       activeArticle: null,
-      searchString: ""
+      searchString: "",
     };
   }
 
   goToCategory = (category: IKbCategory) => {
     this.setState({
       activeRoute: "CATEGORY_DETAIL",
-      activeCategory: category
+      activeCategory: category,
     });
   };
 
   goToArticle = (article: IKbArticle) => {
     this.setState({
       activeRoute: "ARTICLE_DETAIL",
-      activeArticle: article
+      activeArticle: article,
     });
   };
 
   goToCategories = () => {
     this.setState({
       activeRoute: "CATEGORIES",
-      activeCategory: null
+      activeCategory: null,
     });
   };
 
@@ -61,7 +65,7 @@ export class AppProvider extends React.Component<{}, IState> {
     const { activeCategory } = this.state;
 
     this.setState({
-      activeRoute: activeCategory ? "CATEGORY_DETAIL" : "CATEGORIES"
+      activeRoute: activeCategory ? "CATEGORY_DETAIL" : "CATEGORIES",
     });
   };
 
@@ -70,8 +74,8 @@ export class AppProvider extends React.Component<{}, IState> {
       mutation: gql(graphql.incReactionCount),
       variables: {
         articleId,
-        reactionChoice
-      }
+        reactionChoice,
+      },
     });
   };
 
@@ -95,7 +99,7 @@ export class AppProvider extends React.Component<{}, IState> {
           goToArticle: this.goToArticle,
           goToArticles: this.goToArticles,
           incReactionCount: this.incReactionCount,
-          search: this.search
+          search: this.search,
         }}
       >
         {this.props.children}

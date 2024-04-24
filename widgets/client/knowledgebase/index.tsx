@@ -7,7 +7,7 @@ import asyncComponent from "../AsyncComponent";
 
 const KnowledgeBase = asyncComponent(() =>
   import(
-    /* webpackChunkName: "knowledgebaseApp" */ './containers/KnowledgeBase'
+    /* webpackChunkName: "knowledgebaseApp" */ "./containers/KnowledgeBase"
   )
 );
 
@@ -28,7 +28,7 @@ if (settings) {
   connection.setting = settings;
   render();
 } else {
-  window.addEventListener("message", event => {
+  window.addEventListener("message", (event) => {
     const data = event.data;
 
     if (!(data.fromPublisher && data.setting)) {

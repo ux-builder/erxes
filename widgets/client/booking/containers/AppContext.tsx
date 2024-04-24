@@ -20,6 +20,10 @@ interface IState {
   currentStatus: ICurrentStatus;
 }
 
+interface AppProviderProps {
+  children: React.ReactNode;
+}
+
 interface IStore extends IState {
   goToIntro: () => void;
   goToBooking: (booking: IBookingData) => void;
@@ -41,8 +45,8 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<AppProviderProps, IState> {
+  constructor(props: AppProviderProps) {
     super(props);
 
     this.state = {
@@ -54,14 +58,14 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       currentStatus: { status: "INITIAL" },
       isSubmitting: false,
-      selectedItem: ""
+      selectedItem: "",
     };
   }
 
   goToIntro = () => {
     this.setState({
       activeRoute: "INTRO",
-      activeBooking: null
+      activeBooking: null,
     });
   };
 
@@ -69,7 +73,7 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       activeRoute: "BOOKING",
       activeBooking: booking,
-      selectedItem: ""
+      selectedItem: "",
     });
   };
 
@@ -77,7 +81,7 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       activeRoute: "BOOKING",
       activeCategory: null,
-      selectedItem: ""
+      selectedItem: "",
     });
   };
 
@@ -85,7 +89,7 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       activeRoute: "CATEGORY_DETAIL",
       activeCategory: categoryId,
-      selectedItem: categoryId
+      selectedItem: categoryId,
     });
   };
 
@@ -93,7 +97,7 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       activeRoute: "PRODUCT_DETAIL",
       activeProduct: productId,
-      selectedItem: productId
+      selectedItem: productId,
     });
   };
 
@@ -107,7 +111,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
   showForm = () => {
     this.setState({
-      isFormVisible: true
+      isFormVisible: true,
     });
   };
 
@@ -128,7 +132,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState({
       isPopupVisible: false,
-      isFormVisible: false
+      isFormVisible: false,
     });
 
     if (currentStatus.status === "SUCCESS") {
@@ -164,7 +168,7 @@ export class AppProvider extends React.Component<{}, IState> {
         this.setState({
           isSubmitting: false,
         });
-      }
+      },
     });
   };
 
@@ -190,7 +194,7 @@ export class AppProvider extends React.Component<{}, IState> {
           sendEmail,
           save: this.save,
           getIntegration: this.getIntegration,
-          onChangeCurrentStatus: this.onChangeCurrentStatus
+          onChangeCurrentStatus: this.onChangeCurrentStatus,
         }}
       >
         {this.props.children}

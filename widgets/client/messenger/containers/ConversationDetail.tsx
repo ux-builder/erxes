@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import * as React from "react";
-import { ChildProps, compose, graphql } from "react-apollo";
+import { ChildProps, graphql } from "react-apollo";
 import client from "../../apollo-client";
 import { getLocalStorageItem } from "../../common";
 import { IParticipator, IUser } from "../../types";
@@ -9,6 +9,7 @@ import { connection } from "../connection";
 import graphqlTypes from "../graphql";
 import { IConversation, IMessage } from "../types";
 import { AppConsumer } from "./AppContext";
+import { flowRight as compose } from "lodash";
 
 type Props = {
   conversationId: string;
@@ -37,7 +38,7 @@ class ConversationDetail extends React.Component<
       endConversation,
       setBotTyping,
       conversationId,
-      forceLogoutWhenResolve
+      forceLogoutWhenResolve,
     } = this.props;
 
     if (!data || !conversationId) {
@@ -49,19 +50,23 @@ class ConversationDetail extends React.Component<
       .subscribe({
         query: gql(graphqlTypes.conversationBotTypingStatus),
         variables: { _id: conversationId },
-        fetchPolicy: "network-only"
+        fetchPolicy: "network-only",
       })
       .subscribe({
         next({ data: { conversationBotTypingStatus } }) {
           const { typing } = conversationBotTypingStatus;
 
           return setBotTyping(typing);
-        }
+        },
       });
 
     // lister for new message
     data.subscribeToMore({
-      document: gql(graphqlTypes.conversationMessageInserted(connection.enabledServices.dailyco)),
+      document: gql(
+        graphqlTypes.conversationMessageInserted(
+          connection.enabledServices.dailyco
+        )
+      ),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
@@ -85,12 +90,12 @@ class ConversationDetail extends React.Component<
           ...prev,
           widgetsConversationDetail: {
             ...widgetsConversationDetail,
-            messages: [...messages, message]
-          }
+            messages: [...messages, message],
+          },
         };
 
         return next;
-      }
+      },
     });
 
     // lister for conversation status change
@@ -105,7 +110,7 @@ class ConversationDetail extends React.Component<
         if (forceLogoutWhenResolve && type === "closed") {
           endConversation(conversationId);
         }
-      }
+      },
     });
   }
 
@@ -138,8 +143,8 @@ class ConversationDetail extends React.Component<
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
           visitorId: connection.data.visitorId,
-          browserInfo: {}
-        }
+          browserInfo: {},
+        },
       });
     }
 
@@ -158,15 +163,17 @@ class ConversationDetail extends React.Component<
 
 const query = compose(
   graphql<{ conversationId: string }>(
-    gql(graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)),
+    gql(
+      graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)
+    ),
     {
-      options: ownProps => ({
+      options: (ownProps) => ({
         variables: {
           _id: ownProps.conversationId,
-          integrationId: connection.data.integrationId
+          integrationId: connection.data.integrationId,
         },
-        fetchPolicy: "network-only"
-      })
+        fetchPolicy: "network-only",
+      }),
     }
   )
 );
@@ -189,14 +196,14 @@ const WithConsumer = (props: PropsWithConsumer) => {
         setBotTyping,
         getMessengerData,
         getBotInitialMessage,
-        errorMessage
+        errorMessage,
       }) => {
         const key = activeConversation || "create";
         const {
           isOnline,
           forceLogoutWhenResolve,
           botShowInitialMessage,
-          showTimezone
+          showTimezone,
         } = getMessengerData();
 
         return (

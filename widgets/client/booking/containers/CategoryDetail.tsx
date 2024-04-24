@@ -1,11 +1,11 @@
 import * as React from "react";
 import CategoryDetail from "../components/CategoryDetail";
 import { AppConsumer } from "./AppContext";
-import { ChildProps, graphql, compose } from "react-apollo";
+import { ChildProps, graphql } from "react-apollo";
 import gql from "graphql-tag";
 import { productCategory } from "../graphql";
 import { IProductCategory } from "../../types";
-
+import { flowRight as compose } from "lodash";
 type Props = {
   goToBookings: () => void;
   categoryId?: string;
@@ -27,7 +27,7 @@ function CategoryDetailContainer(props: ChildProps<Props, QueryResponse>) {
 
   const extendedProps = {
     ...props,
-    category: data.widgetsProductCategory
+    category: data.widgetsProductCategory,
   };
 
   return <CategoryDetail {...extendedProps} />;
@@ -37,9 +37,9 @@ const WithData = compose(
   graphql<Props, QueryResponse>(gql(productCategory), {
     options: ({ categoryId }) => ({
       variables: {
-        _id: categoryId
-      }
-    })
+        _id: categoryId,
+      },
+    }),
   })
 )(CategoryDetailContainer);
 
@@ -51,7 +51,7 @@ const WithContext = () => (
       getBooking,
       goToCategory,
       goToProduct,
-      goToIntro
+      goToIntro,
     }) => {
       const booking = getBooking();
       return (

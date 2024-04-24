@@ -1,10 +1,11 @@
 import * as React from "react";
 import Product from "../components/Product";
 import { AppConsumer } from "./AppContext";
-import { ChildProps, graphql, compose } from "react-apollo";
+import { ChildProps, graphql } from "react-apollo";
 import { bookingProductWithFields } from "../graphql";
 import gql from "graphql-tag";
 import { IBookingData, IProductWithFields } from "../types";
+import { flowRight as compose } from "lodash";
 
 type Props = {
   productId: string;
@@ -30,7 +31,7 @@ function ProductContainer(props: ChildProps<Props, QueryResponse>) {
   const extendedProps = {
     ...props,
     product: productWithFields.product,
-    fields: productWithFields.fields
+    fields: productWithFields.fields,
   };
 
   return <Product {...extendedProps} />;
@@ -40,9 +41,9 @@ const WithData = compose(
   graphql<Props, QueryResponse>(gql(bookingProductWithFields), {
     options: ({ productId }) => ({
       variables: {
-        _id: productId
-      }
-    })
+        _id: productId,
+      },
+    }),
   })
 )(ProductContainer);
 

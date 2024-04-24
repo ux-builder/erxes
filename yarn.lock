@@ -365,9 +365,9 @@
     tslib "^2.2.0"
 
 "@azure/core-auth@^1.4.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@azure/core-auth/-/core-auth-1.7.0.tgz#846d5f98286b370fc6d49d70fb659e40b62b91c5"
-  integrity sha512-OuDVn9z2LjyYbpu6e7crEwSipa62jX7/ObV/pmXQfnOG8cHwm363jYtg3FSX3GB1V7jsIKri1zgq7mfXkFk/qw==
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@azure/core-auth/-/core-auth-1.7.2.tgz#558b7cb7dd12b00beec07ae5df5907d74df1ebd9"
+  integrity sha512-Igm/S3fDYmnMq1uKS38Ae1/m37B3zigdlZw+kocwEhh5GjyKjPrXKO2J6rzpC1wAxrNil/jX9BJRqBshyjnF3g==
   dependencies:
     "@azure/abort-controller" "^2.0.0"
     "@azure/core-util" "^1.1.0"
@@ -433,9 +433,9 @@
     tslib "^2.2.0"
 
 "@azure/core-rest-pipeline@^1.1.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@azure/core-rest-pipeline/-/core-rest-pipeline-1.15.0.tgz#85f86963d434f03c7bf1f468121eb047491cc7e7"
-  integrity sha512-6kBQwE75ZVlOjBbp0/PX0fgNLHxoMDxHe3aIPV/RLVwrIDidxTbsHtkSbPNTkheMset3v9s1Z08XuMNpWRK/7w==
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/@azure/core-rest-pipeline/-/core-rest-pipeline-1.15.2.tgz#421729bbd8cd5f9f50b403e79941f27ac1bdc302"
+  integrity sha512-BmWfpjc/QXc2ipHOh6LbUzp3ONCaa6xzIssTU0DwH9bbYNXJlGUL6tujx5TrbVd/QQknmS+vlQJGrCq2oL1gZA==
   dependencies:
     "@azure/abort-controller" "^2.0.0"
     "@azure/core-auth" "^1.4.0"
@@ -5591,6 +5591,11 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@types/zen-observable@^0.8.0":
+  version "0.8.7"
+  resolved "https://registry.npmjs.org/@types/zen-observable/-/zen-observable-0.8.7.tgz"
+  integrity sha512-LKzNTjj+2j09wAo/vvVjzgw5qckJJzhdGgWHW7j69QIGdq/KnZrMAMIHQiWGl3Ccflh5/CudBAntTPYdprPltA==
+
 "@uiw/codemirror-extensions-basic-setup@4.21.24":
   version "4.21.24"
   resolved "https://registry.npmjs.org/@uiw/codemirror-extensions-basic-setup/-/codemirror-extensions-basic-setup-4.21.24.tgz"
@@ -5857,6 +5862,13 @@
   integrity sha512-jmT7Sb4ZQWI5iyu3lobQxICu2nC/vbUhP0vIdd6tHC9PTfenmRmuIFqktc6GH9cgi+ZHnsLWPvfSvc4DrYmKiQ==
   dependencies:
     tslib "^2.3.0"
+
+"@wry/equality@^0.1.2":
+  version "0.1.11"
+  resolved "https://registry.npmjs.org/@wry/equality/-/equality-0.1.11.tgz"
+  integrity sha512-mwEVBDUVODlsQQ5dfuLUS5/Tf7jqUKyhKYHmVi4fPB6bDMOfWvUPJmKgS1Z7Za/sOI3vzWt4+O7yCiL/70MogA==
+  dependencies:
+    tslib "^1.9.3"
 
 "@wry/equality@^0.5.0":
   version "0.5.7"
@@ -6287,6 +6299,28 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
+apollo-cache@1.3.5:
+  version "1.3.5"
+  resolved "https://registry.npmjs.org/apollo-cache/-/apollo-cache-1.3.5.tgz"
+  integrity sha512-1XoDy8kJnyWY/i/+gLTEbYLnoiVtS8y7ikBr/IfmML4Qb+CM7dEEbIUOjnY716WqmZ/UpXIxTfJsY7rMcqiCXA==
+  dependencies:
+    apollo-utilities "^1.3.4"
+    tslib "^1.10.0"
+
+apollo-client@^2.6.10:
+  version "2.6.10"
+  resolved "https://registry.npmjs.org/apollo-client/-/apollo-client-2.6.10.tgz"
+  integrity sha512-jiPlMTN6/5CjZpJOkGeUV0mb4zxx33uXWdj/xQCfAMkuNAC3HN7CvYDyMHHEzmcQ5GV12LszWoQ/VlxET24CtA==
+  dependencies:
+    "@types/zen-observable" "^0.8.0"
+    apollo-cache "1.3.5"
+    apollo-link "^1.0.0"
+    apollo-utilities "1.3.4"
+    symbol-observable "^1.0.2"
+    ts-invariant "^0.4.0"
+    tslib "^1.10.0"
+    zen-observable "^0.8.0"
+
 apollo-datasource-rest@^0.5.1:
   version "0.5.1"
   resolved "https://registry.npmjs.org/apollo-datasource-rest/-/apollo-datasource-rest-0.5.1.tgz"
@@ -6313,6 +6347,16 @@ apollo-datasource@^3.3.2:
   dependencies:
     "@apollo/utils.keyvaluecache" "^1.0.1"
     apollo-server-env "^4.2.1"
+
+apollo-link@^1.0.0:
+  version "1.2.14"
+  resolved "https://registry.npmjs.org/apollo-link/-/apollo-link-1.2.14.tgz"
+  integrity sha512-p67CMEFP7kOG1JZ0ZkYZwRDa369w5PIjtMjvrQd/HnIV8FRsHRqLqK+oAZQnFa1DDdZtOtHTi+aMIW6EatC2jg==
+  dependencies:
+    apollo-utilities "^1.3.0"
+    ts-invariant "^0.4.0"
+    tslib "^1.9.3"
+    zen-observable-ts "^0.8.21"
 
 apollo-reporting-protobuf@^3.4.0:
   version "3.4.0"
@@ -6415,6 +6459,16 @@ apollo-server-types@^3.0.2, apollo-server-types@^3.8.0:
     "@apollo/utils.logger" "^1.0.0"
     apollo-reporting-protobuf "^3.4.0"
     apollo-server-env "^4.2.1"
+
+apollo-utilities@1.3.4, apollo-utilities@^1.3.0, apollo-utilities@^1.3.4:
+  version "1.3.4"
+  resolved "https://registry.npmjs.org/apollo-utilities/-/apollo-utilities-1.3.4.tgz"
+  integrity sha512-pk2hiWrCXMAy2fRPwEyhvka+mqwzeP60Jr1tRYi5xru+3ko94HI9o6lK0CT33/w4RDlxWchmdhDCrvdr+pHCig==
+  dependencies:
+    "@wry/equality" "^0.1.2"
+    fast-json-stable-stringify "^2.0.0"
+    ts-invariant "^0.4.0"
+    tslib "^1.10.0"
 
 app-root-path@^2.0.0:
   version "2.2.1"
@@ -22433,7 +22487,7 @@ symbol-observable@1.0.1:
   resolved "https://registry.npmjs.org/symbol-observable/-/symbol-observable-1.0.1.tgz"
   integrity sha512-Kb3PrPYz4HanVF1LVGuAdW6LoVgIwjUYJGzFe7NDrBLCN4lsV/5J0MFurV+ygS4bRVwrCEt2c7MQ1R2a72oJDw==
 
-symbol-observable@^1.0.4, symbol-observable@^1.1.0:
+symbol-observable@^1.0.2, symbol-observable@^1.0.4, symbol-observable@^1.1.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/symbol-observable/-/symbol-observable-1.2.0.tgz"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
@@ -23005,6 +23059,13 @@ ts-invariant@^0.10.3:
   dependencies:
     tslib "^2.1.0"
 
+ts-invariant@^0.4.0:
+  version "0.4.4"
+  resolved "https://registry.npmjs.org/ts-invariant/-/ts-invariant-0.4.4.tgz"
+  integrity sha512-uEtWkFM/sdZvRNNDL3Ehu4WVpwaulhwQszV8mrtcdeE8nN00BV9mAmQ88RkrBhFgl9gMgvjJLAQcZbnPXI9mlA==
+  dependencies:
+    tslib "^1.9.3"
+
 ts-jest@22.0.4:
   version "22.0.4"
   resolved "https://registry.npmjs.org/ts-jest/-/ts-jest-22.0.4.tgz"
@@ -23113,7 +23174,7 @@ tsconfig@^7.0.0:
     strip-bom "^3.0.0"
     strip-json-comments "^2.0.0"
 
-tslib@^1, tslib@^1.11.1, tslib@^1.9.0:
+tslib@^1, tslib@^1.10.0, tslib@^1.11.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.14.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
@@ -24877,6 +24938,14 @@ yog-view@^0.9.2:
   dependencies:
     caller "0.0.1"
 
+zen-observable-ts@^0.8.21:
+  version "0.8.21"
+  resolved "https://registry.npmjs.org/zen-observable-ts/-/zen-observable-ts-0.8.21.tgz"
+  integrity sha512-Yj3yXweRc8LdRMrCC8nIc4kkjWecPAUVh0TI0OUrWXx6aX790vLcDlWca6I4vsyCGH3LpWxq0dJRcMOFoVqmeg==
+  dependencies:
+    tslib "^1.9.3"
+    zen-observable "^0.8.0"
+
 zen-observable-ts@^1.2.5:
   version "1.2.5"
   resolved "https://registry.npmjs.org/zen-observable-ts/-/zen-observable-ts-1.2.5.tgz"
@@ -24884,7 +24953,7 @@ zen-observable-ts@^1.2.5:
   dependencies:
     zen-observable "0.8.15"
 
-zen-observable@0.8.15:
+zen-observable@0.8.15, zen-observable@^0.8.0:
   version "0.8.15"
   resolved "https://registry.npmjs.org/zen-observable/-/zen-observable-0.8.15.tgz"
   integrity sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==

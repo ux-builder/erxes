@@ -1,8 +1,8 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as ReactModal from "react-modal";
+import ReactModal from "react-modal";
 import { iconClose, iconLeft, iconMore } from "../../icons/Icons";
-import { __, readFile} from "../../utils";
+import { __, readFile } from "../../utils";
 
 type Props = {
   middle: React.ReactNode;
@@ -30,10 +30,10 @@ class TopBar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { 
-      headHeight: props.prevHeight, 
+    this.state = {
+      headHeight: props.prevHeight,
       isVisibleDropdown: false,
-      isModalOpen: false
+      isModalOpen: false,
     };
     this.endConversation = this.endConversation.bind(this);
   }
@@ -78,16 +78,16 @@ class TopBar extends React.Component<Props, State> {
 
   exportConversation = () => {
     const { exportConversation } = this.props;
-    exportConversation(exportData => {
+    exportConversation((exportData) => {
       // exported data in new tab.
       const url = readFile(exportData);
-      window.open( url, '_blank')?.focus();
+      window.open(url, "_blank")?.focus();
     });
-  }
+  };
 
   renderRightButton() {
     const topBarClassNames = classNames("topbar-button", "right", "fade-in", {
-      "dropdown-open": this.state.isVisibleDropdown
+      "dropdown-open": this.state.isVisibleDropdown,
     });
 
     if (!this.props.isChat) {
@@ -116,13 +116,13 @@ class TopBar extends React.Component<Props, State> {
               {__("Close")}
             </a>
           </li>
-          { this.props.activeConversation &&
-          <li>
-            <a href="#" onClick={this.exportConversation}>
-              {__("Export conversation")}
-            </a>
-          </li>
-          }
+          {this.props.activeConversation && (
+            <li>
+              <a href="#" onClick={this.exportConversation}>
+                {__("Export conversation")}
+              </a>
+            </li>
+          )}
         </ul>
       </button>
     );
@@ -158,10 +158,20 @@ class TopBar extends React.Component<Props, State> {
         className="erxes-modal fade-in"
         overlayClassName="erxes-overlay"
       >
-        <h5>{__("Do you want to end this conversation ?")}</h5>
+        <h5>{__("Do you want to end this conversation?")}</h5>
         <div className="modal-footer">
-          <button className="erxes-button btn-outline" onClick={this.endConversation}>{__("No")}</button>
-          <button className="erxes-button btn-primary" onClick={handleConfirm}>{__("Yes")}</button>
+          <button
+            className="erxes-button btn-outline"
+            onClick={() => this.endConversation(null, false)}
+          >
+            {__("No")}
+          </button>
+          <button
+            className="erxes-button btn-primary"
+            onClick={(e) => this.endConversation(e, true)}
+          >
+            {__("Yes")}
+          </button>
         </div>
       </ReactModal>
     );
@@ -171,11 +181,11 @@ class TopBar extends React.Component<Props, State> {
     const { color, isExpanded, middle, toggleHead, textColor } = this.props;
 
     const topBarClassNames = classNames("erxes-topbar", {
-      expanded: isExpanded
+      expanded: isExpanded,
     });
 
     const middleClass = classNames("erxes-middle", "fade-in", {
-      expandable: toggleHead ? true : false
+      expandable: toggleHead ? true : false,
     });
 
     return (
@@ -188,7 +198,7 @@ class TopBar extends React.Component<Props, State> {
           <div
             className={topBarClassNames}
             style={{ color: textColor }}
-            ref={node => {
+            ref={(node) => {
               this.node = node;
             }}
           >

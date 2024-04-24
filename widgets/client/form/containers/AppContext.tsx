@@ -1,17 +1,17 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
-import { checkRules, getEnv } from '../../utils';
-import { connection } from '../connection';
-import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from '../types';
+import { IEmailParams, IIntegration, IIntegrationLeadData } from "../../types";
+import { checkRules, getEnv } from "../../utils";
+import { connection } from "../connection";
+import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from "../types";
 import {
   generatePaymentLink,
   increaseViewCount,
   postMessage,
   saveLead,
   sendEmail,
-} from './utils';
-import * as cookie from 'cookie';
+} from "./utils";
+import * as cookie from "cookie";
 
 interface IState {
   isPopupVisible: boolean;
@@ -22,6 +22,10 @@ interface IState {
   extraContent?: string;
   callSubmit: boolean;
   invoiceLink?: string;
+}
+
+interface AppProviderProps {
+  children: React.ReactNode;
 }
 
 interface IStore extends IState {
@@ -50,16 +54,16 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<AppProviderProps, IState> {
+  constructor(props: AppProviderProps) {
     super(props);
 
     this.state = {
       isPopupVisible: false,
       isFormVisible: false,
       isCalloutVisible: false,
-      currentStatus: { status: 'INITIAL' },
-      extraContent: '',
+      currentStatus: { status: "INITIAL" },
+      extraContent: "",
       callSubmit: false,
     };
   }
@@ -89,7 +93,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     // if there is popup handler then do not show it initially
-    if (loadType === 'popup' && hasPopupHandlers) {
+    if (loadType === "popup" && hasPopupHandlers) {
       return null;
     }
 
@@ -101,7 +105,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     // If load type is shoutbox then hide form component initially
-    if (callout.skip && loadType !== 'shoutbox') {
+    if (callout.skip && loadType !== "shoutbox") {
       return this.setState({ isFormVisible: true });
     }
 
@@ -114,21 +118,22 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     const cookies = cookie.parse(document.cookie);
 
-    const paymentCookies = Object.keys(cookies).filter(key =>
-      key.includes('paymentData')
+    const paymentCookies = Object.keys(cookies).filter((key) =>
+      key.includes("paymentData")
     );
 
     if (paymentCookies.length > 0) {
       if (cookies[paymentCookies[0]]) {
         const { API_URL } = getEnv();
-  
+
         this.setState({
-          currentStatus: { status: 'PAYMENT_PENDING'},
-          invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies[paymentCookies[0]]}`,
+          currentStatus: { status: "PAYMENT_PENDING" },
+          invoiceLink: `${API_URL}/pl:payment/gateway?params=${
+            cookies[paymentCookies[0]]
+          }`,
         });
       }
     }
-
 
     this.setState({
       isCalloutVisible: false,
@@ -181,7 +186,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       isCalloutVisible: false,
       isFormVisible: false,
-      currentStatus: { status: 'INITIAL' },
+      currentStatus: { status: "INITIAL" },
     });
 
     // Increasing view count
@@ -207,25 +212,25 @@ export class AppProvider extends React.Component<{}, IState> {
       saveCallback: async (response: ISaveFormResponse) => {
         const { errors } = response;
 
-        let status = 'ERROR';
+        let status = "ERROR";
 
         switch (response.status) {
-          case 'ok':
-            status = 'SUCCESS';
+          case "ok":
+            status = "SUCCESS";
             break;
           default:
-            status = 'ERROR';
+            status = "ERROR";
             break;
         }
 
         if (
-          status !== 'ERROR' &&
+          status !== "ERROR" &&
           requiredPaymentAmount &&
           requiredPaymentAmount > 0 &&
           connection.enabledServices.products &&
           connection.enabledServices.payment
         ) {
-          status = 'PAYMENT_PENDING';
+          status = "PAYMENT_PENDING";
 
           try {
             const invoiceLink = await generatePaymentLink(
@@ -237,15 +242,15 @@ export class AppProvider extends React.Component<{}, IState> {
               this.setState({ invoiceLink });
             }
           } catch (e) {
-            status = 'ERROR';
+            status = "ERROR";
             this.setState({ currentStatus: { status } });
           }
         }
 
         postMessage({
-          message: 'submitResponse',
+          message: "submitResponse",
           status,
-          response
+          response,
         });
 
         this.setState({
@@ -253,7 +258,7 @@ export class AppProvider extends React.Component<{}, IState> {
           isSubmitting: false,
           currentStatus: {
             status,
-            errors
+            errors,
           },
         });
       },
@@ -272,11 +277,11 @@ export class AppProvider extends React.Component<{}, IState> {
    * Redisplay form component after submission
    */
   createNew = () => {
-    this.setState({ currentStatus: { status: 'INITIAL' } });
+    this.setState({ currentStatus: { status: "INITIAL" } });
   };
 
   setHeight = () => {
-    const container = document.getElementById('erxes-container');
+    const container = document.getElementById("erxes-container");
 
     if (!container) {
       return;
@@ -285,7 +290,7 @@ export class AppProvider extends React.Component<{}, IState> {
     const elementsHeight = container.clientHeight;
 
     postMessage({
-      message: 'changeContainerStyle',
+      message: "changeContainerStyle",
       style: `height: ${elementsHeight}px;`,
     });
   };

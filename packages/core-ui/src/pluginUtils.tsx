@@ -149,11 +149,12 @@ export const loadComponent = (scope, module) => {
     } catch (e) {
       // already was initialized
     }
+    if (container && container.get) {
+      const factory = await window[scope].get(module);
 
-    const factory = await window[scope].get(module);
-
-    const Module = factory();
-    return Module;
+      const Module = factory();
+      return Module;
+    }
   };
 };
 
