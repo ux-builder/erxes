@@ -21,7 +21,8 @@
   },
   "scripts": {
     "start": "./bin/erxes.js dev",
-    "restart": "pm2 restart all"
+    "restart": "pm2 restart all",
+    "seedDB": "node ../cypress/database/seedLocalMongoDB.js"
   },
   "dependencies": {
     "@apollo/federation": "^0.38.1",

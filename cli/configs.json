@@ -22,6 +22,7 @@
     { "name": "engages", "ui": "local" },
     { "name": "emailtemplates", "ui": "local" },
     { "name": "notifications", "ui": "local" },
-    { "name": "imap", "ui": "local" }
+    { "name": "imap", "ui": "local" },
+    { "name": "knowledgebase", "ui": "local" }
   ]
 }
