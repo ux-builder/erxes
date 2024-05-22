@@ -2,16 +2,19 @@ import { IContext } from '@erxes/api-utils/src';
 import { sendInboxMessage } from '../../messageBroker';
 import { ICallRecord, Records } from '../../models';
 import { sendDailyRequest } from '../../utils';
-import { graphqlPubsub } from '../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export const publishMessage = async (
   subdomain: string,
   message: any,
   customerId?: string
 ) => {
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
@@ -25,7 +28,7 @@ export const publishMessage = async (
       isRPC: true
     });
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
         unreadCount
@@ -81,27 +84,38 @@ const mutations = {
     } = args;
 
     try {
-      const response = await sendDailyRequest(
+      const roomResponse = await sendDailyRequest(
         '/api/v1/rooms',
         'post',
         { privacy: 'private' },
         subdomain
       );
+      if (!roomResponse || !roomResponse.name || !roomResponse.domain_name) {
+        throw new Error(
+          'Failed to create room or missing required data in response'
+        );
+      }
 
       const tokenResponse = await sendDailyRequest(
         '/api/v1/meeting-tokens',
         'post',
         {
-          properties: { room_name: response.name, enable_recording: 'cloud' }
+          properties: {
+            room_name: roomResponse.name,
+            enable_recording: 'cloud'
+          }
         },
         subdomain
       );
-
-      const domain_name = response.domain_name;
+      if (!tokenResponse || !tokenResponse.token) {
+        throw new Error(
+          'Failed to generate meeting token or missing token in response'
+        );
+      }
 
       const callData = {
-        url: `https://${domain_name}.daily.co/${response.name}?t=${tokenResponse.token}`,
-        name: response.name,
+        url: `https://${roomResponse.domain_name}.daily.co/${roomResponse.name}?t=${tokenResponse.token}`,
+        name: roomResponse.name,
         status: 'ongoing'
       };
 
@@ -121,26 +135,25 @@ const mutations = {
         const doc: ICallRecord = {
           contentTypeId,
           contentType,
-          roomName: response.name,
-          privacy: response.privacy,
+          roomName: roomResponse.name,
+          privacy: roomResponse.privacy,
           token: tokenResponse.token,
           status: 'ongoing',
           messageId: message._id
         };
-
-        await Records.createCallRecord(doc);
 
         const updatedMessage = {
           ...message,
           videoCallData: callData
         };
 
-        publishMessage(subdomain, updatedMessage);
+        // Publish the updated message
+        await publishMessage(subdomain, updatedMessage);
       }
 
       return callData;
     } catch (e) {
-      throw new Error(e.message);
+      throw new Error(e.message || 'An error occurred while creating the room');
     }
   }
 };

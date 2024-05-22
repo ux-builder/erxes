@@ -44,6 +44,7 @@ export const types = `
     sound: String
     channelId: String
   }
+
   input EventDataFilter {
     field: String,
     values: [String]
@@ -78,5 +79,5 @@ export const mutations = `
     configs: [NotificationConfigInput],
   ): ClientPortalUser
 
-    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON,mobileConfig: MobileFireBaseConfig): JSON
+  clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON, mobileConfig: MobileFireBaseConfig): JSON
 `;

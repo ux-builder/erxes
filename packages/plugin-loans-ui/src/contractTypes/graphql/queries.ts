@@ -8,8 +8,8 @@ export const contractTypeFields = `
   vacancy
   leaseType
   createdAt
-  unduePercent
-  undueCalcType
+  lossPercent
+  lossCalcType
   useMargin
   useSkipInterest
   useDebt
@@ -23,6 +23,8 @@ export const contractTypeFields = `
   savingPlusLoanInterest
   savingUpperPercent
   usePrePayment
+  invoiceDay
+  customFieldsData
 `;
 
 const listParamsDef = `

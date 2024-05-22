@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface ITimeClock {
   userId: string;
@@ -81,6 +82,7 @@ export interface ISchedule {
   totalBreakInMins?: number;
   createdByRequest?: boolean;
   shiftIds?: string[];
+  note?: string;
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -362,6 +364,10 @@ export const scheduleSchema = new Schema({
     label: 'Whether schedule was created by shift request',
     default: false,
     optional: true
+  }),
+  note: field({
+    type: String,
+    label: 'Note'
   })
 });
 
@@ -613,4 +619,8 @@ export interface IReport {
   groupTotalMinsLate?: number;
   groupTotalAbsenceMins?: number;
   groupTotalMinsScheduled?: number;
+}
+
+export interface ITeamMembersObj {
+  [userId: string]: IUserDocument;
 }

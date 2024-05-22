@@ -10,7 +10,13 @@ import {
   IContract
 } from './definitions/contracts';
 import { getCloseInfo } from './utils/closeUtils';
-import { addMonths, getFullDate, getNumber } from './utils/utils';
+import {
+  addMonths,
+  calcInterest,
+  getDiffDay,
+  getFullDate,
+  getNumber
+} from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
@@ -42,6 +48,7 @@ export interface IContractModel extends Model<IContractDocument> {
   closeContract(subdomain, doc: ICloseVariable);
   removeContracts(_ids);
 }
+
 export const loadContractClass = (models: IModels) => {
   class Contract {
     /**
@@ -70,6 +77,9 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
+      doc.firstPayDate = getFullDate(doc.firstPayDate);
+      doc.mustPayDate = getFullDate(doc.firstPayDate);
+      doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
@@ -87,7 +97,7 @@ export const loadContractClass = (models: IModels) => {
       const contract = await models.Contracts.create(doc);
 
       if (doc.repayment === REPAYMENT.CUSTOM && schedule.length > 0) {
-        const schedules = schedule.map(a => {
+        const schedules = schedule.map((a) => {
           return {
             contractId: contract._id,
             status: SCHEDULE_STATUS.PENDING,
@@ -108,19 +118,25 @@ export const loadContractClass = (models: IModels) => {
         doc.leaseType === LEASE_TYPES.LINEAR ||
         doc.leaseType === LEASE_TYPES.SAVING
       ) {
+        const diffDays = getDiffDay(doc.startDate, doc.endDate);
+
+        const interest = calcInterest({
+          balance: doc.leaseAmount,
+          interestRate: doc.interestRate,
+          dayOfMonth: diffDays
+        });
+
         const schedules = [
           {
             contractId: contract._id,
             status: SCHEDULE_STATUS.PENDING,
             payDate: doc.endDate,
             balance: doc.leaseAmount,
-            interestNonce: 0,
+            interestNonce: interest,
             payment: doc.leaseAmount,
             total: doc.leaseAmount
           }
         ];
-
-        console.log('schedules', schedules);
 
         await models.FirstSchedules.insertMany(schedules);
       }
@@ -148,6 +164,8 @@ export const loadContractClass = (models: IModels) => {
       }
 
       doc.startDate = getFullDate(doc.startDate || new Date());
+      doc.firstPayDate = getFullDate(doc.firstPayDate);
+      doc.mustPayDate = getFullDate(doc.firstPayDate);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
@@ -166,7 +184,7 @@ export const loadContractClass = (models: IModels) => {
         await models.FirstSchedules.deleteMany({ contractId: _id });
         await models.Schedules.deleteMany({ contractId: _id });
 
-        const schedules = schedule.map(a => {
+        const schedules = schedule.map((a) => {
           return {
             contractId: _id,
             status: SCHEDULE_STATUS.PENDING,

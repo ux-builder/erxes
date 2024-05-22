@@ -1,11 +1,11 @@
-import { Button, FormControl, Icon } from '@erxes/ui/src/components';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
-import { __, confirm, router } from '@erxes/ui/src/utils';
-import React, { useState, useEffect } from 'react';
-import Modal from 'react-bootstrap/Modal';
+import { Button, FormControl, Icon } from "@erxes/ui/src/components";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems, FlexContent } from "@erxes/ui/src/layout/styles";
+import { __, confirm, router } from "@erxes/ui/src/utils";
+import React, { useState, useEffect } from "react";
+import Dialog from "@erxes/ui/src/components/Dialog";
 import {
   ActionBarButtonsWrapper,
   BackButton,
@@ -15,41 +15,40 @@ import {
   FlexCenter,
   HeightedWrapper,
   ReportContainer,
-  Title
-} from '../../styles';
-import { IChart, IReport, IReportItem } from '../../types';
-import SelectMembersForm from '../utils/SelectMembersForm';
-import Participators from './Participators';
-import ChartForm from '../../containers/chart/ChartForm';
-import ChartRenderer from '../../containers/chart/ChartRenderer';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+  Title,
+} from "../../styles";
+import { IChart, IReport, IReportItem } from "../../types";
+import SelectMembersForm from "../utils/SelectMembersForm";
+import Participators from "./Participators";
+import ChartForm from "../../containers/chart/ChartForm";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import { getEnv } from "@erxes/ui/src/utils/core";
+import queryString from "query-string";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,
-  h: 3
+  h: 3,
 };
-const deserializeItem = i => {
+const deserializeItem = (i) => {
   return {
     ...i,
     layout: i.layout ? JSON.parse(i.layout) : {},
-    vizState: i.vizState ? JSON.parse(i.vizState) : {}
+    vizState: i.vizState ? JSON.parse(i.vizState) : {},
   };
 };
 
-const defaultLayout = i => ({
+const defaultLayout = (i) => ({
   x: i.layout.x || 0,
   y: i.layout.y || 0,
   w: i.layout.w || DEFAULT_GRID_DIMENSIONS.w,
   h: i.layout.h || DEFAULT_GRID_DIMENSIONS.h,
   minW: 1,
-  minH: 1
+  minH: 1,
 });
 
 type Props = {
   report: IReport;
-  history: any;
   queryParams: any;
   reportsEdit: (reportId: string, values: any, callback?: any) => void;
   reportChartsEdit: (_id: string, values: any, callback?: any) => void;
@@ -62,15 +61,16 @@ const Report = (props: Props) => {
     reportsEdit,
     reportChartsEdit,
     reportChartsRemove,
-    history,
-    queryParams
+    queryParams,
   } = props;
   const { charts, members } = report;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [reportItems, setReportItems] = useState<IReportItem[]>([]);
-  const [isPublic, setIsPublic] = useState(report.visibility === 'public');
-  const [name, setName] = useState(report.name || '');
-  const [visibility, setVisibility] = useState<string>(report.visibility || '');
+  const [isPublic, setIsPublic] = useState(report.visibility === "public");
+  const [name, setName] = useState(report.name || "");
+  const [visibility, setVisibility] = useState<string>(report.visibility || "");
 
   const [currentChart, setCurrentChart] = useState(null);
   const [showChartForm, setShowChartForm] = useState(false);
@@ -88,7 +88,7 @@ const Report = (props: Props) => {
     setReportItems(charts || []);
   }, [charts]);
 
-  const onNameChange = e => {
+  const onNameChange = (e) => {
     e.preventDefault();
     setName(e.target.value);
   };
@@ -118,21 +118,47 @@ const Report = (props: Props) => {
   };
 
   const onDeleteChart = (_id: string) => {
-    confirm('Are you sure to delete this chart').then(() => {
+    confirm("Are you sure to delete this chart").then(() => {
       reportChartsRemove(_id);
     });
   };
 
+  const exportTable = (item: IChart) => {
+    const stringified = queryString.stringify({
+      ...item,
+    });
+    const { REACT_APP_API_URL } = getEnv();
+    window.open(
+      `${REACT_APP_API_URL}/pl:reports/report-table-export?${stringified}`
+    );
+  };
+
   const reportItem = (item: IChart) => {
+    const { chartType } = item;
+
     if (item.layout) {
       return (
-        <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
+        <div
+          key={item._id || Math.random()}
+          data-grid={defaultLayout(item)}
+          style={{ overflow: "hidden" }}
+        >
           <ChartTitle>
             <div>{item.name}</div>
+            {chartType && chartType === "table" && (
+              <span
+                className="db-item-action"
+                onClick={() => exportTable(item)}
+              >
+                export
+              </span>
+            )}
             <span
               className="db-item-action"
               onClick={() => {
-                router.setParams(history, { serviceName: item.serviceName });
+                router.setParams(navigate, location, {
+                  serviceName: item.serviceName,
+                });
                 setCurrentChart(item);
                 setShowChartForm(true);
               }}
@@ -147,15 +173,15 @@ const Report = (props: Props) => {
             </span>
           </ChartTitle>
           <ChartRenderer
-            history={history}
             queryParams={queryParams}
             chartType={item.chartType}
             chartHeight={defaultLayout(item).h * 160}
             chartVariables={{
               serviceName: item.serviceName,
-              templateType: item.templateType
+              templateType: item.templateType,
             }}
             filter={item.filter}
+            dimension={item.dimension}
           />
         </div>
       );
@@ -170,17 +196,17 @@ const Report = (props: Props) => {
     }
 
     if (checkNameChange()) {
-      confirm('Do you want to save the change').then(() =>
-        reportsEdit(report._id, { name }, history.push('/reports'))
+      confirm("Do you want to save the change").then(() =>
+        reportsEdit(report._id, { name }, navigate("/reports"))
       );
     } else {
-      history.push('/reports');
+      navigate("/reports");
     }
   };
 
   const switchVisiblitybarTab = (vis: string) => {
     setVisibility(vis);
-    setIsPublic(vis === 'public');
+    setIsPublic(vis === "public");
     reportsEdit(report._id, { visibility: vis });
   };
 
@@ -194,7 +220,7 @@ const Report = (props: Props) => {
       {
         visibility,
         assignedDepartmentIds: departmentIds,
-        assignedUserIds: userIds
+        assignedUserIds: userIds,
       },
       setShowTeamMembersSelect(false)
     );
@@ -208,37 +234,35 @@ const Report = (props: Props) => {
     setUserIds(usrIds);
   };
 
-  const onColumsNumChange = e => {
+  const onColumsNumChange = (e) => {
     e.preventDefault();
     setColumnsNum(e.target.value);
   };
 
   const renderMembersSelectModal = () => {
     return (
-      <Modal
+      <Dialog
         show={showTeamMemberSelect}
-        onHide={() => setShowTeamMembersSelect(false)}
+        closeModal={() => setShowTeamMembersSelect(false)}
       >
-        <Modal.Body>
-          <SelectMembersForm
-            handleDepartmentChange={handleDepartmentChange}
-            handleUserChange={handleUserChange}
-            userIds={userIds}
-            departmentIds={departmentIds}
-          />
-          <FlexCenter>
-            <Button
-              btnStyle="primary"
-              onClick={() => setShowTeamMembersSelect(false)}
-            >
-              Cancel
-            </Button>
-            <Button btnStyle="success" onClick={handleMembersSubmit}>
-              Save
-            </Button>
-          </FlexCenter>
-        </Modal.Body>
-      </Modal>
+        <SelectMembersForm
+          handleDepartmentChange={handleDepartmentChange}
+          handleUserChange={handleUserChange}
+          userIds={userIds}
+          departmentIds={departmentIds}
+        />
+        <FlexCenter>
+          <Button
+            btnStyle="primary"
+            onClick={() => setShowTeamMembersSelect(false)}
+          >
+            Cancel
+          </Button>
+          <Button btnStyle="success" onClick={handleMembersSubmit}>
+            Save
+          </Button>
+        </FlexCenter>
+      </Dialog>
     );
   };
 
@@ -262,16 +286,16 @@ const Report = (props: Props) => {
         <CenterBar>
           <Tabs full={true}>
             <TabTitle
-              className={isPublic ? 'active' : ''}
-              onClick={() => switchVisiblitybarTab('public')}
+              className={isPublic ? "active" : ""}
+              onClick={() => switchVisiblitybarTab("public")}
             >
-              {__('Public')}
+              {__("Public")}
             </TabTitle>
             <TabTitle
-              className={isPublic ? '' : 'active'}
-              onClick={() => switchVisiblitybarTab('private')}
+              className={isPublic ? "" : "active"}
+              onClick={() => switchVisiblitybarTab("private")}
             >
-              {__('Private')}
+              {__("Private")}
             </TabTitle>
           </Tabs>
         </CenterBar>
@@ -291,10 +315,10 @@ const Report = (props: Props) => {
             <Button
               btnStyle="link"
               size="small"
-              icon={'check-circle'}
+              icon={"check-circle"}
               onClick={onClickSelectMembers}
             >
-              {__('Select  members or department')}
+              {__("Select  members or department")}
             </Button>
             <Participators participatedUsers={members} limit={100} />
           </>
@@ -317,29 +341,29 @@ const Report = (props: Props) => {
           <Button
             btnStyle="success"
             size="small"
-            icon={'check-circle'}
+            icon={"check-circle"}
             onClick={handleSubmit}
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ActionBarButtonsWrapper>
       </BarItems>
     );
   };
 
-  const onLayoutChange = newLayout => {
-    newLayout.forEach(l => {
-      const item = reportItems.find(i => i._id?.toString() === l.i);
+  const onLayoutChange = (newLayout) => {
+    newLayout.forEach((l) => {
+      const item = reportItems.find((i) => i._id?.toString() === l.i);
       const toUpdate = JSON.stringify({
         x: l.x,
         y: l.y,
         w: l.w,
-        h: l.h
+        h: l.h,
       });
 
       if (item && toUpdate !== item.layout) {
         reportChartsEdit(item._id, {
-          layout: toUpdate
+          layout: toUpdate,
         });
       }
     });
@@ -349,11 +373,11 @@ const Report = (props: Props) => {
     <HeightedWrapper>
       <ReportContainer>
         <Wrapper.Header
-          title={report.name || 'Report'}
+          title={report.name || "Report"}
           queryParams={queryParams}
           breadcrumb={[
-            { title: __('Reports'), link: '/reports' },
-            { title: `${(report && report.name) || ''}` }
+            { title: __("Reports"), link: "/reports" },
+            { title: `${(report && report.name) || ""}` },
           ]}
         />
         <PageContent
@@ -387,7 +411,6 @@ const Report = (props: Props) => {
 
           {showChartForm && (
             <ChartForm
-              history={history}
               queryParams={queryParams}
               toggleForm={() => setShowChartForm(!showChartForm)}
               showChartForm={showChartForm}

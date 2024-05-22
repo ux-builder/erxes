@@ -5,14 +5,15 @@ module.exports = {
   port: 3016,
   exposes: {
     "./routes": "./src/routes.tsx",
-    './invoiceDetailRightSection': './src/orders/containers/InvoiceDetail.tsx',
+    "./invoiceDetailRightSection": "./src/orders/containers/InvoiceDetail.tsx",
+    "./customerSidebar": "./src/orders/containers/CustomerSidebar.tsx",
   },
   routes: {
     url: "http://localhost:3016/remoteEntry.js",
     scope: "pos",
     module: "./routes",
   },
-  invoiceDetailRightSection: './invoiceDetailRightSection',
+  invoiceDetailRightSection: "./invoiceDetailRightSection",
   menus: [
     {
       text: "Pos Orders",
@@ -28,7 +29,8 @@ module.exports = {
       location: "settings",
       scope: "pos",
       action: "posConfig",
-      permissions: ['showPos'],
+      permissions: ["showPos"],
     },
   ],
+  customerRightSidebarSection: "./customerSidebar",
 };

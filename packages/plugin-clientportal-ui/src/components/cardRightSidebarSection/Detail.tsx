@@ -1,6 +1,6 @@
 import {
   ItemBox,
-  ItemIndicator
+  ItemIndicator,
 } from '@erxes/ui-cards/src/boards/styles/stage';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { getCPUserName } from '@erxes/ui-log/src/activityLogs/utils';
@@ -13,28 +13,23 @@ type Props = {
   color: string;
 };
 
-class Detail extends React.Component<Props> {
-  renderItem(item, color) {
+const Detail: React.FC<Props> = ({ item, color }: Props) => {
+  const renderItem = (item, color) => {
     return (
       <ItemBox>
-        <ItemIndicator color={color} />
         {item.name ||
           item.primaryName ||
           renderFullName(item) ||
           getCPUserName(item)}
       </ItemBox>
     );
+  };
+
+  if (!item) {
+    return null;
   }
 
-  render() {
-    const { item, color } = this.props;
-
-    if (!item) {
-      return null;
-    }
-
-    return <>{this.renderItem(item, color)}</>;
-  }
-}
+  return <>{renderItem(item, color)}</>;
+};
 
 export default Detail;

@@ -23,6 +23,10 @@
     "@fingerprintjs/fingerprintjs": "^3.0.5",
     "@googlemaps/typescript-guards": "^1.0.7",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
+    "@opentelemetry/api": "^1.7.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.2",
+    "@opentelemetry/sdk-node": "^0.46.0",
+    "@opentelemetry/sdk-metrics": "^1.19.0",
     "@types/classnames": "^2.2.6",
     "@types/cookie": "^0.5.1",
     "@types/cors": "^2.8.4",
@@ -82,10 +86,8 @@
     "@types/react-modal": "^3.16.3",
     "dotenv-webpack": "^8.1.0",
     "git-repo-info": "^2.1.0",
-    "nodemon": "^1.11.0",
-    "sass": "^1.75.0",
-    "ts-loader": "^9.5.1",
-    "ts-node": "^8.3.0",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.1",
     "typescript": "^3.5.2"
   },
   "engines": {

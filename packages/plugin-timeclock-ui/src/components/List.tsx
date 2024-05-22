@@ -5,7 +5,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import SideBarList from '../containers/sidebar/SideBarList';
 import ConfigList from '../containers/config/ConfigList';
-import TimeclockList from '../containers/timeclock/TimeclockList';
+import TimeclockList from '../containers/timeclock/TimeclockList2';
 import AbsenceList from '../containers/absence/AbsenceList';
 import ReportList from '../containers/report/ReportList';
 import ScheduleList from '../containers/schedule/ScheduleList';
@@ -21,11 +21,10 @@ type Props = {
   departments: IDepartment[];
 
   isCurrentUserAdmin: boolean;
-  isCurrentUserSupervisor?: boolean;
+  isCurrentUserSupervisor: boolean;
 
   currentDate?: string;
   queryParams: any;
-  history: any;
   route?: string;
   startTime?: Date;
   loading: boolean;
@@ -34,13 +33,8 @@ type Props = {
 };
 
 function List(props: Props) {
-  const {
-    queryParams,
-    isCurrentUserAdmin,
-    history,
-    route,
-    searchFilter
-  } = props;
+  const { queryParams, isCurrentUserAdmin, route, searchFilter } =
+    props;
 
   const [showSideBar, setShowSideBar] = useState(true);
   const [rightActionBar, setRightActionBar] = useState(<div />);
@@ -59,8 +53,7 @@ function List(props: Props) {
               showSideBar={setShowSideBar}
               getActionBar={setRightActionBar}
               queryParams={queryParams}
-              history={history}
-            />
+            />,
           );
         }
         setLoading(false);
@@ -74,8 +67,7 @@ function List(props: Props) {
             getActionBar={setRightActionBar}
             queryParams={queryParams}
             getPagination={setPagination}
-            history={history}
-          />
+          />,
         );
         setLoading(false);
         break;
@@ -87,8 +79,7 @@ function List(props: Props) {
             getPagination={setPagination}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
-            history={history}
-          />
+          />,
         );
         setLoading(false);
         break;
@@ -100,8 +91,7 @@ function List(props: Props) {
             getPagination={setPagination}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
-            history={history}
-          />
+          />,
         );
         setLoading(false);
         break;
@@ -114,8 +104,7 @@ function List(props: Props) {
               getPagination={setPagination}
               getActionBar={setRightActionBar}
               queryParams={queryParams}
-              history={history}
-            />
+            />,
           );
         }
         setLoading(false);
@@ -127,10 +116,8 @@ function List(props: Props) {
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             getPagination={setPagination}
-            timeclockUser={queryParams.timeclockUser}
-            history={history}
             queryParams={queryParams}
-          />
+          />,
         );
         setLoading(false);
     }
@@ -156,7 +143,7 @@ function List(props: Props) {
       }
       leftSidebar={
         showSideBar && (
-          <SideBarList {...props} queryParams={queryParams} history={history} />
+          <SideBarList {...props} queryParams={queryParams} />
         )
       }
       transparent={true}

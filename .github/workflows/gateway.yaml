@@ -3,24 +3,25 @@ name: Gateway CI
 on:
   push:
     branches:
-      - 'dev'
+      - "dev"
       - master
-      - 'staging'
+      - rc
+      - "staging"
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/gateway/**'
-      - '.github/workflows/gateway.yaml'
+      - "packages/api-utils/**"
+      - "packages/gateway/**"
+      - ".github/workflows/gateway.yaml"
 
 jobs:
   gateway:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js 18.17.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18.17.x
 
@@ -29,7 +30,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -46,7 +47,7 @@ jobs:
           yarn build gateway
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

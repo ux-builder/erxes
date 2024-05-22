@@ -8,9 +8,10 @@ import Form from '@erxes/ui/src/components/form/Form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import * as React from 'react';
 import { IPipelineLabel } from '../../types';
-import TwitterPicker from 'react-color/lib/Twitter';
+// import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorChooserWrapper } from '../../styles/label';
 import { COLORS } from '@erxes/ui/src/constants/colors';
+import { TwitterPicker } from 'react-color';
 import { __ } from 'coreui/utils';
 
 type IProps = {
@@ -39,8 +40,8 @@ class FormComponent extends React.Component<IProps, State> {
       return {
         label: nextProps.label || {
           colorCode: COLORS[0],
-          name: ''
-        }
+          name: '',
+        },
       };
     }
 
@@ -53,7 +54,7 @@ class FormComponent extends React.Component<IProps, State> {
     const { label } = props;
 
     this.state = {
-      label: label ? { ...label } : this.getDefaultLabel()
+      label: label ? { ...label } : this.getDefaultLabel(),
     };
   }
 
@@ -144,11 +145,11 @@ class FormComponent extends React.Component<IProps, State> {
           name: 'label',
           values: {
             name: label.name,
-            colorCode: label.colorCode
+            colorCode: label.colorCode,
           },
           isSubmitted,
           callback: afterSave,
-          object: label || {}
+          object: label || {},
         })}
       </>
     );

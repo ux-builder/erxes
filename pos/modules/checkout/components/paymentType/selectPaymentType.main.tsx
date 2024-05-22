@@ -1,6 +1,5 @@
 "use client"
 
-import useConfig from "@/modules/auth/hooks/useConfig"
 import {
   ChevronRight,
   CoinsIcon,
@@ -13,6 +12,7 @@ import {
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 
+import usePaymentLabel from "../../hooks/usePaymentLabel"
 import { useCheckNotSplit } from "../../hooks/usePaymentType"
 import usePossiblePaymentTerms from "../../hooks/usePossiblePaymentTerms"
 
@@ -23,14 +23,13 @@ const SelectPaymentTypeMain = () => {
     paymentIds,
     khan,
     tdb,
+    capitron,
     golomt,
     mappedPts,
     notPaidAmount,
   } = usePossiblePaymentTerms()
 
-  const { loading } = useConfig("payment")
-
-  if (loading) return <div className="h-24" />
+  const { getLabel } = usePaymentLabel()
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -59,8 +58,16 @@ const SelectPaymentTypeMain = () => {
       {!!tdb && (
         <Term
           Icon={LandmarkIcon}
-          title="ХX банк"
-          type={BANK_CARD_TYPES.TDB}
+          title={getLabel(tdb.type)}
+          type={tdb.type}
+          disabled={disabledTerms || !notPaidAmount}
+        />
+      )}
+      {!!capitron && (
+        <Term
+          Icon={LandmarkIcon}
+          title={getLabel(capitron.type)}
+          type={capitron.type}
           disabled={disabledTerms || !notPaidAmount}
         />
       )}

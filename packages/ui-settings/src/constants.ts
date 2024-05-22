@@ -6,39 +6,38 @@ export const EMPTY_IMPORT_CONTENT = {
       title: __('Export your data'),
       description: __(
         'Export your data from your previous software or have your data sheet (csv, xls) ready'
-      )
+      ),
     },
     {
       title: __('Create Custom Properties'),
       description: __(
         'If you wish to import any properties that are not available on erxes, you need to create custom properties'
       ),
-      url:
-        'https://www.erxes.org/user/general-settings/#how-to-setup-properties',
+      url: 'https://docs.erxes.io',
       isOutside: true,
-      target: '_blank'
+      target: '_blank',
     },
     {
       title: __('Choose the data type'),
       description: `${__(
         'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left'
       )}`,
-      url: 'http://www.erxes.org/user/import#import',
+      url: 'http://docs.erxes.io',
       target: '_blank',
-      isOutside: true
+      isOutside: true,
     },
     {
       title: __('Download Template'),
       description: `${__('Click on Download Template for importing')}.${__(
         'This is an important step, because your column titles need to match with erxes titles'
       )}`,
-      isOutside: false
+      isOutside: false,
     },
     {
       title: __('Clean and prepare your data sheet'),
       description: `${__(
         'Make sure the column titles match with the Template'
-      )}.${__('The order of the columns does not need to match')}`
+      )}.${__('The order of the columns does not need to match')}`,
     },
     {
       title: __('Export your data'),
@@ -90,14 +89,14 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
         'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them'
       ),
       url: '/settings/properties?type=contacts:customer',
-      urlText: __('Go to Properties')
+      urlText: __('Go to Properties'),
     },
     {
       title: __('Install the Event Tracking script'),
       description:
         __(
           'If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app'
-        ) + '.'
+        ) + '.',
     },
     {
       title: __('Create your Segment'),
@@ -108,12 +107,12 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
     {
       title: 'See our documentation',
       description: 'Walk through step by step instructions.',
-      url: 'https://www.erxes.org/user/segments/',
+      url: 'https://docs.erxes.io',
       urlText: __('Go to the docs'),
       target: '_blank',
-      isOutside: true
-    }
-  ]
+      isOutside: true,
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_SCRIPT = {
@@ -132,9 +131,9 @@ export const EMPTY_CONTENT_SCRIPT = {
       title: __('Install the script'),
       description: __(
         'Copy the updated script and paste it into your website or Google Tag Manager'
-      )
-    }
-  ]
+      ),
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_POPUPS = {
@@ -155,9 +154,9 @@ export const EMPTY_CONTENT_POPUPS = {
         'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets'
       ),
       url: '/settings/scripts',
-      urlText: __('Go to Script Manager')
-    }
-  ]
+      urlText: __('Go to Script Manager'),
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_FORUMS = {
@@ -182,7 +181,7 @@ export const EMPTY_CONTENT_FORUMS = {
 };
 
 export const EMPTY_CONTENT_ENGAGE = {
-  title: __('Getting Started with Campaigns'),
+  title: __('Getting Started with Broadcast'),
   description:
     __(
       'Learn how to use this feature to engage your contacts and drive conversations'
@@ -194,7 +193,7 @@ export const EMPTY_CONTENT_ENGAGE = {
         "<ul><li><strong><a href='/settings/campaign-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>"
       ),
       html: true,
-      icon: 'envelope-edit'
+      icon: 'envelope-edit',
     },
     {
       title: __('Messenger'),
@@ -212,9 +211,9 @@ export const EMPTY_CONTENT_ENGAGE = {
         "<ul><li><strong><a href='/settings/campaign-configs'>Claim</a> your phone number</strong> <br/> Make sure you assigned it to a team member</li><li><strong>Prepare your contacts</strong> <br/> Check the <a href='https://en.wikipedia.org/wiki/E.164' target='_blank'>format</a>, verification status, and primary phone state</li><li><strong><a href='/segments/new/customer'>Create</a> a segment</strong> <br/> Filter all contacts with valid phone numbers and other properties</li></ul>"
       ),
       html: true,
-      icon: 'comment-alt-message'
-    }
-  ]
+      icon: 'comment-alt-message',
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_KNOWLEDGEBASE = {
@@ -228,7 +227,7 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
       description: __(
         '<ul><li>Make sure you’ve created your Brands</li><li>Click on “Add Knowledgebase” to create one for a specific Brand</li><li>Click on the “Settings” button and “Add Categories”. A good one to get started with would be “General, Pricing, etc.”</li><li>Click on “Add Articles” to start adding help articles</li></ul>'
       ),
-      html: true
+      html: true,
     },
     {
       title: __('Install the script'),
@@ -236,9 +235,9 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
         "<ul><li>Copy the individual script by clicking on the Settings button.</li><li>Use <a href='/settings/scripts'>Script Manager</a> to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets</li></ul>",
       html: true,
       url: '/settings/scripts',
-      urlText: __('Go to Script Manager')
-    }
-  ]
+      urlText: __('Go to Script Manager'),
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_MESSENGER = {
@@ -273,7 +272,7 @@ export const EMPTY_CONTENT_MESSENGER = {
       title: __('Install the script'),
       description: __(
         'Copy the script and install it on your website by clicking on the “Install Code” button.'
-      )
+      ),
     },
     {
       title: __('Avoid duplication of erxes widget scripts'),
@@ -421,24 +420,25 @@ export const WEBHOOK_ACTIONS = [
   {
     label: __('Knowledge Base created'),
     action: 'create',
-    type: 'knowledgeBaseArticle'
+    type: 'knowledgeBaseArticle',
   },
   {
     label: __('Knowledge Base updated'),
     action: 'update',
-    type: 'knowledgeBaseArticle'
+    type: 'knowledgeBaseArticle',
   },
   {
     label: __('Knowledge Base deleted'),
     action: 'delete',
-    type: 'knowledgeBaseArticle'
+    type: 'knowledgeBaseArticle',
   },
   { label: __('Admin messages'), action: 'create', type: 'userMessages' },
   {
     label: __('Customer create conversation'),
     action: 'create',
-    type: 'conversation'
+    type: 'conversation',
   },
+  { label: 'Broadcast', action: 'create', type: 'engageMessages' },
   {
     label: __('Customer messages'),
     action: 'create',
@@ -453,83 +453,83 @@ export const WEBHOOK_ACTIONS = [
   {
     label: __('Deal created'),
     action: 'create',
-    type: 'deal'
+    type: 'deal',
   },
   {
     label: __('Deal updated'),
     action: 'update',
-    type: 'deal'
+    type: 'deal',
   },
   {
     label: __('Deal deleted'),
     action: 'delete',
-    type: 'deal'
+    type: 'deal',
   },
   {
     label: __('Deal moved'),
     action: 'createBoardItemMovementLog',
-    type: 'deal'
+    type: 'deal',
   },
   {
     label: __('Purchase created'),
     action: 'create',
-    type: 'purchase'
+    type: 'purchase',
   },
   {
     label: __('Purchase updated'),
     action: 'update',
-    type: 'purchase'
+    type: 'purchase',
   },
   {
     label: __('Purchase deleted'),
     action: 'delete',
-    type: 'purchase'
+    type: 'purchase',
   },
   {
     label: __('Purchase moved'),
     action: 'createBoardItemMovementLog',
-    type: 'purchase'
+    type: 'purchase',
   },
   {
     label: __('Task created'),
     action: 'create',
-    type: 'task'
+    type: 'task',
   },
   {
     label: __('Task updated'),
     action: 'update',
-    type: 'task'
+    type: 'task',
   },
   {
     label: __('Task deleted'),
     action: 'delete',
-    type: 'task'
+    type: 'task',
   },
   {
     label: __('Task moved'),
     action: 'createBoardItemMovementLog',
-    type: 'task'
+    type: 'task',
   },
   {
     label: __('Ticket created'),
     action: 'create',
-    type: 'ticket'
+    type: 'ticket',
   },
   {
     label: __('Ticket updated'),
     action: 'update',
-    type: 'ticket'
+    type: 'ticket',
   },
   {
     label: __('Ticket deleted'),
     action: 'delete',
-    type: 'ticket'
+    type: 'ticket',
   },
   {
     label: __('Ticket moved'),
     action: 'createBoardItemMovementLog',
-    type: 'ticket'
-  }
+    type: 'ticket',
+  },
 ];
 
 export const EMPTY_CONTENT_BOOKINGS = {
@@ -560,24 +560,24 @@ export const EMPTY_CONTENT_BOOKINGS = {
 export const FONTS = [
   {
     label: 'Ubuntu',
-    value: `'Ubuntu', sans-serif`
+    value: `'Ubuntu', sans-serif`,
   },
   {
     label: 'Lobster',
-    value: `'Lobster', cursive`
+    value: `'Lobster', cursive`,
   },
   {
     label: 'Roboto',
-    value: `'Roboto', sans-serif`
+    value: `'Roboto', sans-serif`,
   },
   {
     label: 'Roboto Condensed',
-    value: `'Roboto Condensed', sans-serif`
+    value: `'Roboto Condensed', sans-serif`,
   },
   {
     label: 'Open Sans',
-    value: `'Open Sans', sans-serif`
-  }
+    value: `'Open Sans', sans-serif`,
+  },
 ];
 
 export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
@@ -592,7 +592,7 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'emailValidationStatus',
     'phoneValidationStatus',
     'location.countryCode',
-    'tagIds'
+    'tagIds',
   ],
 
   IMPORT: [
@@ -617,13 +617,12 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'userId',
     'modifiedBy',
     'assignedUserIds',
-    'watchedUserIds'
+    'watchedUserIds',
   ],
   EXPORT: [
     'state',
     'avatar',
     'ownerId',
-    'status',
     'integrationId',
     'categoryId',
     'vendorId',
@@ -633,6 +632,6 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'leadStatus',
     'relatedIntegrationIds',
     'subUoms.uom',
-    'subUoms.ratio'
-  ]
+    'subUoms.ratio',
+  ],
 };

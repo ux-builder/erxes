@@ -14,6 +14,7 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import _ from 'lodash';
 import { checkLogic } from '../utils';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
 
 declare const navigator: any;
 
@@ -30,9 +31,10 @@ type Props = {
   saveGroup: (
     data: any,
     callback: (error: Error) => void,
-    extraValues?: any
+    extraValues?: any,
   ) => void;
-  collapseCallback: () => void;
+  collapseCallback?: () => void;
+  onValuesChange?: (customFieldsData: any) => void;
 };
 
 type State = {
@@ -48,7 +50,7 @@ class GenerateGroup extends React.Component<Props, State> {
     this.state = {
       editing: false,
       data: JSON.parse(JSON.stringify(props.data)),
-      currentLocation: { lat: 0, lng: 0 }
+      currentLocation: { lat: 0, lng: 0 },
     };
   }
 
@@ -64,14 +66,16 @@ class GenerateGroup extends React.Component<Props, State> {
       ) {
         setConfig(STORAGE_KEY, {
           ...customField,
-          [`showCustomFields${fieldGroup.order}`]: true
+          [`showCustomFields${fieldGroup.order}`]: true,
         });
         // tslint:disable-next-line:no-unused-expression
         collapseCallback && collapseCallback();
       }
     }
 
-    if (this.props.fieldGroup.fields.findIndex(e => e.type === 'map') === -1) {
+    if (
+      this.props.fieldGroup.fields.findIndex((e) => e.type === 'map') === -1
+    ) {
       return;
     }
 
@@ -80,8 +84,8 @@ class GenerateGroup extends React.Component<Props, State> {
       this.setState({
         currentLocation: {
           lat: coordinates.latitude,
-          lng: coordinates.longitude
-        }
+          lng: coordinates.longitude,
+        },
       });
     };
 
@@ -90,14 +94,14 @@ class GenerateGroup extends React.Component<Props, State> {
     };
 
     if (navigator.geolocation) {
-      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
         if (result.state === 'granted') {
           navigator.geolocation.getCurrentPosition(onSuccess);
         } else if (result.state === 'prompt') {
           navigator.geolocation.getCurrentPosition(onSuccess, onError, {
             enableHighAccuracy: true,
             timeout: 5000,
-            maximumAge: 0
+            maximumAge: 0,
           });
         }
       });
@@ -116,7 +120,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     saveGroup(
       data,
-      error => {
+      (error) => {
         if (error) {
           return Alert.error(error.message);
         }
@@ -125,20 +129,24 @@ class GenerateGroup extends React.Component<Props, State> {
 
         return Alert.success('Success');
       },
-      extraValues
+      extraValues,
     );
   };
 
   cancelEditing = () => {
     this.setState({
       data: JSON.parse(JSON.stringify(this.props.data)),
-      editing: false
+      editing: false,
     });
   };
 
   onChange = (
     index: number,
-    { _id, value, extraValue }: { _id: string; value: any; extraValue?: string }
+    {
+      _id,
+      value,
+      extraValue,
+    }: { _id: string; value: any; extraValue?: string },
   ) => {
     const { fields, isMultiple } = this.props.fieldGroup;
     const fieldGroupId = this.props.fieldGroup._id;
@@ -152,7 +160,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
       if (!data[fieldGroupId][index]) {
         data[fieldGroupId][index] = {
-          [_id]: value
+          [_id]: value,
         };
       } else {
         data[fieldGroupId][index][_id] = value;
@@ -169,7 +177,9 @@ class GenerateGroup extends React.Component<Props, State> {
         continue;
       }
 
-      if (logics.findIndex(l => l.fieldId && l.fieldId.includes(_id)) === -1) {
+      if (
+        logics.findIndex((l) => l.fieldId && l.fieldId.includes(_id)) === -1
+      ) {
         continue;
       }
 
@@ -188,6 +198,9 @@ class GenerateGroup extends React.Component<Props, State> {
     }
 
     this.setState(updatedState);
+    if (this.props.onValuesChange) {
+      this.props.onValuesChange(updatedState);
+    }
   };
 
   onAddGroupInput = () => {
@@ -234,9 +247,11 @@ class GenerateGroup extends React.Component<Props, State> {
               </Button>
             </Tip>
           )}
-          <Button btnStyle="success" onClick={this.save} icon="check-circle">
-            Save
-          </Button>
+          {this.props.object && (
+            <Button btnStyle="success" onClick={this.save} icon="check-circle">
+              Save
+            </Button>
+          )}
         </div>
       </SidebarFooter>
     );
@@ -255,7 +270,7 @@ class GenerateGroup extends React.Component<Props, State> {
       return null;
     }
 
-    if (fields.filter(e => e[isVisibleKey]).length === 0) {
+    if (fields.filter((e) => e[isVisibleKey]).length === 0) {
       return (
         <EmptyState
           icon="folder-2"
@@ -284,7 +299,7 @@ class GenerateGroup extends React.Component<Props, State> {
               }
 
               if (field.logics && field.logics.length > 0) {
-                const logics: LogicParams[] = field.logics.map(logic => {
+                const logics: LogicParams[] = field.logics.map((logic) => {
                   let { fieldId = '' } = logic;
 
                   if (fieldId.includes('customFieldsData')) {
@@ -292,13 +307,13 @@ class GenerateGroup extends React.Component<Props, State> {
                     return {
                       fieldId,
                       operator: logic.logicOperator,
-                      validation: fields.find(e => e._id === fieldId)
+                      validation: fields.find((e) => e._id === fieldId)
                         ?.validation,
                       logicValue: logic.logicValue,
                       fieldValue: isMultiple
                         ? groupDataValue[fieldId]
                         : data[fieldId],
-                      type: field.type
+                      type: field.type,
                     };
                   }
 
@@ -307,8 +322,9 @@ class GenerateGroup extends React.Component<Props, State> {
                     operator: logic.logicOperator,
                     logicValue: logic.logicValue,
                     fieldValue: object[logic.fieldId || ''],
-                    validation: fields.find(e => e._id === fieldId)?.validation,
-                    type: field.type
+                    validation: fields.find((e) => e._id === fieldId)
+                      ?.validation,
+                    type: field.type,
                   };
                 });
 
@@ -331,7 +347,7 @@ class GenerateGroup extends React.Component<Props, State> {
                 <GenerateField
                   field={field}
                   key={index}
-                  onValueChange={val => this.onChange(groupDataIndex, val)}
+                  onValueChange={(val) => this.onChange(groupDataIndex, val)}
                   defaultValue={
                     isMultiple
                       ? groupDataValue[field._id] || ''
@@ -370,14 +386,14 @@ class GenerateGroup extends React.Component<Props, State> {
       fieldsGroups,
       customFieldsData = [],
       isDetail,
-      collapseCallback
+      collapseCallback,
     } = this.props;
 
     const childGroups = fieldsGroups.filter(
-      gro => gro.parentId === fieldGroup._id
+      (gro) => gro.parentId === fieldGroup._id,
     );
 
-    const allFields = childGroups.flatMap(group => {
+    const allFields = childGroups.flatMap((group) => {
       return group.fields;
     });
 
@@ -386,26 +402,26 @@ class GenerateGroup extends React.Component<Props, State> {
       const { extraValues } = this.state;
 
       const prevData = {};
-      (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
+      (customFieldsData || []).forEach((cd) => (prevData[cd.field] = cd.value));
 
       const updatedData = {
         ...prevData,
-        ...(groupData || {})
+        ...(groupData || {}),
       };
 
       save(
         {
-          customFieldsData: Object.keys(updatedData).map(key => ({
+          customFieldsData: Object.keys(updatedData).map((key) => ({
             field: key,
             value: updatedData[key],
-            extraValue: !!extraValues?.length ? extraValues[key] : undefined
-          }))
+            extraValue: !!extraValues?.length ? extraValues[key] : undefined,
+          })),
         },
-        callback
+        callback,
       );
     };
 
-    return childGroups.map(childFieldGroup => {
+    return childGroups.map((childFieldGroup) => {
       const data = {};
 
       for (const customFieldData of customFieldsData || []) {
@@ -413,7 +429,7 @@ class GenerateGroup extends React.Component<Props, State> {
       }
 
       if (childFieldGroup.logics && childFieldGroup.logics.length > 0) {
-        const logics: LogicParams[] = childFieldGroup.logics.map(logic => {
+        const logics: LogicParams[] = childFieldGroup.logics.map((logic) => {
           let { fieldId = '' } = logic;
 
           if (fieldId.includes('customFieldsData')) {
@@ -421,9 +437,9 @@ class GenerateGroup extends React.Component<Props, State> {
             return {
               fieldId,
               operator: logic.logicOperator,
-              validation: allFields.find(e => e._id === fieldId)?.validation,
+              validation: allFields.find((e) => e._id === fieldId)?.validation,
               logicValue: logic.logicValue,
-              fieldValue: data[fieldId]
+              fieldValue: data[fieldId],
             };
           }
 
@@ -434,7 +450,7 @@ class GenerateGroup extends React.Component<Props, State> {
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
             fieldValue: object[logic.fieldId || ''],
-            validation: allFields.find(e => e._id === fieldId)?.validation
+            validation: allFields.find((e) => e._id === fieldId)?.validation,
           };
         });
 
@@ -486,12 +502,12 @@ class GenerateGroup extends React.Component<Props, State> {
     const { fieldGroup, fieldsGroups, isDetail, collapseCallback } = this.props;
 
     const childGroups = fieldsGroups.filter(
-      gro => gro.parentId === fieldGroup._id
+      (gro) => gro.parentId === fieldGroup._id,
     );
 
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
     let extraButtons = <></>;
-    const visibleField = fieldGroup.fields.find(el => el.isVisible === true);
+    const visibleField = fieldGroup.fields.find((el) => el.isVisible === true);
 
     if (!visibleField && childGroups.length === 0) {
       return null;
@@ -507,7 +523,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     if (fieldGroup.isMultiple) {
       extraButtons = (
-        <>
+        <FlexCenter>
           {
             <ModalTrigger
               title={fieldGroup.name}
@@ -523,7 +539,7 @@ class GenerateGroup extends React.Component<Props, State> {
               <Icon icon="plus-circle" />
             </button>
           </Tip>
-        </>
+        </FlexCenter>
       );
     }
     if (!fieldGroup.isMultiple) {
@@ -562,30 +578,31 @@ type GroupsProps = {
   loading?: boolean;
   object?: any;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
-  collapseCallback: () => void;
+  collapseCallback?: () => void;
+  onValuesChange?: (customFieldsData: any) => void;
 };
 
 class GenerateGroups extends React.Component<GroupsProps> {
   saveGroup = (groupData, callback, extraValues?) => {
     const { customFieldsData, save } = this.props;
     const prevData = {};
-    (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
+    (customFieldsData || []).forEach((cd) => (prevData[cd.field] = cd.value));
 
     const updatedData = {
       ...prevData,
-      ...(groupData || {})
+      ...(groupData || {}),
     };
 
     save(
       {
-        customFieldsData: Object.keys(updatedData).map(key => ({
+        customFieldsData: Object.keys(updatedData).map((key) => ({
           field: key,
           value: updatedData[key],
           extraValue:
-            extraValues && extraValues[key] ? extraValues[key] : undefined
-        }))
+            extraValues && extraValues[key] ? extraValues[key] : undefined,
+        })),
       },
-      callback
+      callback,
     );
   };
 
@@ -595,21 +612,21 @@ class GenerateGroups extends React.Component<GroupsProps> {
       fieldsGroups = [],
       customFieldsData,
       isDetail,
-      collapseCallback
+      collapseCallback,
     } = this.props;
 
-    const groups = fieldsGroups.filter(gro => !gro.parentId);
-    const groupsWithParents = fieldsGroups.filter(gro => !!gro.parentId);
+    const groups = fieldsGroups.filter((gro) => !gro.parentId);
+    const groupsWithParents = fieldsGroups.filter((gro) => !!gro.parentId);
 
     if (!groups || groups.length === 0) {
       return null;
     }
 
-    const allFields = groups.flatMap(group => {
+    const allFields = groups.flatMap((group) => {
       return group.fields;
     });
 
-    return groups.map(fieldGroup => {
+    return groups.map((fieldGroup) => {
       const data = {};
 
       for (const customFieldData of customFieldsData || []) {
@@ -617,7 +634,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
       }
 
       if (fieldGroup.logics && fieldGroup.logics.length > 0) {
-        const logics: LogicParams[] = fieldGroup.logics.map(logic => {
+        const logics: LogicParams[] = fieldGroup.logics.map((logic) => {
           let { fieldId = '' } = logic;
 
           if (fieldId.includes('customFieldsData')) {
@@ -625,9 +642,9 @@ class GenerateGroups extends React.Component<GroupsProps> {
             return {
               fieldId,
               operator: logic.logicOperator,
-              validation: allFields.find(e => e._id === fieldId)?.validation,
+              validation: allFields.find((e) => e._id === fieldId)?.validation,
               logicValue: logic.logicValue,
-              fieldValue: data[fieldId]
+              fieldValue: data[fieldId],
             };
           }
 
@@ -636,7 +653,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
             fieldValue: this.props.object[logic.fieldId || ''],
-            validation: allFields.find(e => e._id === fieldId)?.validation
+            validation: allFields.find((e) => e._id === fieldId)?.validation,
           };
         });
 
@@ -669,6 +686,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
           saveGroup={this.saveGroup}
           save={this.props.save}
           collapseCallback={collapseCallback}
+          onValuesChange={this.props.onValuesChange}
         />
       );
     });

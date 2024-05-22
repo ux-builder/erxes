@@ -7,8 +7,8 @@ export const types = () => `
     status: String
     number: String
     vacancy: Float
-    unduePercent: Float
-    undueCalcType: String
+    lossPercent: Float
+    lossCalcType: String
     useMargin: Boolean
     useSkipInterest: Boolean
     useDebt: Boolean
@@ -18,6 +18,7 @@ export const types = () => `
     commitmentInterest: Float
     createdAt: Date
     productCategoryIds: [String]
+    productId: String
     config: JSON
     
 
@@ -27,6 +28,8 @@ export const types = () => `
     savingPlusLoanInterest:Float
     savingUpperPercent:Float
     usePrePayment:Boolean
+    invoiceDay:String
+    customFieldsData: JSON
   }
 
   type ContractTypesListResponse {
@@ -42,6 +45,8 @@ const queryParams = `
   searchValue: String
   sortField: String
   sortDirection: Int
+  productId:String
+  productType:String
 `;
 
 export const queries = `
@@ -57,8 +62,8 @@ const commonFields = `
   status: String
   number: String
   vacancy: Float
-  unduePercent: Float 
-  undueCalcType: String
+  lossPercent: Float 
+  lossCalcType: String
   useMargin: Boolean
   useSkipInterest: Boolean
   useManualNumbering: Boolean
@@ -68,12 +73,15 @@ const commonFields = `
   commitmentInterest: Float
   createdAt: Date
   productCategoryIds: [String]
+  productId: String
   config: JSON
   currency:String
   productType:String
   savingPlusLoanInterest:Float
   savingUpperPercent:Float
   usePrePayment:Boolean
+  invoiceDay:String
+  customFieldsData: JSON
 `;
 
 export const mutations = `

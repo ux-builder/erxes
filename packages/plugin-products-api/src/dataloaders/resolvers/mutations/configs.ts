@@ -5,7 +5,11 @@ const configMutations = {
   /**
    * Create or update config object
    */
-  async productsConfigsUpdate(_root, { configsMap }, { models }: IContext) {
+  async productsConfigsUpdate(
+    _root,
+    { configsMap },
+    { models }: IContext,
+  ) {
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {
@@ -20,24 +24,48 @@ const configMutations = {
 
       if (code === 'similarityGroup') {
         const masks = Object.keys(value);
-        await models.Products.updateMany({}, { $unset: { sameMasks: '' } });
+
+        await models.Products.updateMany({}, { $unset: { sameMasks: '', sameDefault: '' } });
         for (const mask of masks) {
-          const codeRegex = new RegExp(
+          const maskValue = value[mask];
+
+          const codeRegex = ['*', '.', '_'].includes(mask) ? new RegExp(
             `^${mask
               .replace(/\./g, '\\.')
               .replace(/\*/g, '.')
               .replace(/_/g, '.')}.*`,
-            'igu'
+            'igu',
+          ) : new RegExp(
+            `.*${mask}.*`,
+            'igu',
           );
 
-          const fieldIds = (value[mask].rules || []).map(r => r.fieldId);
+          const fieldFilter = (maskValue.filterField || 'code').includes(
+            'customFieldsData.',
+          )
+            ? {
+              'customFieldsData.field': maskValue.filterField.replace(
+                'customFieldsData.',
+                '',
+              ),
+              'customFieldsData.stringValue': { $in: [codeRegex] },
+            }
+            : { [maskValue.filterField || 'code']: { $in: [codeRegex] } };
+
+          const fieldIds = (maskValue.rules || []).map((r) => r.fieldId);
           await models.Products.updateMany(
             {
-              code: { $in: [codeRegex] },
-              'customFieldsData.field': { $in: fieldIds }
+              $and: [
+                { ...fieldFilter },
+                { 'customFieldsData.field': { $in: fieldIds } },
+              ],
             },
-            { $addToSet: { sameMasks: mask } }
+            { $addToSet: { sameMasks: mask } },
           );
+
+          if (maskValue.defaultProduct) {
+            await models.Products.updateOne({ _id: maskValue.defaultProduct }, { $addToSet: { sameDefault: mask } });
+          }
         }
       }
     }
@@ -55,13 +83,13 @@ const configMutations = {
     if (isRequireUOM && defaultUOM) {
       await models.Products.updateMany(
         {
-          $or: [{ uom: { $exists: false } }, { uom: '' }]
+          $or: [{ uom: { $exists: false } }, { uom: '' }],
         },
-        { $set: { uom: defaultUOM } }
+        { $set: { uom: defaultUOM } },
       );
     }
     return ['success'];
-  }
+  },
 };
 
 checkPermission(configMutations, 'productsConfigsUpdate', 'manageProducts');

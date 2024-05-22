@@ -13,9 +13,9 @@ const callsIntegrationDetail: string = `
   }
 `;
 
-const callIntegrationsOfUser: any = `
-  query callIntegrationsOfUser {
-    callIntegrationsOfUser {
+const callUserIntegrations: any = `
+  query callUserIntegrations {
+    callUserIntegrations {
       _id
       inboxId
       operators
@@ -27,8 +27,8 @@ const callIntegrationsOfUser: any = `
 `;
 
 const callCustomerDetail: string = `
-  query callsCustomerDetail($callerNumber: String) {
-    callsCustomerDetail(callerNumber: $callerNumber){
+  query callsCustomerDetail($customerPhone: String) {
+    callsCustomerDetail(customerPhone: $customerPhone){
       _id
       firstName
       primaryPhone
@@ -103,9 +103,72 @@ const customers = `
     }
   }
 `;
+
+const activeSession = `
+  query callsActiveSession {
+  callsActiveSession{
+    _id
+    userId
+    lastLoginDeviceId
+  }
+}`;
+
+const callHistories = `
+  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int) {
+    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip) {
+      _id
+    operatorPhone
+    customerPhone
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    sessionId
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    extentionNumber
+    conversationId
+    customer {
+      _id
+      avatar
+      email
+      firstName
+      ${
+        isEnabled('tags')
+          ? `
+          getTags {
+            _id
+            name
+            colorCode
+                    type
+
+          }
+        `
+          : ``
+      }
+      phone
+      primaryEmail
+      primaryPhone
+      tagIds
+    }
+    }
+}`;
+
+const callsGetConfigs = `
+  query callsGetConfigs {
+    callsGetConfigs
+  }
+`;
+
 export default {
   callsIntegrationDetail,
-  callIntegrationsOfUser,
+  callUserIntegrations,
   callCustomerDetail,
-  customers
+  customers,
+  activeSession,
+  callHistories,
+  callsGetConfigs,
 };

@@ -4,27 +4,30 @@ import {
   EmptyState,
   Icon,
   SidebarList,
-  Spinner
-} from '@erxes/ui/src';
-import { generateTree, isEnabled } from '@erxes/ui/src/utils/core';
-import { gql, useQuery } from '@apollo/client';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+  Spinner,
+} from "@erxes/ui/src";
+import { generateTree, isEnabled } from "@erxes/ui/src/utils/core";
+import { gql, useQuery } from "@apollo/client";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+
+import { Link } from "react-router-dom";
+import React from "react";
+import { SidebarListItem } from "@erxes/ui-settings/src/styles";
+import { queries } from "../graphql";
 import { __ } from 'coreui/utils';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { queries } from '../graphql';
 
 export function TagsSection({
-  history,
+  location,
+  navigate,
   queryParams,
-  type
+  type,
 }: {
-  history: any;
+  location: any;
+  navigate: any;
   queryParams: any;
   type: string;
 }) {
-  if (!isEnabled('tags')) {
+  if (!isEnabled("tags")) {
     return (
       <Box name="tags" title={__('Filter by Tags')}>
         <EmptyState text="Not Aviable Tags" icon="info-circle" />
@@ -32,7 +35,7 @@ export function TagsSection({
     );
   }
   const { data, error, loading } = useQuery(gql(queries.tags), {
-    variables: { type }
+    variables: { type },
   });
 
   if (loading) {
@@ -46,23 +49,23 @@ export function TagsSection({
   const tags = data?.tags || [];
 
   const handleRemoveParams = () => {
-    removeParams(history, 'tagIds');
+    removeParams(navigate, location, "tagIds");
   };
 
-  const handleSetParams = _id => {
+  const handleSetParams = (_id) => {
     let tagIds = queryParams?.tagIds || [];
-    tagIds = typeof tagIds === 'string' ? [tagIds] : tagIds;
-    if (tagIds.find(tagId => tagId === _id)) {
-      tagIds = tagIds.filter(tagId => tagId !== _id);
+    tagIds = typeof tagIds === "string" ? [tagIds] : tagIds;
+    if (tagIds.find((tagId) => tagId === _id)) {
+      tagIds = tagIds.filter((tagId) => tagId !== _id);
     } else {
       tagIds = [...tagIds, _id];
     }
-    removeParams(history, 'page');
-    setParams(history, { tagIds });
+    removeParams(navigate, location, "page");
+    setParams(navigate, location, { tagIds });
   };
   const extraButtons = (
     <BarItems>
-      <Link to={`/settings/tags?type=${type}`}>
+      <Link to={`/settings/tags?tagType=${type}`}>
         <button>
           <Icon icon="cog" />
         </button>
@@ -86,17 +89,19 @@ export function TagsSection({
     >
       <SidebarList>
         {generateTree(
-          tags.map(tag => (!tag?.parentId ? { ...tag, parentId: null } : tag)),
+          tags.map((tag) =>
+            !tag?.parentId ? { ...tag, parentId: null } : tag
+          ),
           null,
           ({ _id, colorCode, name }, level) => {
             return (
               <SidebarListItem
                 key={_id}
-                isActive={(queryParams?.tagIds || []).includes(_id)}
+                $isActive={(queryParams?.tagIds || []).includes(_id)}
                 onClick={handleSetParams.bind(this, _id)}
               >
                 <a>
-                  {'\u00A0 \u00A0 '.repeat(level)}
+                  {"\u00A0 \u00A0 ".repeat(level)}
                   <Icon icon="tag-2" color={colorCode} />
                   {name}
                 </a>

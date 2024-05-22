@@ -2,15 +2,13 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import List from '../components/GeneralSettings';
+import List from '../components/settings/GeneralSettings';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 import { mutations, queries } from '../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
-type Props = {
-  history: any;
-};
+type Props = {};
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;

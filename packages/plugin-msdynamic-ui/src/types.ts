@@ -1,3 +1,5 @@
+import { QueryResponse } from '@erxes/ui/src/types';
+
 export type IConfigsMap = { [key: string]: any };
 
 export type IConfig = {
@@ -41,31 +43,98 @@ export type EditMutationResponse = {
 };
 
 export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+  toCheckMsdProducts: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncProductsMutationResponse = {
-  toSyncProducts: (mutation: {
-    variables: { action: string; products: any[] };
+  toSyncMsdProducts: (mutation: {
+    variables: { brandId: string; action: string; products: any[] };
+  }) => Promise<any>;
+};
+
+export type ToSyncPricesMutationResponse = {
+  toSyncMsdPrices: (mutation: {
+    variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToCheckCategoriesMutationResponse = {
-  toCheckProductCategories: (mutation: { variables: {} }) => Promise<any>;
+  toCheckMsdProductCategories: (mutation: {
+    variables: { brandId: string; categoryId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
-  toSyncProductCategories: (mutation: {
-    variables: { action: string; categories: any[] };
+  toSyncMsdProductCategories: (mutation: {
+    variables: {
+      brandId: string;
+      action: string;
+      categoryId: string;
+      categories: any[];
+    };
   }) => Promise<any>;
 };
 
 export type ToCheckCustomersMutationResponse = {
-  toCheckCustomers: (mutation: { variables: {} }) => Promise<any>;
+  toCheckMsdCustomers: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncCustomersMutationResponse = {
-  toSyncCustomers: (mutation: {
-    variables: { action: string; customers: any[] };
+  toSyncMsdCustomers: (mutation: {
+    variables: { brandId: string; action: string; customers: any[] };
   }) => Promise<any>;
+};
+
+export type SyncHistoriesQueryResponse = {
+  syncMsdHistories: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SyncHistoriesCountQueryResponse = {
+  syncMsdHistoriesCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CheckSyncedMutationResponse = {
+  toCheckMsdSynced: (mutation: {
+    variables: { ids: string[]; brandId: string };
+  }) => Promise<any>;
+};
+
+export type CheckSyncedOrdersQueryResponse = {
+  posOrders: any[];
+} & QueryResponse;
+
+export type CheckSyncedOrdersTotalCountQueryResponse = {
+  posOrdersTotalCount: number;
+} & QueryResponse;
+
+export type PosListQueryResponse = {
+  posList: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ToSyncOrdersMutationResponse = {
+  toSyncMsdOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};
+
+export type ToSendOrdersMutationResponse = {
+  toSendMsdOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};
+
+export type OrderDetailQueryResponse = {
+  posOrderDetail: any;
+  loading: boolean;
+  refetch: () => void;
 };

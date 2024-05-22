@@ -4,10 +4,19 @@ import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type OTPConfig = {
+  emailSubject?: string;
   content: string;
   smsTransporterType?: '' | 'messagePro';
   codeLength: number;
   loginWithOTP: boolean;
+  expireAfter: number;
+};
+export type TwoFactorConfig = {
+  emailSubject?: string;
+  content: string;
+  smsTransporterType?: '' | 'messagePro';
+  codeLength: number;
+  enableTwoFactor: boolean;
   expireAfter: number;
 };
 
@@ -75,6 +84,8 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   modifiedAt: Date;
   forumSubscriptionEndsAfter?: string;
   clientPortal: ClientPortalConfig;
+  isSubscribed?: string;
+  hasAuthority?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -97,6 +108,17 @@ export type ClientPortalUserRemoveMutationResponse = {
     variables: { clientPortalUserIds: string[] };
   }) => Promise<any>;
 };
+export type ClientPortalParticipantRelationEditMutationResponse = {
+  clientPortalParticipantRelationEdit: (mutation: {
+    variables: {
+      type: string;
+      cardId: string;
+      cpUserIds: string[];
+      oldCpUserIds: string[];
+    };
+  }) => Promise<any>;
+};
+
 export type ClientPortalUserAssignCompanyMutationResponse = {
   clientPortalUserAssignCompany: (mutation: {
     variables: {
@@ -165,14 +187,15 @@ export type ClientPortalConfig = {
   purchaseToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
+  twoFactorConfig?: TwoFactorConfig;
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
 
-  testUserEmail: string;
-  testUserPhone: string;
-  testUserPassword: string;
-  testUserOTP: number;
+  testUserEmail?: string;
+  testUserPhone?: string;
+  testUserPassword?: string;
+  testUserOTP?: number;
 
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
@@ -207,6 +230,13 @@ export type ClientPortalConfigsQueryResponse = {
   error?: string;
 };
 
+export type ClientPortalParticipantDetailQueryResponse = {
+  clientPortalParticipantDetail?: IClientPortalParticipant;
+  loading?: boolean;
+  refetch: () => Promise<any>;
+  error?: string;
+};
+
 export type ClientPortalConfigQueryResponse = {
   clientPortalGetConfig?: ClientPortalConfig;
   loading?: boolean;
@@ -223,3 +253,23 @@ export type ClientPortalGetLastQueryResponse = {
   clientPortalGetLast: ClientPortalConfig;
   loading?: boolean;
 };
+
+export interface IClientPortalParticipantDoc {
+  contentType: string;
+  contentTypeId: string;
+  cpUserId: string;
+  cpUser: IClientPortalUser;
+  status: string;
+  paymentStatus: string;
+  paymentAmount: number;
+  offeredAmount: number;
+  hasVat: boolean;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+export interface IClientPortalParticipant extends IClientPortalParticipantDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}

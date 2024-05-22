@@ -1,6 +1,7 @@
 "use client"
 
 import ApolloProvider from "@/modules/ApolloProvider"
+import { totalAmountAtom } from "@/store/cart.store"
 import { atom, Provider } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
@@ -21,6 +22,12 @@ export const modeAtom = atomWithStorage<modeT>("mode", "main")
 export const currentPaymentTypeAtom = atom<string>("")
 
 export const paymentAmountTypeAtom = atom<IPaymentAmountType>("amount")
+
+export const displayAmountAtom = atom<number>((get) =>
+  get(paymentAmountTypeAtom) === "percent"
+    ? Number(((get(currentAmountAtom) / get(totalAmountAtom)) * 100).toFixed(1))
+    : get(currentAmountAtom)
+)
 
 export const customerSearchAtom = atom<string>("")
 
@@ -44,15 +51,20 @@ export const invoiceIdAtom = atom<null | string>(null)
 
 // dialog
 
-export const kioskModalView = atom<string>("")
+export const checkoutModalViewAtom = atom<string>("")
 
-export const kioskDialogOpenAtom = atom<boolean>(false)
+export const checkoutDialogOpenAtom = atom<boolean>(false)
 
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 
 export const orderCollapsibleAtom = atom<boolean>(false)
 
 export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
+
+export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
+  "mobileTab",
+  "products"
+)
 
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
   return (

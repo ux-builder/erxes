@@ -9,7 +9,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendLogsMessage,
-  sendToWebhook
+  sendImapMessage
 } from '../../messageBroker';
 import {
   updateConfigs,
@@ -17,8 +17,9 @@ import {
   getEditorAttributeUtil
 } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
-import { debug } from '../../configs';
 import { sendEmail } from '../../sender';
+import { sendToWebhook } from '@erxes/api-utils/src';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -201,7 +202,7 @@ const engageMutations = {
           isLive: draftCampaign.isLive,
           isDraft: draftCampaign.isDraft
         },
-        description: `Campaign "${draftCampaign.title}" has been set live`
+        description: `Broadcast "${draftCampaign.title}" has been set live`
       },
       user
     );
@@ -247,7 +248,6 @@ const engageMutations = {
     { subdomain, models }: IContext
   ) {
     const { content, from, to, title } = args;
-
     if (!(content && from && to && title)) {
       throw new Error(
         'Email content, title, from address or to address is missing'
@@ -280,7 +280,6 @@ const engageMutations = {
 
     try {
       const transporter = await createTransporter(models);
-
       const response = await transporter.sendMail({
         from,
         to,
@@ -288,10 +287,9 @@ const engageMutations = {
         html: content,
         content: replacedContent
       });
-
       return JSON.stringify(response);
     } catch (e) {
-      debug.error(e.message);
+      debugError(e.message);
 
       return e;
     }
@@ -309,7 +307,7 @@ const engageMutations = {
       ...sourceCampaign.toObject(),
       createdAt: new Date(),
       createdBy: user._id,
-      title: `${sourceCampaign.title}-copied`,
+      title: `${sourceCampaign.title} - duplicated`,
       isDraft: true,
       isLive: false,
       runCount: 0,
@@ -355,7 +353,6 @@ const engageMutations = {
     { user, models, subdomain }: IContext
   ) {
     const { body, customerId, ...doc } = args;
-
     const customerQuery = customerId
       ? { _id: customerId }
       : { primaryEmail: doc.to };
@@ -386,7 +383,7 @@ const engageMutations = {
         title: doc.subject
       });
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       throw e;
     }
 
@@ -415,7 +412,19 @@ const engageMutations = {
       });
     }
 
-    return;
+    try {
+      const imapSendMail = await sendImapMessage({
+        subdomain,
+        action: 'imapMessage.create',
+        data: {
+          ...doc
+        },
+        isRPC: true
+      });
+      return imapSendMail;
+    } catch (e) {
+      throw e;
+    }
   }
 };
 

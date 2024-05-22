@@ -9,27 +9,28 @@ import { repairIntegrations } from '../helpers';
 const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
-  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
-  const FACEBOOK_PERMISSIONS = await getConfig(
+  const INSTAGRAM_APP_ID = await getConfig(models, 'INSTAGRAM_APP_ID');
+  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+
+  const INSTAGRAM_PERMISSIONS = await getConfig(
     models,
-    'FACEBOOK_PERMISSIONS',
+    'INSTAGRAM_PERMISSIONS',
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
-  const MAIN_APP_DOMAIN = getEnv({
-    name: 'MAIN_APP_DOMAIN'
-  });
-
-  const DOMAIN = getEnv({
-    name: 'DOMAIN'
-  });
-
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
+  const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
+    models,
+    'INSTAGRAM_LOGIN_REDIRECT_URL',
+    `${API_DOMAIN}/pl:instagram/iglogin`
+  );
   const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
-    scope: `${FACEBOOK_PERMISSIONS},instagram_basic,instagram_manage_messages`,
-    redirect_uri: `${DOMAIN}/pl:instagram/instagram/login`
+    client_id: INSTAGRAM_APP_ID,
+    client_secret: INSTAGRAM_APP_SECRET,
+
+    scope: `${INSTAGRAM_PERMISSIONS},instagram_manage_comments,instagram_basic,instagram_manage_messages,business_management`,
+    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
 
   debugRequest(debugFacebook, req);
@@ -39,7 +40,8 @@ const loginMiddleware = async (req, res) => {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
-      scope: conf.scope
+      scope: conf.scope,
+      state: `${API_DOMAIN}/pl:instagram`
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -97,7 +99,7 @@ const loginMiddleware = async (req, res) => {
       });
 
       for (const integration of integrations) {
-        await repairIntegrations(models, integration.erxesApiId);
+        await repairIntegrations(subdomain, models, integration.erxesApiId);
       }
     } else {
       await models.Accounts.create({
@@ -109,7 +111,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${MAIN_APP_DOMAIN}/settings/authorization?fbAuthorized=true`;
+    const url = `${API_DOMAIN}/settings/ig-authorization?igAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 

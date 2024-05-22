@@ -2,9 +2,12 @@ import React from 'react';
 import Widget from '../components/Widget';
 
 type Props = {
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
   setConfig: any;
+  setHideIncomingCall?: (isHide: boolean) => void;
+  hideIncomingCall?: boolean;
 };
+
 const WidgetContainer = (props: Props) => {
   return <Widget {...props} />;
 };

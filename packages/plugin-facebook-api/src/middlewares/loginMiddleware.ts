@@ -19,12 +19,13 @@ const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
+  const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'FACEBOOK_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:facebook/fblogin`
+    `${API_DOMAIN}/pl:facebook/fblogin`
   );
 
   const conf = {
@@ -43,7 +44,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: DOMAIN
+      state: `${API_DOMAIN}/pl:facebook`
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -97,7 +98,7 @@ const loginMiddleware = async (req, res) => {
       });
 
       for (const integration of integrations) {
-        await repairIntegrations(models, integration.erxesApiId);
+        await repairIntegrations(subdomain, models, integration.erxesApiId);
       }
     } else {
       await models.Accounts.create({
@@ -108,7 +109,11 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${DOMAIN}/settings/fb-authorization?fbAuthorized=true`;
+    const reactAppUrl = !DOMAIN.includes('ngrok')
+      ? DOMAIN
+      : 'http://localhost:3000';
+
+    const url = `${reactAppUrl}/settings/fb-authorization?fbAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 

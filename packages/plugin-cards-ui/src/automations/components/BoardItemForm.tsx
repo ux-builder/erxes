@@ -1,18 +1,18 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { PRIORITIES } from '@erxes/ui-cards/src/boards/constants';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
-import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
-import { Alert } from '@erxes/ui/src/utils';
-import React from 'react';
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { BoardItemWrapper } from '../styles';
-import SelectFields from '@erxes/ui-automations/src/containers/forms/actions/SelectFields';
 import { __ } from 'coreui/utils';
+import { Alert } from "@erxes/ui/src/utils";
+import { BoardItemWrapper } from "../styles";
+import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import { IAction } from "@erxes/ui-automations/src/types";
+import { IPipelineLabel } from "@erxes/ui-cards/src/boards/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { PRIORITIES } from "@erxes/ui-cards/src/boards/constants";
+import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
+import React from "react";
+import SelectFields from "@erxes/ui-automations/src/containers/forms/actions/SelectFields";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { queries as pipelineQuery } from "@erxes/ui-cards/src/boards/graphql";
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
@@ -40,7 +40,7 @@ class BoardItemForm extends React.Component<Props, State> {
 
     this.state = {
       config,
-      pipelineLabels
+      pipelineLabels,
     };
   }
 
@@ -60,52 +60,52 @@ class BoardItemForm extends React.Component<Props, State> {
   renderSelect() {
     const { activeAction } = this.props;
 
-    let type = '';
+    let type = "";
 
     switch (activeAction.type) {
-      case 'cards:deal.create':
-        type = 'deal';
+      case "cards:deal.create":
+        type = "deal";
         break;
 
-      case 'cards:task.create':
-        type = 'task';
+      case "cards:task.create":
+        type = "task";
         break;
 
-      case 'cards:ticket.create':
-        type = 'ticket';
+      case "cards:ticket.create":
+        type = "ticket";
         break;
 
-      case 'cards:purchase.create':
-        type = 'purchase';
+      case "cards:purchase.create":
+        type = "purchase";
         break;
     }
 
     const { stageId, pipelineId, boardId } = this.state.config;
 
-    const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
-    const plIdOnChange = plId => {
+    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
+    const plIdOnChange = (plId) => {
       client
         .query({
           query: gql(pipelineQuery.pipelineLabels),
-          fetchPolicy: 'network-only',
-          variables: { pipelineId: plId }
+          fetchPolicy: "network-only",
+          variables: { pipelineId: plId },
         })
-        .then(data => {
+        .then((data) => {
           this.setState({ pipelineLabels: data.data.pipelineLabels });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
-      this.onChangeField('pipelineId', plId);
+      this.onChangeField("pipelineId", plId);
     };
-    const brIdOnChange = brId => this.onChangeField('boardId', brId);
+    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
 
     return (
       <BoardSelect
         type={type}
-        stageId={stageId || ''}
-        pipelineId={pipelineId || ''}
-        boardId={boardId || ''}
+        stageId={stageId || ""}
+        pipelineId={pipelineId || ""}
+        boardId={boardId || ""}
         onChangeStage={stgIdOnChange}
         onChangePipeline={plIdOnChange}
         onChangeBoard={brIdOnChange}
@@ -113,7 +113,7 @@ class BoardItemForm extends React.Component<Props, State> {
     );
   }
 
-  onChange = rConf => {
+  onChange = (rConf) => {
     const { config } = this.state;
 
     this.setState({ config: { ...config, ...rConf } });
@@ -123,9 +123,9 @@ class BoardItemForm extends React.Component<Props, State> {
     const { triggerType, users, activeAction, triggerConfig } = this.props;
     const { config, pipelineLabels } = this.state;
 
-    const userOptions = users.map(u => ({
+    const userOptions = (users || []).map((u) => ({
       label: (u.details && u.details.fullName) || u.email,
-      value: u._id
+      value: u._id,
     }));
 
     const labelOptions = (pipelineLabels || []).map(l => ({
@@ -133,7 +133,7 @@ class BoardItemForm extends React.Component<Props, State> {
       value: l._id || ''
     }));
 
-    const priorityOptions = PRIORITIES.map(p => ({ label: p, value: p }));
+    const priorityOptions = PRIORITIES.map((p) => ({ label: p, value: p }));
 
     return (
       <Common config={this.state.config} {...this.props}>
@@ -179,28 +179,28 @@ class BoardItemForm extends React.Component<Props, State> {
             customAttributions={[
               {
                 _id: String(Math.random()),
-                label: 'Now',
-                name: 'now',
-                type: 'Date'
+                label: "Now",
+                name: "now",
+                type: "Date",
               },
               {
                 _id: String(Math.random()),
-                label: 'Tomorrow',
-                name: 'tomorrow',
-                type: 'Date'
+                label: "Tomorrow",
+                name: "tomorrow",
+                type: "Date",
               },
               {
                 _id: String(Math.random()),
-                label: 'Next Week',
-                name: 'nextWeek',
-                type: 'Date'
+                label: "Next Week",
+                name: "nextWeek",
+                type: "Date",
               },
               {
                 _id: String(Math.random()),
-                label: 'Next Month',
-                name: 'nextMonth',
-                type: 'Date'
-              }
+                label: "Next Month",
+                name: "nextMonth",
+                type: "Date",
+              },
             ]}
           />
           <PlaceHolderInput
@@ -231,30 +231,30 @@ class BoardItemForm extends React.Component<Props, State> {
             customAttributions={[
               {
                 _id: String(Math.random()),
-                name: 'attachments',
-                label: 'Attachments',
-                type: 'files',
+                name: "attachments",
+                label: "Attachments",
+                type: "files",
                 excludeAttr: true,
                 callback: () =>
                   this.setState({
-                    config: { ...config, attachments: '{{ attachments }}' }
-                  })
-              }
+                    config: { ...config, attachments: "{{ attachments }}" },
+                  }),
+              },
             ]}
             label={__('Add Fields')}
             excludedNames={[
-              'name',
-              'description',
-              'assignedUserIds',
-              'createdAt',
-              'parentId',
-              'closeDate',
-              'labelIds',
-              'priority',
-              'stageId'
+              "name",
+              "description",
+              "assignedUserIds",
+              "createdAt",
+              "parentId",
+              "closeDate",
+              "labelIds",
+              "priority",
+              "stageId",
             ]}
             triggerType={triggerType}
-            actionType={activeAction.type.replace('.create', '')}
+            actionType={activeAction.type.replace(".create", "")}
           />
         </BoardItemWrapper>
       </Common>

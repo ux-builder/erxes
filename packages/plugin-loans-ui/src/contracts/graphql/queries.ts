@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity';
 
 const contractFields = `
@@ -15,11 +15,12 @@ const contractFields = `
   leaseAmount
   feeAmount
   tenor
-  unduePercent
-  undueCalcType
+  lossPercent
+  lossCalcType
   interestRate
   repayment
   startDate
+  firstPayDate
   scheduleDays
   debt
   debtTenor
@@ -232,6 +233,8 @@ export const contractDetailFields = `
   customPayment
   customInterest
   invoices
+  storeInterest
+  loanTransactionHistory
   contractType {
     code
     name
@@ -274,6 +277,9 @@ export const contractDetailFields = `
   }
   hasTransaction
   nextPayment
+  customFieldsData
+  savingContractId
+  holidayType
 `;
 
 export const contractDetail = `
@@ -296,7 +302,7 @@ export const schedules = `
       payDate
 
       balance
-      undue
+      loss
       interest
       interestEve
       interestNonce
@@ -306,7 +312,7 @@ export const schedules = `
       debt
       total
 
-      didUndue
+      didLoss
       didInterest
       didInterestEve
       didInterestNonce
@@ -335,7 +341,7 @@ export const closeInfo = `
   query closeInfo($contractId: String, $date: Date) {
     closeInfo(contractId: $contractId, date: $date) {
       balance
-      undue
+      loss
       interest
       interestEve
       interestNonce
@@ -369,6 +375,11 @@ const contractsAlert = `
   }
 `;
 
+const getPolarisData = `
+  query Query($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
 export default {
   contracts,
   contractsMain,
@@ -378,5 +389,6 @@ export default {
   closeInfo,
   documents,
   contractsAlert,
-  savingContracts
+  savingContracts,
+  getPolarisData,
 };

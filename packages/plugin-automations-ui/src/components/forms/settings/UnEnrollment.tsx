@@ -1,5 +1,5 @@
 import React from 'react';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import { __ } from 'coreui/utils';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -11,19 +11,19 @@ class UnEnrollment extends React.Component<Props> {
   render() {
     return (
       <UnEnroll>
-        <h3>{__('Unenrollment and suppression')}</h3>
+        <h3>{__("Unenrollment and suppression")}</h3>
         <div>
           <p>{__('When contacts enroll in this workflow')}</p>
           <FormGroup>
-            <FormControl componentClass="radio" value="any" inline={true}>
-              {__('Do not remove them from other workflows')}
+            <FormControl componentclass="radio" value="any" inline={true}>
+              {__("Do not remove them from other workflows")}
             </FormControl>
 
-            <FormControl componentClass="radio" value="specific" inline={true}>
-              {__('Remove them from all other workflows')}
+            <FormControl componentclass="radio" value="specific" inline={true}>
+              {__("Remove them from all other workflows")}
             </FormControl>
-            <FormControl componentClass="radio" value="specific" inline={true}>
-              {__('Remove them from aspecific workflows')}
+            <FormControl componentclass="radio" value="specific" inline={true}>
+              {__("Remove them from aspecific workflows")}
             </FormControl>
           </FormGroup>
         </div>
@@ -35,12 +35,12 @@ class UnEnrollment extends React.Component<Props> {
             )}
           </p>
           <FormGroup>
-            <FormControl componentClass="radio" value="any" inline={true}>
-              {__('Yes, remove them from this workflow')}
+            <FormControl componentclass="radio" value="any" inline={true}>
+              {__("Yes, remove them from this workflow")}
             </FormControl>
 
-            <FormControl componentClass="radio" value="specific" inline={true}>
-              {__('No, keep them in this workflow')}
+            <FormControl componentclass="radio" value="specific" inline={true}>
+              {__("No, keep them in this workflow")}
             </FormControl>
           </FormGroup>
         </div>
@@ -53,12 +53,12 @@ class UnEnrollment extends React.Component<Props> {
             ?
           </p>
           <FormGroup>
-            <FormControl componentClass="radio" value="any" inline={true}>
-              {__('Yes')}
+            <FormControl componentclass="radio" value="any" inline={true}>
+              {__("Yes")}
             </FormControl>
 
-            <FormControl componentClass="radio" value="specific" inline={true}>
-              {__('No')}
+            <FormControl componentclass="radio" value="specific" inline={true}>
+              {__("No")}
             </FormControl>
           </FormGroup>
         </div>
@@ -71,10 +71,10 @@ class UnEnrollment extends React.Component<Props> {
             )}
           </p>
           <Select
-            isRequired={true}
+            required={true}
             value={''}
             options={[]}
-            placeholder={__('Select')}
+            placeholder={__("Select")}
           />
         </div>
       </UnEnroll>

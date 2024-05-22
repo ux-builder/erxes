@@ -1,19 +1,22 @@
-const add = `
-  mutation {name}sAdd($name: String!, $expiryDate: Date, $typeId:String) {
-    {name}sAdd(name:$name, expiryDate: $expiryDate, typeId:$typeId) {
-      name
-      _id
-      expiryDate
-      typeId
-    }
-  }
+const commonParamsDef = `
+  $_id: String,
+  $contentType: String,
+  $subType: String,
+  $name: String!,
+  $content: String,
+  $replacer: String,
+  $code: String
 `;
 
-const remove = `
-  mutation {name}sRemove($_id: String!){
-    {name}sRemove(_id: $_id)
-  }
-  `;
+const commonParams = `
+  _id: $_id,
+  contentType: $contentType,
+  subType: $subType,
+  name: $name,
+  content: $content,
+  replacer: $replacer,
+  code: $code
+`;
 
 const edit = `
   mutation {name}sEdit($_id: String!, $name:String, $expiryDate:Date, $checked:Boolean, $typeId:String){

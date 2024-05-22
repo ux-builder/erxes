@@ -4,23 +4,16 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
-import { initBroker, sendCommonMessage } from './messageBroker';
+import { setupMessageConsumers, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
 
 export default {
   name: 'documents',
   permissions,
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   segment: {},
@@ -31,7 +24,7 @@ export default {
     context.models = await generateModels(subdomain);
   },
   meta: {
-    permissions
+    permissions,
   },
 
   getHandlers: [
@@ -41,17 +34,21 @@ export default {
         const { _id, copies, width, itemId } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
-        const document = await models.Documents.findOne({ _id });
+
+        let document;
+        try {
+          document = await models.Documents.findOne({
+            $or: [{ _id }, { code: _id }],
+          });
+        } catch (e) {
+          document = await models.Documents.findOne({ code: _id });
+        }
 
         if (!document) {
           return res.send('Not found');
         }
 
         const userId = req.headers.userid;
-
-        if (!document) {
-          return res.send('Not found');
-        }
 
         if (!userId) {
           return next(new Error('Permission denied'));
@@ -70,7 +67,7 @@ export default {
                 action: 'documentPrintHook',
                 isRPC: true,
                 serviceName,
-                data: { document, userId }
+                data: { document, userId },
               });
             } catch (e) {
               return next(e);
@@ -90,8 +87,8 @@ export default {
             isRPC: true,
             action: 'users.findOne',
             data: {
-              _id: itemId
-            }
+              _id: itemId,
+            },
           });
 
           let content = document.content;
@@ -147,9 +144,9 @@ export default {
               isRPC: true,
               data: {
                 ...(req.query || {}),
-                content: document.content
+                content: document.content,
               },
-              timeout: 50000
+              timeout: 50000,
             });
           } catch (e) {
             replacedContents = [e.message];
@@ -203,7 +200,7 @@ export default {
             <meta charset="utf-8">
             ${heads}
           </head>
-        `
+        `,
         ];
 
         if (copies) {
@@ -260,16 +257,10 @@ export default {
             ${scripts}
         `;
         return res.send(multipliedResults + style + script);
-      }
-    }
+      },
+    },
   ],
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

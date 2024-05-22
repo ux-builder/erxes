@@ -3,6 +3,9 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IPeriodLockDocument } from './models/definitions/periodLocks';
 import { IContractDocument } from './models/definitions/contracts';
+import {
+  ICollateralTypeDocument
+} from './models/definitions/collateralType';
 import { IContractTypeDocument } from './models/definitions/contractTypes';
 import { IInsuranceTypeDocument } from './models/definitions/insuranceTypes';
 import { IInvoiceDocument } from './models/definitions/invoices';
@@ -10,6 +13,10 @@ import { IScheduleDocument } from './models/definitions/schedules';
 import { ITransactionDocument } from './models/definitions/transactions';
 import { loadPeriodLockClass, IPeriodLockModel } from './models/periodLock';
 import { loadContractClass, IContractModel } from './models/contracts';
+import {
+  loadCollateralTypeClass,
+  ICollateralTypeModel
+} from './models/collateralType';
 import {
   loadContractTypeClass,
   IContractTypeModel
@@ -46,6 +53,11 @@ import {
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
 import { IPurposeDocument } from './models/definitions/loanPurpose';
 import { IPurposeTypeDocument } from './models/definitions/loanPurposeType';
+import {
+  INonBalanceTransactionModel,
+  loadNonBalanceTransactionClass
+} from './models/nonBalanceTransactions';
+import { INonBalanceTransactionDocument } from './models/definitions/nonBalanceTransactions';
 //#endregion
 
 export interface IModels {
@@ -63,6 +75,8 @@ export interface IModels {
   StoredInterest: IStoredInterestModel;
   LoanPurposeType: IPurposeTypeModel;
   LoanPurpose: IPurposeModel;
+  NonBalanceTransactions: INonBalanceTransactionModel;
+  CollateralTypes: ICollateralTypeModel;
 }
 
 export interface IContext extends IMainContext {
@@ -70,10 +84,8 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.PeriodLocks = db.model<IPeriodLockDocument, IPeriodLockModel>(
     'loan_period_locks',
@@ -151,10 +163,23 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadPurposeTypeClass(models)
   ) as IPurposeTypeModel;
 
+  models.NonBalanceTransactions = db.model<
+    INonBalanceTransactionDocument,
+    INonBalanceTransactionModel
+  >(
+    'loan_non_balance_transactions',
+    loadNonBalanceTransactionClass(models)
+  ) as INonBalanceTransactionModel;
+
+  models.CollateralTypes = db.model<
+    ICollateralTypeDocument,
+    ICollateralTypeModel
+  >(
+    'loan_collateral_type',
+    loadCollateralTypeClass(models)
+  ) as ICollateralTypeModel;
+
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

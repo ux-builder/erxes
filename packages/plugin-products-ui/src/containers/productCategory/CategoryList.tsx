@@ -1,25 +1,25 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import List from '../../components/productCategory/CategoryList';
-import { mutations, queries } from '../../graphql';
+import * as compose from "lodash.flowright";
+
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoryRemoveMutationResponse,
-  ProductsQueryResponse
-} from '../../types';
+} from "../../types";
+import { mutations, queries } from "../../graphql";
 
-type Props = { history: any; queryParams: any };
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import List from "../../components/productCategory/CategoryList";
+import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import React from "react";
+import { queries as brandQueries } from "@erxes/ui/src/brands/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+
+type Props = { queryParams: any };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
-  productsQuery: ProductsQueryResponse;
   brandsQuery: BrandsQueryResponse;
 } & Props &
   ProductCategoryRemoveMutationResponse;
@@ -28,25 +28,23 @@ class ProductListContainer extends React.Component<FinalProps> {
     const {
       productCategoriesQuery,
       productCategoriesCountQuery,
-      productsQuery,
-      productCategoryRemove
+      productCategoryRemove,
     } = this.props;
 
-    const remove = productId => {
+    const remove = (productId) => {
       confirm().then(() => {
         productCategoryRemove({
-          variables: { _id: productId }
+          variables: { _id: productId },
         })
           .then(() => {
             productCategoriesQuery.refetch();
             productCategoriesCountQuery.refetch();
-            productsQuery.refetch();
 
             Alert.success(
               `You successfully deleted a product & service category`
             );
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       });
@@ -66,7 +64,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       productCategoriesCount:
         productCategoriesCountQuery.productCategoriesTotalCount || 0,
       brands,
-      brandsLoading
+      brandsLoading,
     };
 
     return <List {...updatedProps} />;
@@ -74,11 +72,11 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesTotalCount', 'products'];
+  return ["productCategories", "productCategoriesTotalCount", "products"];
 };
 
 const options = () => ({
-  refetchQueries: getRefetchQueries()
+  refetchQueries: getRefetchQueries(),
 });
 
 export default withProps<Props>(
@@ -86,36 +84,33 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery',
+        name: "productCategoriesQuery",
         options: ({ queryParams }) => ({
           variables: {
-            status: queryParams.categoryStatus,
+            status: queryParams.status,
             brand: queryParams.brand,
-            parentId: queryParams.parentId
+            parentId: queryParams.parentId,
           },
           refetchQueries: getRefetchQueries(),
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, ProductCategoriesCountQueryResponse>(
       gql(queries.productCategoriesCount),
       {
-        name: 'productCategoriesCountQuery'
+        name: "productCategoriesCountQuery",
       }
     ),
     graphql<Props, ProductCategoryRemoveMutationResponse, { _id: string }>(
       gql(mutations.productCategoryRemove),
       {
-        name: 'productCategoryRemove',
-        options
+        name: "productCategoryRemove",
+        options,
       }
     ),
-    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery'
-    }),
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
-      name: 'brandsQuery'
+      name: "brandsQuery",
     })
   )(ProductListContainer)
 );

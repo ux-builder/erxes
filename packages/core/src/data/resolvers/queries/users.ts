@@ -1,12 +1,14 @@
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import { IContext, IModels } from '../../../connectionResolver';
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
+import { escapeRegExp, getConfig, paginate } from '../../utils';
 import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
-import { IContext, IModels } from '../../../connectionResolver';
-import { paginate } from '../../utils';
+
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export class Builder {
   public params: { segment?: string; segmentData?: string };
@@ -22,7 +24,7 @@ export class Builder {
     models: IModels,
     subdomain: string,
     params: { segment?: string; segmentData?: string },
-    context
+    context,
   ) {
     this.contentType = 'users';
     this.context = context;
@@ -55,7 +57,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData
+      segmentData,
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -85,7 +87,7 @@ export class Builder {
         isRPC: true,
         action: 'findOne',
         subdomain: this.subdomain,
-        data: { _id: this.params.segment }
+        data: { _id: this.params.segment },
       });
 
       await this.segmentFilter(segment);
@@ -97,9 +99,9 @@ export class Builder {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList
-        }
-      }
+          must_not: this.negativeList,
+        },
+      },
     };
 
     let totalCount = 0;
@@ -109,7 +111,7 @@ export class Builder {
       action: 'count',
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     totalCount = totalCountResponse.count;
@@ -118,19 +120,19 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions
+      body: queryOptions,
     });
 
-    const list = response.hits.hits.map(hit => {
+    const list = response.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source
+        ...hit._source,
       };
     });
 
     return {
       list,
-      totalCount
+      totalCount,
     };
   }
 }
@@ -150,6 +152,7 @@ interface IListArgs {
   brandIds?: string[];
   departmentId?: string;
   branchId?: string;
+  isAssignee?: boolean;
   departmentIds: string[];
   branchIds: string[];
   unitId?: string;
@@ -164,20 +167,21 @@ const getChildIds = async (model, ids) => {
   const orderQry: any[] = [];
   for (const item of items) {
     orderQry.push({
-      order: { $regex: new RegExp(item.order) }
+      order: { $regex: new RegExp(`^${escapeRegExp(item.order)}`) },
     });
   }
 
   const allItems = await model.find({
-    $or: orderQry
+    $or: orderQry,
   });
-  return allItems.map(i => i._id);
+  return allItems.map((i) => i._id);
 };
 
 const queryBuilder = async (
   models: IModels,
   params: IListArgs,
-  subdomain: string
+  subdomain: string,
+  user: IUserDocument
 ) => {
   const {
     searchValue,
@@ -190,15 +194,18 @@ const queryBuilder = async (
     departmentId,
     unitId,
     branchId,
+    isAssignee,
     departmentIds,
     branchIds,
     segment,
-    segmentData
+    segmentData,
   } = params;
 
   const selector: any = {
-    isActive
+    isActive,
   };
+
+  let andCondition: any[] = [];
 
   if (searchValue) {
     const fields = [
@@ -206,7 +213,7 @@ const queryBuilder = async (
       { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { username: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
+      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
     ];
 
     selector.$or = fields;
@@ -244,28 +251,59 @@ const queryBuilder = async (
     selector.departmentIds = { $in: [departmentId] };
   }
 
-  if (branchIds && branchIds.length && departmentIds && departmentIds.length) {
-    const oldOr = selector.$or || [];
-    oldOr.push({
-      branchIds: { $in: await getChildIds(models.Branches, branchIds) }
-    });
-    oldOr.push({
-      departmentIds: {
-        $in: await getChildIds(models.Departments, departmentIds)
-      }
-    });
+  if (
+    isAssignee &&
+    branchIds &&
+    branchIds.length &&
+    departmentIds &&
+    departmentIds.length
+  ) {
+    const checker = await getConfig(
+      'CHECK_TEAM_MEMBER_SHOWN',
+      undefined,
+      models,
+    );
 
-    selector.$or = oldOr;
+    if (checker) {
+      const customCond: any[] = [];
+
+      const branchUserIds = await getConfig(
+        'BRANCHES_MASTER_TEAM_MEMBERS_IDS',
+        undefined,
+        models,
+      );
+      const departmentUserIds = await getConfig(
+        'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
+        undefined,
+        models,
+      );
+
+      if (!branchUserIds || !branchUserIds.length || !branchUserIds.includes(user._id)) {
+        customCond.push({
+          branchIds: { $in: await getChildIds(models.Branches, branchIds) },
+        });
+      }
+
+      if (!departmentUserIds || !departmentUserIds.length || !departmentUserIds.includes(user._id)) {
+        customCond.push({
+          departmentIds: {
+            $in: await getChildIds(models.Departments, departmentIds),
+          },
+        });
+      }
+
+      andCondition = customCond.length ? [{ $or: customCond }] : [];
+    }
   } else {
     if (branchIds && branchIds.length) {
       selector.branchIds = {
-        $in: await getChildIds(models.Branches, branchIds)
+        $in: await getChildIds(models.Branches, branchIds),
       };
     }
 
     if (departmentIds && departmentIds.length) {
       selector.departmentIds = {
-        $in: await getChildIds(models.Departments, departmentIds)
+        $in: await getChildIds(models.Departments, departmentIds),
       };
     }
   }
@@ -287,7 +325,11 @@ const queryBuilder = async (
 
     const { list } = await qb.runQueries();
 
-    selector._id = { $in: list.map(l => l._id) };
+    selector._id = { $in: list.map((l) => l._id) };
+  }
+
+  if (andCondition.length) {
+    return { $and: [{ ...selector }, ...andCondition] }
   }
 
   return selector;
@@ -300,12 +342,12 @@ const userQueries = {
   async users(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models, subdomain }: IContext
+    { userBrandIdsSelector, models, subdomain, user }: IContext,
   ) {
     const selector = {
       ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args, subdomain)),
-      ...NORMAL_USER_SELECTOR
+      ...(await queryBuilder(models, args, subdomain, user)),
+      ...NORMAL_USER_SELECTOR,
     };
 
     const { sortField, sortDirection } = args;
@@ -326,9 +368,9 @@ const userQueries = {
     {
       isActive,
       ids,
-      assignedToMe
+      assignedToMe,
     }: { isActive: boolean; ids: string[]; assignedToMe: string },
-    { userBrandIdsSelector, user, models }: IContext
+    { userBrandIdsSelector, user, models }: IContext,
   ) {
     const selector: { isActive?: boolean; _id?: any } = userBrandIdsSelector;
 
@@ -343,7 +385,7 @@ const userQueries = {
     }
 
     return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
-      username: 1
+      username: 1,
     });
   },
 
@@ -360,12 +402,12 @@ const userQueries = {
   async usersTotalCount(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models, subdomain }: IContext
+    { userBrandIdsSelector, models, subdomain, user }: IContext,
   ) {
     const selector = {
       ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args, subdomain)),
-      ...NORMAL_USER_SELECTOR
+      ...(await queryBuilder(models, args, subdomain, user)),
+      ...NORMAL_USER_SELECTOR,
     };
 
     return models.Users.find(selector).countDocuments();
@@ -374,10 +416,16 @@ const userQueries = {
   /**
    * Current user
    */
-  currentUser(_root, _args, { user, models }: IContext) {
-    return user
-      ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
+  async currentUser(_root, _args, { user, models, subdomain }: IContext) {
+    // this check is important for preventing injection attacks
+    // if (typeof user?._id !== 'string') {
+    //   throw new Error(`User _id is not a string. It is ${user?._id} instead.`);
+    // }
+    const result = user
+      ? await models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+
+    return result;
   },
 
   /**
@@ -385,7 +433,7 @@ const userQueries = {
    */
   async userMovements(_root, args, { models }: IContext) {
     return await models.UserMovements.find(args).sort({ createdAt: -1 });
-  }
+  },
 };
 
 requireLogin(userQueries, 'usersTotalCount');

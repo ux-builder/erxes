@@ -3,26 +3,31 @@ import {
   ControlLabel,
   DateControl,
   Form,
+  MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+  MainStyleScrollWrapper as ScrollWrapper,
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IContract, IContractDoc } from "../../types";
+import { Tabs as MainTabs, TabTitle } from "@erxes/ui/src/components/tabs";
 import SelectContractType, {
-  ContractTypeById
-} from '../../../contractTypes/containers/SelectContractType';
-import { IContract, IContractDoc } from '../../types';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { IContractType } from '../../../contractTypes/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import SelectContracts from '../common/SelectContract';
+  ContractTypeById,
+} from "../../../contractTypes/containers/SelectContractType";
+
+import ContractsCustomFields from "./ContractsCustomFields";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IContractType } from "../../../contractTypes/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectContracts from "../common/SelectContract";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { __ } from "coreui/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   currentUser: IUser;
@@ -31,6 +36,7 @@ type Props = {
   ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
+  change?: boolean;
 };
 
 type State = {
@@ -69,6 +75,39 @@ function isGreaterNumber(value: any, compareValue: any) {
   return value > compareValue;
 }
 
+interface ITabItem {
+  component: any;
+  label: string;
+}
+
+interface ITabs {
+  tabs: ITabItem[];
+}
+
+export function Tabs({ tabs }: ITabs) {
+  const [tabIndex, setTabIndex] = React.useState(0);
+
+  return (
+    <>
+      <MainTabs>
+        {tabs.map((tab, index) => (
+          <TabTitle
+            className={tabIndex === index ? "active" : ""}
+            key={`tab${tab.label}`}
+            onClick={() => setTabIndex(index)}
+          >
+            {tab.label}
+          </TabTitle>
+        ))}
+      </MainTabs>
+
+      <div style={{ width: "100%", marginTop: 20 }}>
+        {tabs?.[tabIndex]?.component}
+      </div>
+    </>
+  );
+}
+
 class ContractForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -88,13 +127,13 @@ class ContractForm extends React.Component<Props, State> {
       contractTypeId: contract.contractTypeId,
       storeInterestInterval: contract.storeInterestInterval,
       customerId: contract.customerId,
-      customerType: contract.customerType || 'customer',
+      customerType: contract.customerType || "customer",
       currency:
-        contract.currency || this.props.currentUser.configs?.dealCurrency[0],
+        contract.currency || this.props.currentUser.configs?.dealCurrency?.[0],
       interestGiveType: contract.interestGiveType,
       closeOrExtendConfig: contract.closeOrExtendConfig,
       depositAccount: contract.depositAccount,
-      interestCalcType: contract.interestCalcType
+      interestCalcType: contract.interestCalcType,
     };
   }
 
@@ -124,7 +163,7 @@ class ContractForm extends React.Component<Props, State> {
       storeInterestInterval: this.state.storeInterestInterval,
       interestCalcType: this.state.interestCalcType,
       customerId: this.state.customerId,
-      customerType: this.state.customerType
+      customerType: this.state.customerType,
     };
 
     return result;
@@ -133,7 +172,7 @@ class ContractForm extends React.Component<Props, State> {
   renderFormGroup = (label, props) => {
     return (
       <FormGroup>
-        <ControlLabel required={!label.includes('Amount')}>
+        <ControlLabel required={!label.includes("Amount")}>
           {__(label)}
         </ControlLabel>
         <FormControl {...props} />
@@ -141,63 +180,59 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = e => {
+  onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
     this.setState({ [name]: value } as any);
   };
 
-  onSelectContractType = value => {
+  onSelectContractType = (value) => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = { contractTypeId: value };
 
     //get default value from contract type
-    changingStateValue['interestRate'] = Number(contractTypeObj?.interestRate);
-    changingStateValue['closeInterestRate'] = Number(
+    changingStateValue["interestRate"] = Number(contractTypeObj?.interestRate);
+    changingStateValue["closeInterestRate"] = Number(
       contractTypeObj?.closeInterestRate
     );
-    changingStateValue['storeInterestInterval'] =
+    changingStateValue["storeInterestInterval"] =
       contractTypeObj?.storeInterestInterval;
-    changingStateValue['interestCalcType'] = contractTypeObj?.interestCalcType;
-    changingStateValue['isAllowIncome'] = contractTypeObj?.isAllowIncome;
-    changingStateValue['isAllowOutcome'] = contractTypeObj?.isAllowOutcome;
-    changingStateValue['isDeposit'] = contractTypeObj?.isDeposit;
+    changingStateValue["interestCalcType"] = contractTypeObj?.interestCalcType;
+    changingStateValue["isAllowIncome"] = contractTypeObj?.isAllowIncome;
+    changingStateValue["isAllowOutcome"] = contractTypeObj?.isAllowOutcome;
+    changingStateValue["isDeposit"] = contractTypeObj?.isDeposit;
 
     if (!this.state.duration && contractTypeObj?.config?.minDuration) {
-      changingStateValue['duration'] = contractTypeObj?.config?.minDuration;
+      changingStateValue["duration"] = contractTypeObj?.config?.minDuration;
     }
 
     this.setState({ ...changingStateValue });
   };
 
-  onSelectCustomer = value => {
+  onSelectCustomer = (value) => {
     this.setState({
-      customerId: value
+      customerId: value,
     });
   };
 
   onSelect = (value, key: string) => {
     this.setState({
-      [key]: value
+      [key]: value,
     } as any);
   };
 
-  onCheckCustomerType = e => {
+  onCheckCustomerType = (e) => {
     this.setState({
-      customerType: e.target.checked ? 'company' : 'customer'
+      customerType: e.target.checked ? "company" : "customer",
     });
-  };
-
-  onFieldClick = e => {
-    e.target.select();
   };
 
   checkValidation = (): any => {
     const errors: any = {};
 
     function errorWrapper(text: string) {
-      return <label style={{ color: 'red' }}>{text}</label>;
+      return <label style={{ color: "red" }}>{text}</label>;
     }
 
     if (
@@ -205,131 +240,153 @@ class ContractForm extends React.Component<Props, State> {
       isGreaterNumber(this.state.interestRate, this.state.config.maxInterest)
     )
       errors.interestMonth = errorWrapper(
-        `${__('Interest must less than')} ${this.state.config.maxInterest}`
+        `${__("Interest must less than")} ${this.state.config.maxInterest}`
       );
 
     return errors;
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, change } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = value => {
+    const onChangeStartDate = (value) => {
       this.setState({ startDate: value });
+    };
+
+    const onChangeBranchId = (value) => {
+      this.setState({ branchId: value });
     };
 
     return (
       <>
         <ScrollWrapper>
           <FormWrapper>
-            <FormColumn>
-              <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
-                {this.renderFormGroup('Is Organization', {
+            {!change && (
+              <FormColumn>
+                <div style={{ paddingBottom: "13px", paddingTop: "20px" }}>
+                  {this.renderFormGroup("Is Organization", {
+                    ...formProps,
+                    className: "flex-item",
+                    type: "checkbox",
+                    componentclass: "checkbox",
+                    name: "customerType",
+                    checked: this.state.customerType === "company",
+                    onChange: this.onCheckCustomerType,
+                  })}
+                </div>
+                {this.state.customerType === "customer" && (
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__("Customer")}
+                    </ControlLabel>
+                    <SelectCustomers
+                      label="Choose customer"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={this.onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
+
+                {this.state.customerType === "company" && (
+                  <FormGroup>
+                    <ControlLabel required={true}>{__("Company")}</ControlLabel>
+                    <SelectCompanies
+                      label="Choose company"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={this.onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__("Contract Type")}
+                  </ControlLabel>
+                  <SelectContractType
+                    label={__("Choose type")}
+                    name="contractTypeId"
+                    value={this.state.contractTypeId || ""}
+                    onSelect={this.onSelectContractType}
+                    multi={false}
+                  ></SelectContractType>
+                </FormGroup>
+              </FormColumn>
+            )}
+            {!change && (
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__("Start Date")}
+                  </ControlLabel>
+                  <DateContainer>
+                    <DateControl
+                      {...formProps}
+                      dateFormat="YYYY/MM/DD"
+                      required={false}
+                      name="startDate"
+                      value={this.state.startDate}
+                      onChange={onChangeStartDate}
+                    />
+                  </DateContainer>
+                </FormGroup>
+                {this.renderFormGroup("Duration", {
                   ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'customerType',
-                  checked: this.state.customerType === 'company',
-                  onChange: this.onCheckCustomerType
+                  className: "flex-item",
+                  type: "number",
+                  useNumberFormat: true,
+                  name: "duration",
+                  value: this.state.duration,
+                  onChange: this.onChangeField,
                 })}
-              </div>
-              {this.state.customerType === 'customer' && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
-                  <SelectCustomers
-                    label="Choose customer"
-                    name="customerId"
-                    initialValue={this.state.customerId}
-                    onSelect={this.onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
-
-              {this.state.customerType === 'company' && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Company')}</ControlLabel>
-                  <SelectCompanies
-                    label="Choose company"
-                    name="customerId"
-                    initialValue={this.state.customerId}
-                    onSelect={this.onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
+                {this.renderFormGroup("Saving Amount", {
+                  ...formProps,
+                  className: "flex-item",
+                  type: "number",
+                  useNumberFormat: true,
+                  name: "savingAmount",
+                  value: this.state.savingAmount,
+                  onChange: this.onChangeField,
+                })}
+              </FormColumn>
+            )}
+            <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Contract Type')}
-                </ControlLabel>
-                <SelectContractType
-                  label={__('Choose type')}
-                  name="contractTypeId"
-                  value={this.state.contractTypeId || ''}
-                  onSelect={this.onSelectContractType}
+                <ControlLabel>{__("Branches")}</ControlLabel>
+                <SelectBranches
+                  name="branchId"
+                  label={__("Choose branch")}
+                  initialValue={this.state?.branchId}
+                  onSelect={onChangeBranchId}
                   multi={false}
-                ></SelectContractType>
+                />
               </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Start Date')}</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    dateFormat="YYYY/MM/DD"
-                    required={false}
-                    name="startDate"
-                    value={this.state.startDate}
-                    onChange={onChangeStartDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-              {this.renderFormGroup('Duration', {
+              {this.renderFormGroup("Interest Rate", {
                 ...formProps,
-                className: 'flex-item',
-                type: 'number',
+                className: "flex-item",
+                type: "number",
                 useNumberFormat: true,
-                name: 'duration',
-                value: this.state.duration,
-                onChange: this.onChangeField
-              })}
-              {this.renderFormGroup('Saving Amount', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'number',
-                useNumberFormat: true,
-                name: 'savingAmount',
-                value: this.state.savingAmount,
-                onChange: this.onChangeField
-              })}
-            </FormColumn>
-            <FormColumn>
-              {this.renderFormGroup('Interest Rate', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'number',
-                useNumberFormat: true,
-                name: 'interestRate',
+                name: "interestRate",
                 value: this.state.interestRate,
-                onChange: this.onChangeField
+                onChange: this.onChangeField,
               })}
 
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Close or extend of time')}
+                  {__("Close or extend of time")}
                 </ControlLabel>
                 <FormControl
                   {...this.props}
                   name="closeOrExtendConfig"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.closeOrExtendConfig}
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['closeEndOfContract', 'autoExtend'].map(
+                  {["closeEndOfContract", "autoExtend"].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {__(typeName)}
@@ -340,17 +397,17 @@ class ContractForm extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Interest give type')}
+                  {__("Interest give type")}
                 </ControlLabel>
                 <FormControl
                   {...this.props}
                   name="interestGiveType"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.interestGiveType}
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['currentAccount', 'depositAccount'].map(
+                  {["currentAccount", "depositAccount"].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {__(typeName)}
@@ -359,18 +416,18 @@ class ContractForm extends React.Component<Props, State> {
                   )}
                 </FormControl>
               </FormGroup>
-              {this.state.interestGiveType === 'depositAccount' && (
+              {this.state.interestGiveType === "depositAccount" && (
                 <FormGroup>
-                  <ControlLabel>{__('Deposit account')}</ControlLabel>
+                  <ControlLabel>{__("Deposit account")}</ControlLabel>
                   <SelectContracts
-                    label={__('Choose an contract')}
+                    label={__("Choose an contract")}
                     name="depositAccount"
                     initialValue={this.state.depositAccount}
                     filterParams={{ isDeposit: true }}
-                    onSelect={v => {
-                      if (typeof v === 'string') {
+                    onSelect={(v) => {
+                      if (typeof v === "string") {
                         this.setState({
-                          depositAccount: v
+                          depositAccount: v,
                         });
                       }
                     }}
@@ -380,42 +437,71 @@ class ContractForm extends React.Component<Props, State> {
               )}
             </FormColumn>
           </FormWrapper>
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  max={140}
-                  name="description"
-                  componentClass="textarea"
-                  value={this.state.description || ''}
-                  onChange={this.onChangeField}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
+          {!change && (
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>{__("Description")}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    max={140}
+                    name="description"
+                    componentclass="textarea"
+                    value={this.state.description || ""}
+                    onChange={this.onChangeField}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+          )}
         </ScrollWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
+            name: "contract",
             values: this.generateDoc(values),
             disabled: !!Object.keys(this.checkValidation()).length,
             isSubmitted,
-            object: this.props.contract
+            object: this.props.contract,
           })}
         </ModalFooter>
       </>
     );
   };
 
+  renderCustom = () => {
+    return (
+      <ContractsCustomFields
+        isDetail={true}
+        contract={{ ...this.props.contract, ...this.state } as any}
+        collapseCallback={console.log}
+      />
+    );
+  };
+
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return (
+      <Tabs
+        tabs={[
+          {
+            label: "Гэрээ",
+            component: <Form renderContent={this.renderContent} />,
+          },
+          ...(isEnabled("forms")
+            ? [
+                {
+                  label: "Бусад",
+                  component: <Form renderContent={this.renderCustom} />,
+                },
+              ]
+            : []),
+        ]}
+      />
+    );
   }
 }
 

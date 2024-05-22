@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { sendMessage } from '@erxes/api-utils/src/core';
 
 import {
   instagramCreateIntegration,
@@ -10,27 +11,27 @@ import {
 import { handleInstagramMessage } from './handleInstagramMessage';
 import { userIds } from './middlewares/userMiddleware';
 
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService
 } from '@erxes/api-utils/src/core';
 
-import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage as RPC,
+  RPResult
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
 export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
+  return RPC('rpc_queue:integrations_to_api', message);
 };
 
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'instagram:getAccounts',
     async ({ subdomain, data: { kind } }) => {
@@ -45,7 +46,6 @@ export const initBroker = async cl => {
     }
   );
 
-  // listen for rpc queue =========
   consumeRPCQueue(
     'instagram:api_to_integrations',
     async ({ subdomain, data }) => {
@@ -53,23 +53,26 @@ export const initBroker = async cl => {
 
       const { action, type } = data;
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success'
+      };
+
       try {
         if (action === 'remove-account') {
-          response = { data: await removeAccount(models, data._id) };
+          response.data = await removeAccount(subdomain, models, data._id);
         }
 
         if (action === 'repair-integrations') {
-          response = { data: await repairIntegrations(models, data._id) };
+          response.data = await repairIntegrations(subdomain, models, data._id);
         }
 
-        if (action === 'reply-messenger') {
-          response = { data: await handleInstagramMessage(models, data) };
+        if (type === 'instagram') {
+          response.data = await handleInstagramMessage(models, data, subdomain);
         }
+
         if (action === 'getConfigs') {
-          response = { data: await models.Configs.find({}) };
+          response.data = await models.Configs.find({});
         }
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',
@@ -113,14 +116,13 @@ export const initBroker = async cl => {
     'instagram:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
-
       if (kind === 'instagram') {
-        return instagramCreateIntegration(models, doc);
+        return instagramCreateIntegration(subdomain, models, doc);
       }
 
       return {
         status: 'error',
-        data: 'Wrong kind'
+        errorMessage: 'Wrong kind'
       };
     }
   );
@@ -131,7 +133,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
-      await removeIntegration(models, integrationId);
+      await removeIntegration(subdomain, models, integrationId);
 
       return { status: 'success' };
     }
@@ -166,14 +168,16 @@ export const initBroker = async cl => {
   );
 };
 
-export default function() {
-  return client;
-}
-
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'core',
+    ...args
+  });
+};
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });

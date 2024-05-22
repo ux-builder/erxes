@@ -1,24 +1,12 @@
-import React from 'react';
-import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import Tagger from '@erxes/ui-tags/src/containers/Tagger';
-import { Button, FormControl, Icon } from '@erxes/ui/src/components';
-import { renderFullName, __ } from '@erxes/ui/src/utils';
-import Popover from 'react-bootstrap/Popover';
-import {
-  InCall,
-  CallInfo,
-  PhoneNumber,
-  Actions,
-  CallAction,
-  ContactItem,
-  ActionNumber,
-  InCallFooter,
-  CallTab,
-  CallTabsContainer,
-  CallTabContent
-} from './styles';
+import { Actions, CallAction, InCallFooter, Keypad } from './styles';
+import { numbers, symbols } from './constants';
 
-export const formatPhone = phone => {
+import { Icon } from '@erxes/ui/src/components';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import moment from 'moment';
+
+export const formatPhone = (phone) => {
   var num;
   if (phone.indexOf('@')) {
     num = phone.split('@')[0];
@@ -31,75 +19,17 @@ export const formatPhone = phone => {
   return num;
 };
 
-export const callPopover = (
-  callerData,
-  shrink,
-  timeSpent,
-  callActionButtons,
-  endCall,
-  onTabClick,
-  inCallTabs,
-  currentTab,
-  afterSave
-) => {
-  return (
-    <Popover id="call-popover" className="call-popover">
-      <InCall>
-        <CallInfo shrink={shrink}>
-          <p>
-            {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
-          </p>
-          <div>{renderCallerInfo(callerData, shrink)}</div>
-          <Actions>
-            {callActionButtons.map(action => (
-              <CallAction key={action.text} shrink={shrink}>
-                <Icon icon={action.icon} />
-                {!shrink && __(action.text)}
-              </CallAction>
-            ))}
-            {shrink && (
-              <CallAction shrink={shrink} isDecline={true} onClick={endCall}>
-                <Icon icon="phone-slash" />
-              </CallAction>
-            )}
-          </Actions>
-        </CallInfo>
-        <ContactItem>
-          <CallTabsContainer full={true}>
-            {inCallTabs.map(tab => (
-              <CallTab
-                key={tab}
-                className={currentTab === tab ? 'active' : ''}
-                onClick={() => onTabClick(tab)}
-              >
-                {__(tab)}
-                <ActionNumber>1</ActionNumber>
-              </CallTab>
-            ))}
-          </CallTabsContainer>
-        </ContactItem>
-        {renderFooter(shrink, currentTab, endCall, afterSave)}
-      </InCall>
-    </Popover>
-  );
-};
-
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
-    useGrouping: false
+    useGrouping: false,
   });
 };
-
 export const getSpentTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
-
   seconds -= hours * 3600;
-
   const minutes = Math.floor(seconds / 60);
-
   seconds -= minutes * 60;
-
   return (
     <>
       {hours !== 0 && formatNumber(hours)}
@@ -110,53 +40,116 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-
-const renderCallerInfo = (callData, shrink) => {
-  if (!callData) {
-    return null;
-  }
-
-  if (!shrink) {
-    return (
-      <>
-        {renderFullName(callData?.customer || '')}
-        <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>
-        {/* <p>{caller.place}</p> */}
-      </>
-    );
-  }
-
-  return <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>;
+export const renderKeyPad = (handNumPad) => {
+  return (
+    <Keypad>
+      {numbers.map((n) => (
+        <div className="number" key={n} onClick={() => handNumPad(n)}>
+          {n}
+        </div>
+      ))}
+      <div className="symbols">
+        {symbols.map((s) => (
+          <div
+            key={s.class}
+            className={s.class}
+            onClick={() => handNumPad(s.symbol)}
+          >
+            {s.toShow || s.symbol}
+          </div>
+        ))}
+      </div>
+      <div className="number" onClick={() => handNumPad(0)}>
+        0
+      </div>
+      <div className="symbols" onClick={() => handNumPad('delete')}>
+        <Icon icon="backspace" />
+      </div>
+    </Keypad>
+  );
 };
-
-const renderFooter = (shrink, currentTab, endCall, afterSave) => {
-  if (!shrink) {
-    return (
-      <InCallFooter>
-        <Button btnStyle="link">{__('Add or call')}</Button>
-        <CallAction onClick={endCall} isDecline={true}>
-          <Icon icon="phone-slash" />
-        </CallAction>
-        <Button btnStyle="link">{__('Transfer call')}</Button>
-      </InCallFooter>
-    );
-  }
+export const callActions = (
+  isMuted,
+  handleAudioToggle,
+  isHolded,
+  handleHold,
+  endCall,
+) => {
+  const isHold = isHolded().localHold;
 
   return (
-    <>
-      <CallTabContent tab="Notes" show={currentTab === 'Notes' ? true : false}>
-        <FormControl componentClass="textarea" placeholder="Send a note..." />
-        <Button btnStyle="success">{__('Send')}</Button>
-      </CallTabContent>
-      <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-        <Tagger type="" />
-      </CallTabContent>
-      <CallTabContent
-        tab="Assign"
-        show={currentTab === 'Assign' ? true : false}
-      >
-        <AssignBox targets={[]} event="onClick" afterSave={afterSave} />
-      </CallTabContent>
-    </>
+    <InCallFooter>
+      <Actions>
+        <div>
+          <CallAction
+            key={isMuted() ? 'UnMute' : 'Mute'}
+            active={isMuted() ? true : false}
+            onClick={handleAudioToggle}
+          >
+            <Icon size={20} icon={'phone-times'} />
+          </CallAction>
+          {isMuted() ? __('UnMute') : __('Mute')}
+        </div>
+        <div>
+          <CallAction
+            key={isHold ? 'UnHold' : 'Hold'}
+            active={isHold ? true : false}
+            onClick={handleHold}
+            disabled={true}
+          >
+            <Icon size={20} icon={'pause-1'} />
+          </CallAction>
+          {isHold ? __('UnHold') : __('Hold')}
+        </div>
+        <div>
+          <CallAction disabled={true}>
+            <Icon size={20} icon={'phone-volume'} />
+          </CallAction>
+          {__('Transfer')}
+          <span className="coming-soon">coming soon</span>
+        </div>
+        <CallAction onClick={endCall} isDecline={true}>
+          <Icon size={20} icon="phone-slash" />
+        </CallAction>
+      </Actions>
+    </InCallFooter>
   );
+};
+
+export const setLocalStorage = (isRegistered, isAvailable) => {
+  localStorage.setItem(
+    'callInfo',
+    JSON.stringify({
+      isRegistered,
+    }),
+  );
+
+  const callConfig = JSON.parse(
+    localStorage.getItem('config:call_integrations') || '{}',
+  );
+
+  callConfig &&
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: callConfig.inboxId,
+        phone: callConfig.phone,
+        wsServer: callConfig.wsServer,
+        token: callConfig.token,
+        operators: callConfig.operators,
+        isAvailable,
+      }),
+    );
+};
+
+export const calculateTimeElapsed = (startedMoment) => {
+  const now = moment(new Date());
+  return now.diff(startedMoment, 'seconds');
+};
+export const extractPhoneNumberFromCounterpart = (counterpart) => {
+  if (!counterpart) return '';
+  const startIndex = counterpart.indexOf(':') + 1;
+  const endIndex = counterpart.indexOf('@');
+  if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
+  return counterpart.slice(startIndex, endIndex);
 };

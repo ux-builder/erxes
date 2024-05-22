@@ -44,6 +44,8 @@ export const types = () => `
     isAllowOutcome: Boolean
     isDeposit: Boolean
     loansOfForeclosed: [SavingLoans]
+    customFieldsData: JSON
+    blockAmount: Float
   }
 
   type SavingCloseInfo {
@@ -100,6 +102,7 @@ const queryParams = `
 export const queries = `
   savingsContractsMain(${queryParams}): SavingContractsListResponse
   savingsContracts(${queryParams}): [SavingContract]
+  clientSavingsContracts(${queryParams}): [SavingContract]
   savingsContractDetail(_id: String!): SavingContract
   savingsCloseInfo(contractId: String, date: Date): SavingCloseInfo
   savingsContractsAlert(date: Date): [SavingAlert]
@@ -130,6 +133,7 @@ const commonFields = `
   isAllowIncome: Boolean
   isAllowOutcome: Boolean
   isDeposit: Boolean
+  customFieldsData: JSON
 `;
 
 const interestCorrectionFields = `
@@ -142,6 +146,7 @@ const interestCorrectionFields = `
 
 export const mutations = `
   savingsContractsAdd(${commonFields}): SavingContract
+  clientSavingsContractsAdd(${commonFields}): SavingContract
   savingsContractsEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsDealEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsClose(contractId: String, closeDate: Date, closeType: String, description: String): SavingContract

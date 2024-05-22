@@ -2,7 +2,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getPageList } from '../../utils';
+import { fetchPagePost, fetchPagePosts, getPageList } from '../../utils';
 
 interface IKind {
   kind: string;
@@ -31,10 +31,10 @@ interface IMessagesParams extends IConversationId, IPageParams {
   getFirst?: boolean;
 }
 
-const buildSelector = async (conversationId: string, models: IModels) => {
+const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
 
-  const conversation = await models.Conversations.findOne({
+  const conversation = await model.findOne({
     erxesApiId: conversationId
   });
 
@@ -78,7 +78,9 @@ const facebookQueries = {
       senderId,
       limit = 10
     } = args;
-    const post = await models.Posts.getPost({ erxesApiId: conversationId });
+    const post = await models.PostConversations.findOne({
+      erxesApiId: conversationId
+    });
 
     const query: {
       postId: string;
@@ -86,7 +88,7 @@ const facebookQueries = {
       parentId?: string;
       senderId?: string;
     } = {
-      postId: post.postId,
+      postId: post ? post.postId || '' : '',
       isResolved: isResolved === true
     };
 
@@ -100,7 +102,7 @@ const facebookQueries = {
       query.parentId = commentId !== 'undefined' ? commentId : '';
     }
 
-    const result = await models.Comments.aggregate([
+    const result = await models.CommentConversation.aggregate([
       {
         $match: query
       },
@@ -120,7 +122,7 @@ const facebookQueries = {
       },
       {
         $lookup: {
-          from: 'posts_facebooks',
+          from: 'posts_conversations_facebooks',
           localField: 'postId',
           foreignField: 'postId',
           as: 'post'
@@ -159,24 +161,33 @@ const facebookQueries = {
   async facebookGetCommentCount(_root, args, { models }: IContext) {
     const { conversationId, isResolved = false } = args;
 
-    const post = await models.Posts.getPost(
-      { erxesApiId: conversationId },
-      true
-    );
-
-    const commentCount = await models.Comments.countDocuments({
-      postId: post.postId,
-      isResolved
-    });
-    const commentCountWithoutReplies = await models.Comments.countDocuments({
-      postId: post.postId,
-      isResolved,
-      parentId: null
+    const commentCount = await models.CommentConversation.countDocuments({
+      erxesApiId: conversationId
     });
 
+    const comments = await models.CommentConversation.find({
+      erxesApiId: conversationId
+    });
+    // Extracting comment_ids from the comments array
+    const comment_ids = comments?.map((item) => item.comment_id);
+
+    // Using the extracted comment_ids to search for matching comments
+    const search = await models.CommentConversation.find({
+      comment_id: { $in: comment_ids } // Using $in to find documents with comment_ids in the extracted array
+    });
+
+    if (search.length > 0) {
+      // Returning the count of matching comments
+      return {
+        commentCount: commentCount,
+        searchCount: search.length
+      };
+    }
+
+    // If no matching comments are found, return only the commentCount
     return {
-      commentCount,
-      commentCountWithoutReplies
+      commentCount: commentCount,
+      searchCount: 0
     };
   },
 
@@ -205,7 +216,11 @@ const facebookQueries = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    return models.Conversations.findOne({ _id });
+    let conversation = models.Conversations.findOne({ _id }) as any;
+    if (!conversation) {
+      conversation = models.CommentConversation.findOne({ _id });
+    }
+    return conversation;
   },
 
   async facebookConversationMessages(
@@ -215,27 +230,55 @@ const facebookQueries = {
   ) {
     const { conversationId, limit, skip, getFirst } = args;
 
+    const conversation = await models.Conversations.findOne({
+      erxesApiId: conversationId
+    });
     let messages: IConversationMessageDocument[] = [];
-    const query = await buildSelector(conversationId, models);
+    const query = await buildSelector(conversationId, models.Conversations);
+    if (conversation) {
+      if (limit) {
+        const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
-    if (limit) {
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+        messages = await models.ConversationMessages.find(query)
+          .sort(sort)
+          .skip(skip || 0)
+          .limit(limit);
+
+        return getFirst ? messages : messages.reverse();
+      }
 
       messages = await models.ConversationMessages.find(query)
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      return messages.reverse();
+    } else {
+      let comment: any[] = [];
+      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      comment = await models.CommentConversation.find({
+        erxesApiId: conversationId
+      })
         .sort(sort)
-        .skip(skip || 0)
-        .limit(limit);
+        .skip(skip || 0);
 
-      return getFirst ? messages : messages.reverse();
+      const comment_ids = comment?.map((item) => item.comment_id);
+      const search = await models.CommentConversationReply.find({
+        parentId: comment_ids
+      })
+        .sort(sort)
+        .skip(skip || 0);
+
+      if (search.length > 0) {
+        // Combine the arrays and sort by createdAt in ascending order
+        const combinedResult = [...comment, ...search].sort((a, b) =>
+          a.createdAt > b.createdAt ? 1 : -1
+        );
+        return combinedResult;
+      } else {
+        return comment;
+      }
     }
-
-    messages = await models.ConversationMessages.find(query)
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    return messages.reverse();
   },
-
   /**
    *  Get all conversation messages count. We will use it in pager
    */
@@ -244,13 +287,49 @@ const facebookQueries = {
     { conversationId }: { conversationId: string },
     { models }: IContext
   ) {
-    const selector = await buildSelector(conversationId, models);
+    const selector = await buildSelector(conversationId, models.Conversations);
 
     return models.ConversationMessages.countDocuments(selector);
   },
 
-  facebookGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
-    return models.Posts.findOne({ erxesApiId });
+  async facebookGetPost(
+    _root,
+    { erxesApiId }: IDetailParams,
+    { models }: IContext
+  ) {
+    const comment = await models.CommentConversation.findOne({
+      erxesApiId: erxesApiId
+    });
+
+    if (comment) {
+      const postConversation = await models.PostConversations.findOne({
+        postId: comment.postId
+      });
+
+      return postConversation; // Return the postConversation when comment is found
+    }
+
+    // Return null or some appropriate value when comment is not found
+    return null;
+  },
+
+  async facebookGetBotPosts(_root, { botId }, { models }: IContext) {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    return await fetchPagePosts(bot.pageId, bot.token);
+  },
+  async facebookGetBotPost(_root, { botId, postId }, { models }: IContext) {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    return await fetchPagePost(postId, bot.token);
   },
 
   async facebookHasTaggedMessages(
@@ -259,7 +338,6 @@ const facebookQueries = {
     { models, subdomain }: IContext
   ) {
     const commonParams = { isRPC: true, subdomain };
-
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
       action: 'conversations.findOne',
@@ -280,7 +358,7 @@ const facebookQueries = {
       return false;
     }
 
-    const query = await buildSelector(conversationId, models);
+    const query = await buildSelector(conversationId, models.Conversations);
 
     const messages = await models.ConversationMessages.find({
       ...query,
@@ -293,8 +371,34 @@ const facebookQueries = {
     if (messages.length >= 1) {
       return false;
     }
-
     return true;
+  },
+
+  async facebookPostMessages(
+    _root,
+    args: IMessagesParams,
+    { models }: IContext
+  ) {
+    const { conversationId, limit, skip, getFirst } = args;
+    let messages: any[] = [];
+    const query = await buildSelector(conversationId, models.PostConversations);
+
+    if (limit) {
+      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+
+      messages = await models.CommentConversation.find(query)
+        .sort(sort)
+        .skip(skip || 0)
+        .limit(limit);
+
+      return getFirst ? messages : messages.reverse();
+    }
+
+    messages = await models.CommentConversation.find(query)
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    return messages.reverse();
   },
 
   async facebootMessengerBots(_root, _args, { models }: IContext) {
@@ -302,6 +406,9 @@ const facebookQueries = {
   },
   async facebootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
     return await models.Bots.find({}).count();
+  },
+  async facebootMessengerBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.findOne({ _id });
   }
 };
 

@@ -1,12 +1,12 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import { IAction } from '@erxes/ui-automations/src/types';
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import { BoardHeader, DrawerDetail } from '@erxes/ui-automations/src/styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import React from "react";
+import Select from "react-select";
+import { IAction } from "@erxes/ui-automations/src/types";
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import { BoardHeader, DrawerDetail } from "@erxes/ui-automations/src/styles";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import { __ } from 'coreui/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
 
 type Props = {
   closeModal: () => void;
@@ -45,12 +45,23 @@ class Delay extends React.Component<Props, State> {
     const { config } = this.state;
 
     const onChangeSelect = (field, e) => this.onChangeField(field, e.value);
-    const onChangeValue = e => this.onChangeField('value', e.target.value);
+    const onChangeValue = (e) => this.onChangeField("value", e.target.value);
+
+    const options = [
+      {
+        label: "Hour",
+        value: "hour",
+      },
+      {
+        label: "Day",
+        value: "day",
+      },
+    ];
 
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel required={true}>{__('Type')}</ControlLabel>
+          <ControlLabel required={true}>{__("Type")}</ControlLabel>
 
           <Select
             value={config.type || 'hour'}
@@ -72,7 +83,7 @@ class Delay extends React.Component<Props, State> {
         <BoardHeader>
           <FormGroup>
             <div className="header-row">
-              <ControlLabel required={true}>{__('Value')}</ControlLabel>
+              <ControlLabel required={true}>{__("Value")}</ControlLabel>
             </div>
             <FormControl
               type="number"

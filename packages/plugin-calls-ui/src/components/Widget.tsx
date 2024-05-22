@@ -1,30 +1,51 @@
+import { SIP_STATUS_DISCONNECTED, SIP_STATUS_ERROR } from '../lib/enums';
+import { callPropType, sipPropType } from '../lib/types';
+
 import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import Popover from '@erxes/ui/src/components/Popover';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { NotifButton } from '../styles';
 import WidgetPopover from './WidgetPopover';
+import { WidgetWrapper } from '../styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
   setConfig: any;
+  setHideIncomingCall?: (isHide: boolean) => void;
+  hideIncomingCall?: boolean;
 };
-const Widget = (props: Props) => {
+
+const Widget = (props: Props, context) => {
+  const Sip = context;
+  const isConnected =
+    !Sip.call ||
+    Sip.sip?.status === SIP_STATUS_ERROR ||
+    Sip.sip?.status === SIP_STATUS_DISCONNECTED;
+
+  const onClick = () => {
+    const { setHideIncomingCall, hideIncomingCall } = props;
+    if (setHideIncomingCall) {
+      setHideIncomingCall(!hideIncomingCall);
+    }
+  };
   return (
-    <OverlayTrigger
-      trigger="click"
-      rootClose={true}
-      placement="bottom"
-      overlay={<WidgetPopover autoOpenTab="Keyboard" {...props} />}
+    <Popover
+      trigger={
+        <WidgetWrapper $isConnected={isConnected} onClick={onClick}>
+          <Icon icon={isConnected ? 'phone-slash' : 'phone'} size={23} />
+        </WidgetWrapper>
+      }
+      placement="top"
+      className="call-popover"
     >
-      <NotifButton>
-        <Tip text={__('Call')} placement="bottom">
-          <Icon icon="phone" size={20} />
-        </Tip>
-      </NotifButton>
-    </OverlayTrigger>
+      <WidgetPopover autoOpenTab="Keyboard" {...props} />
+    </Popover>
   );
+};
+
+Widget.contextTypes = {
+  sip: sipPropType,
+  call: callPropType,
 };
 
 export default Widget;

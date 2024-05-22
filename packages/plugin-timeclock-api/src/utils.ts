@@ -6,7 +6,7 @@ import {
   ITimeClock,
   ITimeClockDocument,
   ITimeLog,
-  ITimeLogDocument
+  ITimeLogDocument,
 } from './models/definitions/timeclock';
 import * as dayjs from 'dayjs';
 import { fixDate, getEnv } from '@erxes/api-utils/src';
@@ -19,7 +19,7 @@ import {
   findBranchUsers,
   findDepartments,
   findDepartmentUsers,
-  returnUnionOfUserIds
+  returnUnionOfUserIds,
 } from './graphql/resolvers/utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -45,10 +45,10 @@ const createMsSqlConnection = () => {
       options: {
         useUTC: false,
         cryptoCredentialsDetails: {
-          minVersion: 'TLSv1'
-        }
-      }
-    }
+          minVersion: 'TLSv1',
+        },
+      },
+    },
   });
 
   return sequelize;
@@ -59,10 +59,10 @@ const findAllTeamMembersWithEmpId = (subdomain: string) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { employeeId: { $exists: true }, isActive: true }
+      query: { employeeId: { $exists: true }, isActive: true },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
@@ -73,11 +73,11 @@ const findTeamMembers = (subdomain: string, userIds: string[]) => {
     data: {
       query: {
         _id: { $in: userIds },
-        isActive: true
-      }
+        isActive: true,
+      },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
@@ -86,9 +86,9 @@ const findTeamMember = (subdomain: string, userId: string[]) => {
     subdomain,
     action: 'users.findOne',
     data: {
-      _id: userId
+      _id: userId,
     },
-    isRPC: true
+    isRPC: true,
   });
 };
 
@@ -106,7 +106,7 @@ const returnNewTimeLogsFromEmpData = async (
     const newTimeLog = {
       userId: currEmpUserId,
       timelog: new Date(empDataRow.authDateTime),
-      deviceSerialNo: empDataRow.deviceSerialNo && empDataRow.deviceSerialNo
+      deviceSerialNo: empDataRow.deviceSerialNo && empDataRow.deviceSerialNo,
     };
 
     if (!existingTimeLogs) {
@@ -138,8 +138,8 @@ const createTimelogs = async (
   const existingTimeLogs = await models.TimeLogs.find({
     timelog: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(new Date(endDate))
-    }
+      $lte: customFixDate(new Date(endDate)),
+    },
   });
 
   const existingTimeLogsDict: { [key: string]: ITimeLogDocument[] } = {};
@@ -148,7 +148,7 @@ const createTimelogs = async (
     if (timelog.userId in existingTimeLogsDict) {
       existingTimeLogsDict[timelog.userId] = [
         ...existingTimeLogsDict[timelog.userId],
-        timelog
+        timelog,
       ];
       continue;
     }
@@ -198,14 +198,8 @@ const connectAndQueryTimeLogsFromMsSql = async (
   const sequelize = createMsSqlConnection();
   const models = await generateModels(subdomain);
 
-  const {
-    startDate,
-    endDate,
-    extractAll,
-    branchIds,
-    departmentIds,
-    userIds
-  } = params;
+  const { startDate, endDate, extractAll, branchIds, departmentIds, userIds } =
+    params;
 
   let returnData;
   let teamMembers;
@@ -242,7 +236,7 @@ const connectAndQueryTimeLogsFromMsSql = async (
     const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
 
     const queryData = await sequelize.query(query, {
-      type: QueryTypes.SELECT
+      type: QueryTypes.SELECT,
     });
 
     returnData = await createTimelogs(
@@ -264,14 +258,8 @@ const connectAndQueryFromMsSql = async (
   subdomain: string,
   params: any
 ): Promise<ITimeClockDocument[]> => {
-  const {
-    startDate,
-    endDate,
-    extractAll,
-    branchIds,
-    departmentIds,
-    userIds
-  } = params;
+  const { startDate, endDate, extractAll, branchIds, departmentIds, userIds } =
+    params;
 
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
   const sequelize = createMsSqlConnection();
@@ -329,7 +317,7 @@ const connectAndQueryFromMsSql = async (
 
     const devicesList = await models.DeviceConfigs.find({
       serialNo: { $exists: true },
-      extractRequired: true
+      extractRequired: true,
     });
 
     const deviceSerialNumbers = devicesList.map(device => device.serialNo);
@@ -339,7 +327,7 @@ const connectAndQueryFromMsSql = async (
     )}) ORDER BY ID, authDateTime`;
 
     const queryData = await sequelize.query(query, {
-      type: QueryTypes.SELECT
+      type: QueryTypes.SELECT,
     });
 
     returnData = await importDataAndCreateTimeclock(
@@ -381,20 +369,20 @@ const importDataAndCreateTimeclock = async (
       {
         shiftStart: {
           $gte: fixDate(startDate),
-          $lte: customFixDate(new Date(endDate))
-        }
+          $lte: customFixDate(new Date(endDate)),
+        },
       },
       {
         shiftEnd: {
           $gte: fixDate(startDate),
-          $lte: customFixDate(new Date(endDate))
-        }
-      }
-    ]
+          $lte: customFixDate(new Date(endDate)),
+        },
+      },
+    ],
   });
 
   const devicesList: IDeviceConfigDocument[] = await models.DeviceConfigs.find({
-    serialNo: { $exists: true }
+    serialNo: { $exists: true },
   });
 
   const devicesDictionary: any = {};
@@ -433,7 +421,7 @@ const importDataAndCreateTimeclock = async (
     if (timeclock.userId in existingTimeclocksDict) {
       existingTimeclocksDict[timeclock.userId] = [
         ...existingTimeclocksDict[timeclock.userId],
-        timeclock
+        timeclock,
       ];
       continue;
     }
@@ -580,7 +568,7 @@ const createNewTimeClock = (
         inDevice,
         outDevice,
         inDeviceType,
-        outDeviceType
+        outDeviceType,
       };
 
       return newTimeclock;
@@ -592,7 +580,7 @@ const createNewTimeClock = (
       shiftActive: true,
       userId,
       inDevice,
-      inDeviceType
+      inDeviceType,
     };
 
     return newTime;
@@ -617,9 +605,7 @@ const getShiftStartAndEndIdx = (
   // shift start of an unfinished shift
   const getShiftStart = dayjs(unfinishedShiftStart);
 
-  const nextDay = dayjs(scheduledDay)
-    .add(1, 'day')
-    .format(dateFormat);
+  const nextDay = dayjs(scheduledDay).add(1, 'day').format(dateFormat);
 
   // if there's no schedule config, compare empData with schedule start/end
   if (!('validCheckIn' in empScheduleDayObj)) {
@@ -718,14 +704,12 @@ const filterExistingTimeclocks = (
   const existingTimeclocksDict: any = {};
 
   for (const existingTimeclock of existingTimeclocks) {
-    existingTimeclocksDict[
-      existingTimeclock.shiftStart.getTime()
-    ] = existingTimeclock;
+    existingTimeclocksDict[existingTimeclock.shiftStart.getTime()] =
+      existingTimeclock;
 
     if (existingTimeclock.shiftEnd) {
-      existingTimeclocksDict[
-        existingTimeclock.shiftEnd.getTime()
-      ] = existingTimeclock;
+      existingTimeclocksDict[existingTimeclock.shiftEnd.getTime()] =
+        existingTimeclock;
     }
   }
 
@@ -756,7 +740,7 @@ const findAndUpdateUnfinishedShifts = async (
   // find unfinished shifts
   const unfinishedTimeclocks = await models?.Timeclocks.find({
     shiftActive: true,
-    userId: { $in: teamMemberIds }
+    userId: { $in: teamMemberIds },
   });
 
   const bulkWriteOps: any[] = [];
@@ -810,18 +794,18 @@ const findAndUpdateUnfinishedShifts = async (
           userId: teamMemberId,
           shiftActive: false,
           outDevice,
-          outDeviceType
+          outDeviceType,
         };
 
         const updateTimeclockOperation = {
           updateOne: {
             filter: {
-              _id: unfinishedTimeclock._id
+              _id: unfinishedTimeclock._id,
             },
             update: {
-              ...updateTimeClock
-            }
-          }
+              ...updateTimeClock,
+            },
+          },
         };
 
         // if shiftEnd of unfinished timeclock found, insert into bulkWrite and remove data from query data
@@ -856,7 +840,10 @@ const createScheduleObjOfMembers = async (
   const totalSchedules = await models.Schedules.find({
     userId: { $in: teamMemberIds },
     status: { $regex: /Approved/, $options: 'gi' },
-    $or: [{ createdByRequest: { $exists: false } }, { createdByRequest: false }]
+    $or: [
+      { createdByRequest: { $exists: false } },
+      { createdByRequest: false },
+    ],
   });
 
   const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
@@ -867,14 +854,14 @@ const createScheduleObjOfMembers = async (
       {
         shiftStart: {
           $gte: fixDate(startDate),
-          $lte: customFixDate(new Date(endDate))
+          $lte: customFixDate(new Date(endDate)),
         },
         shiftEnd: {
           $gte: fixDate(startDate),
-          $lte: customFixDate(new Date(endDate))
-        }
-      }
-    ]
+          $lte: customFixDate(new Date(endDate)),
+        },
+      },
+    ],
   });
 
   const totalScheduleConfigIds: string[] = [];
@@ -902,7 +889,7 @@ const createScheduleObjOfMembers = async (
       if (scheduleId in totalScheduleShiftsObj) {
         totalScheduleShiftsObj[scheduleId] = [
           ...totalScheduleShiftsObj[scheduleId],
-          scheduleShift
+          scheduleShift,
         ];
 
         continue;
@@ -925,13 +912,13 @@ const createScheduleObjOfMembers = async (
 
   const totalScheduleConfigShifts = await models.Shifts.find({
     scheduleConfigId: {
-      $in: totalScheduleConfigIds
+      $in: totalScheduleConfigIds,
     },
-    scheduleId: { $exists: false }
+    scheduleId: { $exists: false },
   });
 
   const totalScheduleConfigs = await models.ScheduleConfigs.find({
-    _id: { $in: [...totalScheduleConfigIds] }
+    _id: { $in: [...totalScheduleConfigIds] },
   });
 
   for (const scheduleConfig of totalScheduleConfigs) {
@@ -945,7 +932,7 @@ const createScheduleObjOfMembers = async (
       if (scheduleConfigId in totalScheduleConfigShiftsMap) {
         totalScheduleConfigShiftsMap[scheduleConfigId] = [
           ...totalScheduleConfigShiftsMap[scheduleConfigId],
-          scheduleConfigShift
+          scheduleConfigShift,
         ];
 
         continue;
@@ -994,7 +981,7 @@ const createScheduleObjOfMembers = async (
                   new Date().toLocaleDateString() +
                     ' ' +
                     scheduleConfigShift.configShiftEnd
-                )
+                ),
             };
           }
 
@@ -1018,14 +1005,14 @@ const createScheduleObjOfMembers = async (
                   ' ' +
                   getScheduleConfig?.shiftEnd ||
                   dayjs(scheduleShift.shiftEnd).format(timeFormat)
-              )
+              ),
           };
           // if there're config(s) already, put all in array
           if (shift_date_key in empSchedulesDict) {
             const existingSchedules = empSchedulesDict[shift_date_key];
             empSchedulesDict[shift_date_key] = [
               ...existingSchedules,
-              currEmpScheduleConfig
+              currEmpScheduleConfig,
             ];
             continue;
           }
@@ -1047,7 +1034,7 @@ const createScheduleObjOfMembers = async (
             shiftEnd: getShiftEndTime,
             overnight:
               dayjs(new Date().toLocaleDateString() + ' ' + getShiftStartTime) >
-              dayjs(new Date().toLocaleDateString() + ' ' + getShiftEndTime)
+              dayjs(new Date().toLocaleDateString() + ' ' + getShiftEndTime),
           };
 
           // if there're config(s) already, put all in array
@@ -1055,7 +1042,7 @@ const createScheduleObjOfMembers = async (
             const existingSchedules = empSchedulesDict[shift_date_key];
             empSchedulesDict[shift_date_key] = [
               ...existingSchedules,
-              currEmpSchedule
+              currEmpSchedule,
             ];
             continue;
           }
@@ -1081,10 +1068,10 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds }, isActive: true }
+      query: { _id: { $in: userIds }, isActive: true },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const teamMember of teamMembers) {
@@ -1092,7 +1079,36 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
       employeeId: teamMember.employeeId,
       lastName: teamMember.details.lastName,
       firstName: teamMember.details.firstName,
-      position: teamMember.details.position
+      position: teamMember.details.position,
+    };
+  }
+
+  return teamMembersObject;
+};
+
+const createTeamMembersObjectWithFullName = async (
+  subdomain: any,
+  userIds: string[]
+) => {
+  const teamMembersObject = {};
+
+  const teamMembers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { _id: { $in: userIds }, isActive: true },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  for (const teamMember of teamMembers) {
+    teamMembersObject[teamMember._id] = {
+      employeeId: teamMember.employeeId,
+      fullName: `${teamMember.details.lastName?.charAt(0)}.${
+        teamMember.details.firstName
+      }`,
+      position: teamMember.details.position,
     };
   }
 
@@ -1129,10 +1145,10 @@ const returnSupervisedUsers = async (
       subdomain,
       action: `departments.find`,
       data: {
-        supervisorId: currentUser._id
+        supervisorId: currentUser._id,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     })
   ).map(dept => dept._id);
 
@@ -1142,11 +1158,11 @@ const returnSupervisedUsers = async (
       action: `branches.find`,
       data: {
         query: {
-          supervisorId: currentUser._id
-        }
+          supervisorId: currentUser._id,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     })
   ).map(branch => branch._id);
 
@@ -1178,7 +1194,7 @@ const generateFilter = async (
     startDate,
     endDate,
     scheduleStatus,
-    isCurrentUserAdmin
+    isCurrentUserAdmin,
   } = params;
 
   let scheduleFilter = {};
@@ -1212,7 +1228,7 @@ const generateFilter = async (
 
   if (!isCurrentUserAdmin) {
     scheduleFilter = {
-      userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
+      userId: { $in: totalSupervisedUsers.map(usr => usr._id) },
     };
   }
 
@@ -1231,12 +1247,12 @@ const generateFilter = async (
   const scheduleShiftSelector = {
     shiftStart: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
+      $lte: customFixDate(endDate),
     },
     shiftEnd: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
-    }
+      $lte: customFixDate(endDate),
+    },
   };
 
   // check non empty schedule shifts for schedulesMainQuery
@@ -1255,7 +1271,7 @@ const generateFilter = async (
       returnFilter = { userId: { $in: [...totalUserIds] }, ...returnFilter };
     } else {
       returnFilter = {
-        $and: [{ userId: { $in: [...totalUserIds] } }, { $or: timeFields }]
+        $and: [{ userId: { $in: [...totalUserIds] } }, { $or: timeFields }],
       };
     }
   }
@@ -1264,12 +1280,12 @@ const generateFilter = async (
     returnFilter = {};
     if (!isCurrentUserAdmin) {
       returnFilter = {
-        userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
+        userId: { $in: totalSupervisedUsers.map(usr => usr._id) },
       };
     }
     returnFilter = {
       ...returnFilter,
-      $or: timeFields
+      $or: timeFields,
     };
   }
 
@@ -1290,27 +1306,27 @@ const returnTimeFieldsFilter = (type: string, queryParams: any) => {
             startDate && endDate
               ? {
                   $gte: fixDate(startDate),
-                  $lte: customFixDate(endDate)
+                  $lte: customFixDate(endDate),
                 }
               : startDate
-              ? {
-                  $gte: fixDate(startDate)
-                }
-              : { $lte: customFixDate(endDate) }
+                ? {
+                    $gte: fixDate(startDate),
+                  }
+                : { $lte: customFixDate(endDate) },
         },
         {
           shiftEnd:
             startDate && endDate
               ? {
                   $gte: fixDate(startDate),
-                  $lte: customFixDate(endDate)
+                  $lte: customFixDate(endDate),
                 }
               : startDate
-              ? {
-                  $gte: fixDate(startDate)
-                }
-              : { $lte: customFixDate(endDate) }
-        }
+                ? {
+                    $gte: fixDate(startDate),
+                  }
+                : { $lte: customFixDate(endDate) },
+        },
       ];
     case 'absence':
       return [
@@ -1319,27 +1335,27 @@ const returnTimeFieldsFilter = (type: string, queryParams: any) => {
             startDate && endDate
               ? {
                   $gte: fixDate(startDate),
-                  $lte: customFixDate(endDate)
+                  $lte: customFixDate(endDate),
                 }
               : startDate
-              ? {
-                  $gte: fixDate(startDate)
-                }
-              : { $lte: customFixDate(endDate) }
+                ? {
+                    $gte: fixDate(startDate),
+                  }
+                : { $lte: customFixDate(endDate) },
         },
         {
           endTime:
             startDate && endDate
               ? {
                   $gte: fixDate(startDate),
-                  $lte: customFixDate(endDate)
+                  $lte: customFixDate(endDate),
                 }
               : startDate
-              ? {
-                  $gte: fixDate(startDate)
-                }
-              : { $lte: customFixDate(endDate) }
-        }
+                ? {
+                    $gte: fixDate(startDate),
+                  }
+                : { $lte: customFixDate(endDate) },
+        },
       ];
     case 'timelog':
       return [
@@ -1348,14 +1364,14 @@ const returnTimeFieldsFilter = (type: string, queryParams: any) => {
             startDate && endDate
               ? {
                   $gte: fixDate(startDate),
-                  $lte: customFixDate(endDate)
+                  $lte: customFixDate(endDate),
                 }
               : startDate
-              ? {
-                  $gte: fixDate(startDate)
-                }
-              : { $lte: customFixDate(endDate) }
-        }
+                ? {
+                    $gte: fixDate(startDate),
+                  }
+                : { $lte: customFixDate(endDate) },
+        },
       ];
   }
 };
@@ -1424,6 +1440,158 @@ const generateCommonUserIds = async (
   return totalUserIds;
 };
 
+const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
+  const models = await generateModels(subdomain);
+
+  const YESTERDAY = dayjs(new Date()).add(-1, 'day').toDate();
+
+  const unfinishedShifts = await models.Timeclocks.find({
+    shiftActive: true,
+    shiftStart: { $gte: YESTERDAY },
+  });
+
+  const requestsObj: any = {};
+
+  const dateFormat = 'YYYY-MM-DD';
+
+  const agg = await models.Absences.aggregate([
+    {
+      $match: {
+        startTime: {
+          $gte: YESTERDAY,
+        },
+        solved: true,
+        status: /Approved/gi,
+      },
+    },
+    {
+      $sort: {
+        startTime: 1,
+      },
+    },
+
+    {
+      $group: {
+        _id: '$userId',
+        docs: { $push: '$$ROOT' },
+      },
+    },
+  ]);
+
+  for (const a of agg) {
+    const userId = a._id;
+    const requests = a.docs;
+    const requestObj = {};
+
+    for (const req of requests) {
+      const { absenceTimeType } = req;
+
+      // by day
+      if (absenceTimeType === 'by day') {
+        for (const requestDate of req.requestDates) {
+          const date = dayjs(new Date(requestDate)).format(dateFormat);
+
+          requestObj[date] = { request: true };
+        }
+      }
+
+      // by hour
+      const date = dayjs(req.startTime).format(dateFormat);
+      requestObj[date] = { request: true };
+    }
+
+    requestsObj[userId] = requestObj;
+  }
+
+  const bulkWriteOps: any[] = [];
+
+  for (const unfinishedShift of unfinishedShifts) {
+    const { userId } = unfinishedShift;
+    const shiftStart = unfinishedShift.shiftStart;
+    const getTimeclockDay = dayjs(new Date(shiftStart)).format(dateFormat);
+
+    // if user sent request and request is approved for that day, prevent updating timeclock as shiftNotClosed:true
+    if (
+      userId &&
+      userId in requestsObj &&
+      getTimeclockDay in requestsObj[userId]
+    ) {
+      bulkWriteOps.push({
+        updateOne: {
+          filter: { _id: unfinishedShift._id },
+          update: {
+            $set: {
+              shiftEnd: shiftStart,
+              shiftActive: false,
+            },
+          },
+        },
+      });
+      continue;
+    }
+
+    const nextDay = dayjs(shiftStart).add(1, 'day').format('YYYY-MM-DD');
+
+    const midnightOfShiftDay = new Date(nextDay + ' 00:00:00');
+    bulkWriteOps.push({
+      updateOne: {
+        filter: { _id: unfinishedShift._id },
+        update: {
+          $set: {
+            shiftEnd: midnightOfShiftDay,
+            shiftActive: false,
+            shiftNotClosed: true,
+          },
+        },
+      },
+    });
+  }
+
+  let result;
+
+  if (bulkWriteOps.length) {
+    result = await models.Timeclocks.bulkWrite(bulkWriteOps);
+  }
+
+  return result;
+};
+
+const getNextNthColumnChar = (currentChar, n: number) => {
+  // Convert currentChar to uppercase for consistency
+  currentChar = currentChar.toUpperCase();
+
+  // Function to convert a number to a base-26 string representation
+  function toBase26String(num) {
+    let result = '';
+    while (num > 0) {
+      let remainder = (num - 1) % 26; // Adjusting the remainder to 0-25 range
+      result = String.fromCharCode(remainder + 'A'.charCodeAt(0)) + result;
+      num = Math.floor((num - 1) / 26); // Update num for the next iteration
+    }
+    return result;
+  }
+
+  // Function to convert a base-26 string to a number
+  function fromBase26String(str) {
+    let result = 0;
+    for (let i = 0; i < str.length; i++) {
+      result = result * 26 + (str.charCodeAt(i) - 'A'.charCodeAt(0) + 1);
+    }
+    return result;
+  }
+
+  // Convert the currentChar to its numeric equivalent in the base-26 system
+  const currentColumnNumber = fromBase26String(currentChar);
+
+  // Calculate the next column number by adding n to the current column number
+  const nextColumnNumber = currentColumnNumber + n;
+
+  // Convert the nextColumnNumber back to its corresponding character representation
+  const nextColumnChar = toBase26String(nextColumnNumber);
+
+  return nextColumnChar;
+};
+
 export {
   connectAndQueryFromMsSql,
   connectAndQueryTimeLogsFromMsSql,
@@ -1435,5 +1603,8 @@ export {
   returnSupervisedUsers,
   findTeamMembers,
   findTeamMember,
-  returnDepartmentsBranchesDict
+  returnDepartmentsBranchesDict,
+  findUnfinishedShiftsAndUpdate,
+  getNextNthColumnChar,
+  createTeamMembersObjectWithFullName,
 };

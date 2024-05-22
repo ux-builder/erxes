@@ -6,7 +6,9 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
-    './activityLog': './src/containers/ActivityLogsContainer.tsx'
+    './activityLog': './src/containers/ActivityLogsContainer.tsx',
+    './inboxConversationDetailRespondBoxMask':
+      './src/containers/TagMessageContainer.tsx'
   },
   routes: {
     url: 'http://localhost:3037/remoteEntry.js',
@@ -91,6 +93,19 @@ module.exports = {
     }
   },
   inboxIntegrations: [
+    {
+      name: 'Instagram Post',
+      description: 'Connect to Instagram posts right from your Team Inbox',
+      inMessenger: false,
+      isAvailable: true,
+      kind: 'instagram-post',
+      logo: '/images/integrations/instagram.png',
+      createModal: 'instagram-post',
+      createUrl: '/settings/integrations/createInstagram',
+      category:
+        'All integrations, For support teams, Marketing automation, Social media',
+      components: ['inboxConversationDetailRespondBoxMask']
+    },
     {
       name: 'Instagram Messenger',
       description:

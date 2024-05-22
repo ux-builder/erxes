@@ -1,10 +1,12 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
+
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { getContentTypes } from '../../../utils';
 
 const tagQueries = {
   /**
@@ -12,11 +14,11 @@ const tagQueries = {
    */
 
   async tagsGetTypes() {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
@@ -24,7 +26,7 @@ const tagQueries = {
         for (const type of types) {
           fieldTypes.push({
             description: type.description,
-            contentType: `${serviceName}:${type.type}`
+            contentType: `${serviceName}:${type.type}`,
           });
         }
       }
@@ -37,12 +39,12 @@ const tagQueries = {
     _root,
     {
       type,
-      searchValue
+      searchValue,
     }: {
       type: string;
       searchValue?: string;
     },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext,
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -69,7 +71,7 @@ const tagQueries = {
       ids,
       excludeIds,
       page,
-      perPage
+      perPage,
     }: {
       type: string;
       searchValue?: string;
@@ -80,14 +82,21 @@ const tagQueries = {
       page: any;
       perPage: any;
     },
-    { models, commonQuerySelector, serverTiming }: IContext
+    { models, commonQuerySelector, serverTiming }: IContext,
   ) {
     serverTiming.startTime('query');
 
     const selector: any = { ...commonQuerySelector };
 
     if (type) {
-      selector.type = type;
+      const [serviceName, contentType] = type.split(":")
+
+      if (contentType === "all") {
+        const contentTypes: Array<string> = await getContentTypes(serviceName);
+        selector.type = { $in: contentTypes };
+      } else {
+        selector.type = type;
+      }
     }
 
     if (searchValue) {
@@ -114,7 +123,7 @@ const tagQueries = {
 
       const getChildTags = async (parentTagIds: string[]) => {
         const childTag = await models.Tags.find({
-          parentId: { $in: parentTagIds }
+          parentId: { $in: parentTagIds },
         }).distinct('_id');
 
         if (childTag.length > 0) {
@@ -133,9 +142,8 @@ const tagQueries = {
     const tags = await paginate(
       models.Tags.find(selector).sort({
         order: 1,
-        name: 1
       }),
-      pagintationArgs
+      pagintationArgs,
     );
 
     serverTiming.endTime('query');
@@ -148,7 +156,7 @@ const tagQueries = {
    */
   tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Tags.findOne({ _id });
-  }
+  },
 };
 
 requireLogin(tagQueries, 'tagDetail');

@@ -70,6 +70,7 @@ export const INTEGRATION_KINDS = {
   FACEBOOK_MESSENGER: 'facebook-messenger',
   INSTAGRAM_MESSENGER: 'instagram-messenger',
   FACEBOOK_POST: 'facebook-post',
+  INSTAGRAM_POST: 'instagram-post',
   FORMS: 'lead',
   CALLPRO: 'callpro',
   WEBHOOK: 'webhook',
@@ -110,21 +111,18 @@ export const FORM_SUCCESS_ACTIONS = {
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
-  { name: 'styles', items: ['Font', 'FontSize'] },
-  {
-    name: 'other',
-    items: [
-      'TextColor',
-      'BGColor',
-      'Bold',
-      'Italic',
-      'Underline',
-      'NumberedList',
-      'BulletedList',
-      'Link'
-    ]
-  },
-  { name: 'clear', items: ['RemoveFormat'] }
+  'fontSize',
+  '|',
+  'color',
+  'highlight',
+  'bold',
+  'italic',
+  'underline',
+  'orderedList',
+  'bulletList',
+  '|',
+  'link',
+  'unlink'
 ];
 
 export const INTEGRATIONS = [
@@ -164,5 +162,4 @@ export const INTEGRATIONS = [
   }
 ];
 
-export const WEBHOOK_DOC_URL =
-  'https://www.erxes.org/developer/webhook#samples';
+export const WEBHOOK_DOC_URL = 'https://docs.erxes.io/webhooks';

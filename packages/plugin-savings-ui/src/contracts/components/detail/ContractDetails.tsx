@@ -1,8 +1,8 @@
 import ActivityItem from './ActivityItem';
 import { IContractDoc } from '../../types';
-import { IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import LeftSidebar from './LeftSidebar';
+import PolarisData from '../polaris';
 import React from 'react';
 import RightSidebar from './RightSidebar';
 import ScheduleSection from '../schedules/ScheduleSection';
@@ -16,7 +16,7 @@ const ActivityInputs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
+    ),
 );
 
 const ActivityLogs = asyncComponent(
@@ -24,7 +24,7 @@ const ActivityLogs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    )
+    ),
 );
 
 type Props = {
@@ -36,82 +36,48 @@ type Props = {
   loading: boolean;
 };
 
-type State = {
-  amount: any;
-  collaterals: IProduct[];
-  collateralsData: any;
-};
+const ContractDetails = (props: Props) => {
+  const { contract } = props;
 
-class ContractDetails extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const title = contract.number || 'Unknown';
 
-    const contract = props.contract;
+  const breadcrumb = [
+    { title: __('Contracts'), link: '/erxes-plugin-saving/contract-list' },
+    { title },
+  ];
 
-    this.state = {
-      amount: contract.amount || {},
-      collateralsData: contract.collaterals
-        ? contract.collaterals.map(p => ({ ...p }))
-        : [],
-      // collecting data for ItemCounter component
-      collaterals: contract.collaterals
-        ? contract.collaterals.map(p => p.collateral)
-        : []
-    };
-  }
+  const content = (
+    <>
+      <ScheduleSection
+        contractId={contract._id}
+        isFirst={false}
+      ></ScheduleSection>
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  render() {
-    const { contract } = this.props;
-
-    const title = contract.number || 'Unknown';
-
-    const breadcrumb = [
-      { title: __('Contracts'), link: '/erxes-plugin-saving/contract-list' },
-      { title }
-    ];
-
-    const content = (
-      <>
-        <ScheduleSection
-          contractId={contract._id}
-          isFirst={false}
-        ></ScheduleSection>
-
-        {isEnabled('logs') && (
-          <>
-            <ActivityInputs
-              contentTypeId={contract._id}
-              contentType="contract"
-              showEmail={false}
-            />
-            <ActivityLogs
-              target={contract.number || ''}
-              contentId={contract._id}
-              contentType="contract"
-              extraTabs={[
-                { name: 'plugin_invoices', label: 'Invoices / Transaction' }
-              ]}
-              activityRenderItem={ActivityItem}
-            />
-          </>
-        )}
-      </>
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
-        rightSidebar={<RightSidebar contract={contract} />}
-        content={content}
-        transparent={true}
+      <ActivityInputs
+        contentTypeId={contract._id}
+        contentType="savingContract"
+        showEmail={false}
       />
-    );
-  }
-}
+
+      <ActivityLogs
+        target={contract.number || ''}
+        contentId={contract._id}
+        contentType="savingContract"
+        extraTabs={[{ name: 'savings:interestStore', label: 'Interest store' }]}
+        activityRenderItem={ActivityItem}
+      />
+    </>
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      leftSidebar={<LeftSidebar {...props} />}
+      rightSidebar={<RightSidebar contract={contract} />}
+      content={content}
+      transparent={true}
+    />
+  );
+};
 
 export default ContractDetails;

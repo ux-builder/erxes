@@ -20,6 +20,9 @@ const list{Name}Types = `
     {name}Types{
       _id
       name
+      content
+      replacer
+      code
     }
   }
 `;

@@ -7,51 +7,51 @@ import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ContentBox } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   product: IProduct;
   currentUser: IUser;
 };
 
-class CompanyDetails extends React.Component<Props> {
-  render() {
-    const { product } = this.props;
+const CompanyDetails: React.FC<Props> = (props) => {
+  const { product } = props;
 
-    const title = product.name || 'Unknown';
+  const title = product.name || 'Unknown';
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service'), link: '/settings/product-service' },
-      { title }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Product & Service'), link: '/settings/product-service' },
+    { title },
+  ];
 
-    const content = (
-      <>
-        <ActivityInputs
-          contentTypeId={product._id}
-          contentType="products:product"
-          showEmail={false}
-        />
-        {isEnabled('logs') && (
-          <ActivityLogs
-            target={product.name || ''}
-            contentId={product._id}
-            contentType="products:product"
-            extraTabs={[]}
-          />
-        )}
-      </>
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
-        content={content}
-        transparent={true}
+  const content = (
+    <ContentBox>
+      <ActivityInputs
+        contentTypeId={product._id}
+        contentType="products:product"
+        showEmail={false}
       />
-    );
-  }
-}
+      {isEnabled('logs') && (
+        <ActivityLogs
+          target={product.name || ''}
+          contentId={product._id}
+          contentType="products:product"
+          extraTabs={[]}
+        />
+      )}
+    </ContentBox>
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      leftSidebar={<LeftSidebar {...props} />}
+      content={content}
+      transparent={true}
+      hasBorder={true}
+    />
+  );
+};
 
 export default CompanyDetails;

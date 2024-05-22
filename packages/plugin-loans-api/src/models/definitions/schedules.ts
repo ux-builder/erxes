@@ -13,37 +13,35 @@ export interface ISchedule {
   contractId: string;
   version: string;
   createdAt: Date;
-  status: string;
+  status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
   payDate: Date;
-
+  
   balance: number;
   unUsedBalance: number;
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
   insurance?: number;
   debt?: number;
+  storedInterest?: number;
   commitmentInterest?: number;
-  commitmentInterestEve?: number;
-  commitmentInterestNonce?: number;
   total: number;
 
-  didUndue?: number;
+  didLoss?: number;
   didInterestEve?: number;
   didInterestNonce?: number;
-  didCommitmentInterestEve?: number;
-  didCommitmentInterestNonce?: number;
+  didCommitmentInterest?: number;
+  didStoredInterest?: number;
   didPayment?: number;
   didInsurance?: number;
   didDebt?: number;
-  didCommitmentInterest?: number;
   didTotal: number;
   surplus?: number;
 
   scheduleDidPayment?: number;
   scheduleDidInterest?: number;
-  scheduleDidStatus?: 'done' | 'less' | 'pending';
+  scheduleDidStatus?: 'done' | 'less' | 'pending' | 'pre';
 
   transactionIds?: string[];
   isDefault: boolean;
@@ -78,7 +76,7 @@ export const scheduleSchema = schemaHooksWrapper(
 
     balance: field({ type: Number, min: 0, label: 'Loan Balance' }),
     unUsedBalance: field({ type: Number, min: 0, label: 'Un used balance' }),
-    undue: field({ type: Number, min: 0, label: 'Undue', optional: true }),
+    loss: field({ type: Number, min: 0, label: 'Loss', optional: true }),
     interestEve: field({
       type: Number,
       label: 'Loan Interest Eve month',
@@ -114,11 +112,10 @@ export const scheduleSchema = schemaHooksWrapper(
       optional: true
     }),
     total: field({ type: Number, label: 'Total Payment' }),
-
-    didUndue: field({
+    didLoss: field({
       type: Number,
       min: 0,
-      label: 'Did Undue',
+      label: 'Did Loss',
       optional: true
     }),
     didInterestEve: field({
@@ -129,16 +126,6 @@ export const scheduleSchema = schemaHooksWrapper(
     didInterestNonce: field({
       type: Number,
       label: 'Did Loan Interest nonce',
-      optional: true
-    }),
-    didCommitmentInterestEve: field({
-      type: Number,
-      label: 'Did Loan commitment Interest eve',
-      optional: true
-    }),
-    didCommitmentInterestNonce: field({
-      type: Number,
-      label: 'Did Loan commitment Interest nonce',
       optional: true
     }),
     didPayment: field({
@@ -157,6 +144,18 @@ export const scheduleSchema = schemaHooksWrapper(
       type: Number,
       min: 0,
       label: 'commitmentInterest',
+      optional: true
+    }),
+    storedInterest: field({
+      type: Number,
+      min: 0,
+      label: 'storedInterest',
+      optional: true
+    }),
+    didStoredInterest: field({
+      type: Number,
+      min: 0,
+      label: 'storedInterest',
       optional: true
     }),
     didTotal: field({

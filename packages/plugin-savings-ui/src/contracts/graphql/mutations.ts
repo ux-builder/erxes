@@ -25,6 +25,7 @@ const commonFields = `
   $isAllowIncome: Boolean
   $isAllowOutcome: Boolean
   $isDeposit: Boolean
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -52,6 +53,7 @@ const commonVariables = `
   isAllowIncome:$isAllowIncome,
   isAllowOutcome:$isAllowOutcome,
   isDeposit:$isDeposit,
+  customFieldsData:$customFieldsData
 `;
 
 const contractsAdd = `
@@ -102,6 +104,21 @@ const contractsClose = `
     savingsContractsClose(contractId: $contractId, closeDate: $closeDate, closeType: $closeType, description: $description) {
       _id
       ${contractDetailFields}
+    }
+  }
+`;
+const savingsBlockAdd = `
+  mutation savingsBlockAdd($blockType: String, $contractId: String, $customerId: String, $description: String, $payDate: Date, $amount: Float, $status: String, $currency: String, $scheduleDate: Date) {
+    savingsBlockAdd(blockType: $blockType, contractId: $contractId, customerId: $customerId, description: $description, payDate: $payDate, amount: $amount, status: $status, currency: $currency, scheduleDate: $scheduleDate) {
+      amount
+      blockType
+      companyId
+      contractId
+      contractReaction
+      currency
+      description
+      customerId
+      number
     }
   }
 `;
@@ -179,5 +196,6 @@ export default {
   stopInterest,
   interestChange,
   interestReturn,
-  expandContract
+  expandContract,
+  savingsBlockAdd
 };

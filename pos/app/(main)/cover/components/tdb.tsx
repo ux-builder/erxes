@@ -1,11 +1,12 @@
 import { useState } from "react"
+import usePaymentLabel from "@/modules/checkout/hooks/usePaymentLabel"
 import {
   endPoint,
   headers,
   method,
   objToString,
 } from "@/modules/checkout/hooks/useTDB"
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { tdbResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -17,10 +18,11 @@ import BankAmountUi from "./bank-amount-ui"
 const TDB = () => {
   const [tdbResponse, setTdbResponse] = useAtom(tdbResponseAtom)
   const [loading, setLoading] = useState(false)
-  const config = useAtomValue(coverConfigAtom)
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const { onError } = useToast()
+  const { getLabel } = usePaymentLabel()
 
-  const tdb = config?.paymentTypes.find((pt) => pt.type === BANK_CARD_TYPES.TDB)
+  const bank = paymentTypes.find((pt) => BANK_CARD_TYPES.TDB === pt.type)
 
   const getTDBCover = () => {
     setLoading(true)
@@ -29,7 +31,7 @@ const TDB = () => {
       hostIndex: 0,
       ecrRefNo: 0,
     }
-    fetch(endPoint(tdb?.config?.port), {
+    fetch(endPoint(bank?.config?.port), {
       method,
       headers,
       body: objToString(details),
@@ -53,8 +55,8 @@ const TDB = () => {
 
   return (
     <BankAmountUi
-      name="Худалдаа хөгжилийн банк"
-      type={BANK_CARD_TYPES.TDB}
+      name={getLabel(bank?.type || "")}
+      type={bank?.type || ""}
       loading={loading}
       descriptionDisabled
       getCover={getTDBCover}

@@ -3,30 +3,32 @@ import {
   FlexItem,
   FlexRow,
   InputBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
+  Title,
+} from "@erxes/ui-settings/src/styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormComponent from "@erxes/ui-tags/src/components/Form";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { router } from '@erxes/ui/src/utils';
 import { __ } from 'coreui/utils';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormComponent from '@erxes/ui-tags/src/components/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Row from './Row';
-import Sidebar from './Sidebar';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   types: any[];
   tags: ITag[];
   tagType: string;
-  history: any;
+  location: any;
+  navigate: any;
   queryParams?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
@@ -43,12 +45,13 @@ function List({
   loading,
   renderButton,
   types,
-  history,
+  location,
+  navigate,
   total,
-  queryParams
+  queryParams,
 }: Props) {
   const [searchValue, setSearchValue] = React.useState(queryParams.searchValue);
-  const contentType = (tagType || '').split(':')[1];
+  const contentType = (tagType || "").split(":")[1];
 
   const trigger = (
     <Button id={'AddTagButton'} btnStyle="success" icon="plus-circle">
@@ -56,7 +59,7 @@ function List({
     </Button>
   );
 
-  const modalContent = props => (
+  const modalContent = (props) => (
     <FormComponent
       {...props}
       tagType={tagType}
@@ -66,12 +69,12 @@ function List({
     />
   );
 
-  const search = e => {
+  const search = (e) => {
     const inputValue = e.target.value;
 
     setSearchValue(inputValue);
 
-    router.setParams(history, { searchValue: inputValue });
+    router.setParams(navigate, location, { searchValue: inputValue });
   };
 
   const actionBarRight = (
@@ -81,7 +84,7 @@ function List({
           <Icon icon="search-1" size={20} />
           <FlexItem>
             <FormControl
-              placeholder={__('Search')}
+              placeholder={__("Search")}
               name="searchValue"
               onChange={search}
               value={searchValue}
@@ -90,7 +93,7 @@ function List({
           </FlexItem>
         </InputBar>
         <ModalTrigger
-          title={__('Add tag')}
+          title={__("Add tag")}
           autoOpenKey={`showTag${tagType}Modal`}
           trigger={trigger}
           content={modalContent}
@@ -101,8 +104,8 @@ function List({
   );
 
   const title = (
-    <Title capitalize={true}>
-      {contentType || 'All'} {__('tags')}&nbsp;
+    <Title $capitalize={true}>
+      {contentType || "All"} {__("tags")}&nbsp;
       {`(${total || 0})`}
     </Title>
   );
@@ -114,16 +117,16 @@ function List({
     <Table>
       <thead>
         <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Total item counts')}</th>
-          <th>{__('Item counts')}</th>
-          <th>{__('Type')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__("Name")}</th>
+          <th>{__("Total item counts")}</th>
+          <th>{__("Item counts")}</th>
+          <th>{__("Type")}</th>
+          <th>{__("Actions")}</th>
         </tr>
       </thead>
-      <tbody id={'TagsShowing'}>
-        {tags.map(tag => {
-          const order = tag.order || '';
+      <tbody id={"TagsShowing"}>
+        {tags.map((tag) => {
+          const order = tag.order || "";
           const foundedString = order.match(/[/]/gi);
 
           return (
@@ -146,8 +149,8 @@ function List({
   );
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Tags'), link: '/settings/tags' }
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Tags"), link: "/settings/tags" },
   ];
 
   return (
@@ -166,7 +169,7 @@ function List({
           data={content}
           loading={loading}
           count={tags.length}
-          emptyText={__('There is no tag') + '.'}
+          emptyText={__("There is no tag") + "."}
           emptyImage="/images/actions/8.svg"
         />
       }

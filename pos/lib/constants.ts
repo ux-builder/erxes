@@ -17,6 +17,7 @@ export const typeTextDef: any = {
   loss: "Хорогдол",
   spend: "Зарлагадсан",
   reject: "Гологдол",
+  before: "Урьдчилсан",
 }
 
 export const ORDER_STATUSES = {
@@ -52,6 +53,7 @@ const BANK_CARD_TYPES = {
   GOLOMT: "golomtCard",
   KHANBANK: "khaanCard",
   TDB: "TDBCard",
+  CAPITRON: "capitron",
 }
 
 const ALL_BANK_CARD_TYPES = Object.values(BANK_CARD_TYPES)

@@ -5,12 +5,13 @@ import {
   Template,
   TemplateBox,
   TemplateBoxInfo,
-  TemplateInfo
-} from '../styles';
-import { Icon, ModalTrigger } from '@erxes/ui/src';
+  TemplateInfo,
+} from "../styles";
+import { Icon, ModalTrigger } from "@erxes/ui/src";
+
+import React from "react";
+import dayjs from "dayjs";
 import { __ } from 'coreui/utils';
-import React from 'react';
-import dayjs from 'dayjs';
 
 type Props = {
   handleSelect?: (_id: string) => void;
@@ -20,17 +21,22 @@ type Props = {
   onlyPreview?: boolean;
 };
 
-class EmailTemplate extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const EmailTemplate = (props: Props) => {
+  const {
+    selectedTemplateId,
+    template,
+    handleSelect,
+    templateId,
+    onlyPreview,
+  } = props;
+  const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
 
   renderDate(createdAt, modifiedAt) {
     const createdAtLabel = __('Created at');
     const modifiedAtLabel = __('Modified at');
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
-        return '-';
+        return "-";
       }
 
       return `${createdAtLabel}: ${dayjs(createdAt).format('DD MMM YYYY')}`;
@@ -39,7 +45,7 @@ class EmailTemplate extends React.Component<Props> {
     return `${modifiedAtLabel}: ${dayjs(modifiedAt).format('DD MMM YYYY')}`;
   }
 
-  renderView(content) {
+  const renderView = (content) => {
     const trigger = (
       <div>
         <Icon icon="eye" /> {__('View')}
@@ -62,19 +68,12 @@ class EmailTemplate extends React.Component<Props> {
         size="lg"
       />
     );
-  }
+  };
 
-  renderActions() {
-    const {
-      template: { content },
-      handleSelect,
-      templateId,
-      onlyPreview
-    } = this.props;
-
+  const renderActions = () => {
     return (
       <Actions>
-        {this.renderView(content)}
+        {renderView(content)}
         {!onlyPreview && (
           <div onClick={handleSelect && handleSelect.bind(this, templateId)}>
             <Icon icon="clicker" /> {__('Select')}
@@ -82,48 +81,40 @@ class EmailTemplate extends React.Component<Props> {
         )}
       </Actions>
     );
-  }
+  };
 
-  render() {
-    const { selectedTemplateId, template } = this.props;
-    const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
-
-    return (
-      <Template
-        key={_id}
-        className={selectedTemplateId === _id ? 'active' : ''}
-      >
-        <TemplateBox>
-          {this.renderActions()}
-          <IframePreview>
-            <iframe title="content-iframe" srcDoc={content} />
-          </IframePreview>
-        </TemplateBox>
-        <TemplateBoxInfo>
-          <h5>{name}</h5>
-          <div>
-            <TemplateInfo>
-              <p>
+  return (
+    <Template key={_id} className={selectedTemplateId === _id ? "active" : ""}>
+      <TemplateBox>
+        {renderActions()}
+        <IframePreview>
+          <iframe title="content-iframe" srcDoc={content} />
+        </IframePreview>
+      </TemplateBox>
+      <TemplateBoxInfo>
+        <h5>{name}</h5>
+        <div>
+          <TemplateInfo>
+            <p>
                 {createdAt === modifiedAt
                   ? `${__('Created at')}`
                   : `${__('Modified at')}`}
-              </p>
-              <p>{this.renderDate(createdAt, modifiedAt)}</p>
-            </TemplateInfo>
-            <TemplateInfo>
-              <p>{__('Created by')}</p>
-              {createdUser ? (
-                createdUser.details.fullName && (
-                  <p>{createdUser.details.fullName}</p>
-                )
-              ) : (
-                <p>erxes Inc</p>
-              )}
-            </TemplateInfo>
-          </div>
-        </TemplateBoxInfo>
-      </Template>
-    );
-  }
-}
+            <p>{renderDate(createdAt, modifiedAt)}</p>
+          </TemplateInfo>
+          <TemplateInfo>
+            <p>{__("Created by")}</p>
+            {createdUser ? (
+              createdUser.details.fullName && (
+                <p>{createdUser.details.fullName}</p>
+              )
+            ) : (
+              <p>erxes Inc</p>
+            )}
+          </TemplateInfo>
+        </div>
+      </TemplateBoxInfo>
+    </Template>
+  );
+};
+
 export default EmailTemplate;

@@ -12,12 +12,13 @@ const commonFields = `
   $leaseAmount: Float,
   $feeAmount: Float,
   $tenor: Float,
-  $unduePercent: Float,
-  $undueCalcType: String,
+  $lossPercent: Float,
+  $lossCalcType: String,
   $interestRate: Float,
   $skipInterestCalcMonth: Float,
   $repayment: String,
   $startDate: Date,
+  $firstPayDate: Date,
   $scheduleDays: [Float],
   $customerId: String,
   $customerType: String,
@@ -60,6 +61,8 @@ const commonFields = `
   $commitmentInterest: Float
   $endDate: Date
   $savingContractId: String
+  $customFieldsData: JSON
+  $holidayType: String
 `;
 
 const commonVariables = `
@@ -74,12 +77,13 @@ const commonVariables = `
   leaseAmount: $leaseAmount,
   feeAmount: $feeAmount,
   tenor: $tenor,
-  unduePercent: $unduePercent,
-  undueCalcType: $undueCalcType,
+  lossPercent: $lossPercent,
+  lossCalcType: $lossCalcType,
   skipInterestCalcMonth: $skipInterestCalcMonth,
   interestRate: $interestRate,
   repayment: $repayment,
   startDate: $startDate,
+  firstPayDate: $firstPayDate,
   scheduleDays: $scheduleDays,
   customerId: $customerId,
   customerType: $customerType,
@@ -121,6 +125,8 @@ const commonVariables = `
   commitmentInterest:$commitmentInterest
   endDate:$endDate
   savingContractId: $savingContractId
+  customFieldsData: $customFieldsData
+  holidayType: $holidayType
 `;
 
 const contractsAdd = `
@@ -240,5 +246,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn
+  interestReturn,
 };

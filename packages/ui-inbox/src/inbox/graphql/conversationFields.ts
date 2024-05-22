@@ -83,6 +83,27 @@ export default `
       : ''
   }
 
+    ${
+      isEnabled('calls')
+        ? `
+  callHistory {
+    receiverNumber
+    callerNumber
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    sessionId
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    recordUrl
+  }`
+        : ''
+    }
+
 
   readUserIds
   callProAudio

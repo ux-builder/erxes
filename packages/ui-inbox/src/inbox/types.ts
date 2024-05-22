@@ -11,6 +11,22 @@ export interface IVideoCallData {
   recordingLinks?: string[];
 }
 
+export interface ICallHistory {
+  receiverNumber: string;
+  callerNumber: string;
+  callDuration: number;
+  callStartTime: Date;
+  callEndTime: Date;
+  callType: string;
+  callStatus: string;
+  sessionId: string;
+  updatedAt: Date;
+  createdAt: Date;
+  createdBy: string;
+  updatedBy: string;
+  recordUrl: string;
+}
+
 export interface IConversation {
   _id: string;
   content?: string;
@@ -41,6 +57,7 @@ export interface IConversation {
   idleTime: number;
   callProAudio?: string;
   videoCallData?: IVideoCallData;
+  callHistory?: ICallHistory;
 
   customFieldsData?: {
     [key: string]: any;
@@ -128,7 +145,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    }
+    },
   ];
   wrapped?: {
     type: string;

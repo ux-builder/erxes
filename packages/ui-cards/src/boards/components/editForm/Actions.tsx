@@ -18,8 +18,6 @@ import Watch from '../../containers/editForm/Watch';
 import Comment from '../../../comment/containers/Comment';
 import { loadDynamicComponent } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import PrintActionButton from './PrintDocumentBtn';
-import { Button } from 'react-bootstrap';
 import { __ } from 'coreui/utils';
 
 type Props = {
@@ -137,8 +135,17 @@ class Actions extends React.Component<Props> {
           />
         )}
 
-        {/* {loadDynamicComponent('cardDetailAction', { item }, true)} */}
-        {isEnabled('documents') && <PrintActionButton item={item} />}
+        {loadDynamicComponent(
+          'cardDetailAction',
+          {
+            item,
+            contentType: 'cards',
+            subType: item.stage?.type,
+            path: `stageId=${item.stageId}`
+          },
+          true
+        )}
+        {/* {isEnabled('documents') && <PrintActionButton item={item} />} */}
       </ActionContainer>
     );
   }

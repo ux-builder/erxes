@@ -2,16 +2,30 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-
-import { generateModels } from '../connectionResolver';
+import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
+import { IModels, generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   res: Response,
   next: NextFunction
 ) {
+  if (
+    req.path === '/subscriptionPlugin.js' ||
+    req.path.startsWith('/rpc') ||
+    req.body?.operationName === 'SubgraphIntrospectQuery' ||
+    req.body?.operationName === 'IntrospectionQuery'
+  ) {
+    return next();
+  }
+
   const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+  let models: IModels;
+  try {
+    models = await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
   const { body } = req;
 
   const operationName = body.operationName && body.operationName.split('__')[0];
@@ -28,22 +42,19 @@ export default async function cpUserMiddleware(
       'clientPortalLogin',
       'clientPortalLogout',
       'clientPortalLoginWithPhone',
+      'clientPortalLoginWithMailOTP',
       'clientPortalLoginWithSocialPay',
       'clientPortalRegister',
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalKnowledgeBaseTopicDetail'
+      'clientPortalKnowledgeBaseTopicDetail',
     ].includes(operationName)
   ) {
     return next();
   }
 
-  const authHeader = req.headers.authorization;
-
-  const token = req.cookies['client-auth-token']
-    ? req.cookies['client-auth-token']
-    : authHeader && authHeader.split(' ')[1];
+  const token = extractClientportalToken(req);
 
   if (!token) {
     return next();
@@ -56,12 +67,33 @@ export default async function cpUserMiddleware(
       process.env.JWT_TOKEN_SECRET || ''
     );
 
-    const { userId } = verifyResult;
+    const { userId, isPassed2FA, isEnableTwoFactor } = verifyResult;
 
     const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
 
     if (!userDoc) {
       return next();
+    }
+    const check = () => {
+      const two2FAoperationsNames = [
+        'clientPortal2FAGetCode',
+        'clientPortalVerify2FA',
+      ];
+      for (const name of two2FAoperationsNames) {
+        if (name.toLocaleLowerCase() === operationName.toLocaleLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    };
+    if (isEnableTwoFactor) {
+      if (!isPassed2FA && check()) {
+        const graphQLError = new GraphQLError(
+          '2Factor Authentication is activiated'
+        );
+
+        return res.status(200).json({ errors: [graphQLError] });
+      }
     }
 
     // save user in request

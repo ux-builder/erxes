@@ -38,6 +38,7 @@ export type IPos = {
   name: string;
   description?: string;
   orderPassword?: string;
+  scopeBrandIds?: string[];
   pdomain?: string;
   createdAt: Date;
   productDetails?: string[];
@@ -109,12 +110,6 @@ export type SlotsQueryResponse = {
 export type PosRemoveMutationResponse = {
   removePos: (mutation: { variables: { _id: string } }) => Promise<any>;
 };
-
-export interface IRouterProps {
-  history: any;
-  location: any;
-  match: any;
-}
 
 export type Counts = {
   [key: string]: number;

@@ -12,6 +12,11 @@ import {
   types as collateralTypes
 } from './collateral';
 import {
+  mutations as collateralTypeMutations,
+  queries as collateralTypeQueries,
+  types as collateralTypeTypes
+} from './collateralType';
+import {
   mutations as contractMutations,
   queries as contractQueries,
   types as contractTypes
@@ -46,6 +51,11 @@ import {
   queries as classificationQueries,
   types as classificationTypes
 } from './classification';
+import {
+  mutations as nonBalanceTransactionMutations,
+  queries as nonBalanceTransactionQueries,
+  types as nonBalanceTransactionTypes
+} from './nonBalanceTransaction';
 
 export const types = `
   ${attachmentType}
@@ -70,33 +80,39 @@ export const types = `
   ${periodLockTypes()},
   ${contractTypes()},
   ${collateralTypes()}
+  ${collateralTypeTypes()},
   ${contractTypeTypes()},
   ${insuranceTypeTypes()},
   ${invoiceTypes},
   ${transactionTypes},
   ${scheduleTypes()},
   ${classificationTypes()},
+  ${nonBalanceTransactionTypes},
 `;
 
 export const queries = `
   ${periodLockQueries},
   ${contractQueries},
-  ${collateralQueries}
+  ${collateralQueries},
+  ${collateralTypeQueries},
   ${contractTypeQueries},
   ${insuranceTypeQueries},
   ${invoiceQueries},
   ${scheduleQueries},
   ${transactionQueries},
   ${classificationQueries},
+  ${nonBalanceTransactionQueries},
 `;
 
 export const mutations = `
   ${periodLockMutations}
   ${contractMutations},
   ${contractTypeMutations},
+  ${collateralTypeMutations},
   ${insuranceTypeMutations},
   ${invoiceMutations},
   ${scheduleMutations},
   ${transactionMutations},
   ${classificationMutations},
+  ${nonBalanceTransactionMutations}
 `;

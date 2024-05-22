@@ -1,25 +1,24 @@
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexContent } from "@erxes/ui/src/layout/styles";
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import Select, { OnChangeValue } from "react-select";
 import { __ } from 'coreui/utils';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Select from 'react-select-plus';
 
-import { COLORS, FONTS } from '../../constants';
+import { COLORS, FONTS } from "../../constants";
 import {
   Block,
   ColorChooserTile,
   ColorPickerWrap,
   FlexRow,
-  LogoWrapper
-} from '../../styles';
-import { Styles } from '../../types';
+  LogoWrapper,
+} from "../../styles";
+import { Styles } from "../../types";
 
 type Props = {
   styles?: Styles;
@@ -37,15 +36,15 @@ type Item = {
 };
 
 const generateOptions = () =>
-  FONTS.map(item => ({ label: item.label, value: item.value }));
+  FONTS.map((item) => ({ label: item.label, value: item.value }));
 
 function Appearance({
   styles = {},
   handleFormChange,
-  icon = '',
-  logo = '',
-  headerHtml = '',
-  footerHtml = ''
+  icon = "",
+  logo = "",
+  headerHtml = "",
+  footerHtml = "",
 }: Props) {
   const {
     bodyColor,
@@ -62,7 +61,7 @@ function Appearance({
     baseColor,
     baseFont,
     headingColor,
-    headingFont
+    headingFont,
   } = styles || ({} as Styles);
 
   const handleAvatarUploader = (name: string, url: string) => {
@@ -72,18 +71,20 @@ function Appearance({
   function renderSelect({
     value,
     label,
-    name
+    name,
   }: {
     value?: string;
     label: string;
     name: string;
   }) {
-    const handleSelect = (option: { label: string; value: string }) => {
+    const handleSelect = (
+      option: OnChangeValue<{ label: string; value: string }, false>
+    ) => {
       const currentStyles = { ...styles };
 
-      currentStyles[name] = option.value;
+      currentStyles[name] = option?.value;
 
-      handleFormChange('styles', currentStyles);
+      handleFormChange("styles", currentStyles);
     };
 
     return (
@@ -91,8 +92,9 @@ function Appearance({
         <ColorChooserTile>{label}</ColorChooserTile>
         <Select
           placeholder={__('Please select a font')}
-          value={value}
+          value={generateOptions().find((o) => o.value === value)}
           options={generateOptions()}
+          isClearable={true}
           onChange={handleSelect}
         />
       </FormGroup>
@@ -100,40 +102,36 @@ function Appearance({
   }
 
   function renderColor({ label, name, value }: Item) {
-    const handleChange = e => {
+    const handleChange = (e) => {
       const currentStyles = { ...styles };
 
       currentStyles[name] = e.hex;
 
-      handleFormChange('styles', currentStyles);
+      handleFormChange("styles", currentStyles);
     };
 
     return (
       <FormGroup>
         <ColorChooserTile>{__(label)}</ColorChooserTile>
         <div>
-          <OverlayTrigger
-            trigger="click"
-            rootClose={true}
+          <Popover
             placement="bottom"
-            overlay={
-              <Popover id={name}>
-                <TwitterPicker
-                  width="266px"
-                  triangle="hide"
-                  color={{ hex: value || COLORS[0] }}
-                  onChange={handleChange}
-                  colors={COLORS}
+            trigger={
+              <ColorPick>
+                <ColorPicker
+                  style={{ backgroundColor: value ? value : COLORS[4] }}
                 />
-              </Popover>
+              </ColorPick>
             }
           >
-            <ColorPick>
-              <ColorPicker
-                style={{ backgroundColor: value ? value : COLORS[4] }}
-              />
-            </ColorPick>
-          </OverlayTrigger>
+            <TwitterPicker
+              width="266px"
+              triangle="hide"
+              color={{ hex: value || COLORS[0] }}
+              onChange={handleChange}
+              colors={COLORS}
+            />
+          </Popover>
         </div>
       </FormGroup>
     );
@@ -142,7 +140,7 @@ function Appearance({
   const renderLogos = () => {
     return (
       <Block>
-        <h4>{__('Logo and favicon')}</h4>
+        <h4>{__("Logo and favicon")}</h4>
         <LogoWrapper>
           <FlexContent>
             <FormGroup>
@@ -150,8 +148,8 @@ function Appearance({
               <p>{__('Business portal main logo PNG')}.</p>
               <AvatarUpload
                 avatar={logo}
-                onAvatarUpload={logoUrl =>
-                  handleAvatarUploader('logo', logoUrl)
+                onAvatarUpload={(logoUrl) =>
+                  handleAvatarUploader("logo", logoUrl)
                 }
               />
             </FormGroup>
@@ -161,8 +159,8 @@ function Appearance({
               <p>{__('16x16px transparent PNG')}.</p>
               <AvatarUpload
                 avatar={icon}
-                onAvatarUpload={iconUrl =>
-                  handleAvatarUploader('icon', iconUrl)
+                onAvatarUpload={(iconUrl) =>
+                  handleAvatarUploader("icon", iconUrl)
                 }
               />
             </FormGroup>
@@ -175,40 +173,40 @@ function Appearance({
   const renderColors = () => {
     return (
       <Block>
-        <h4>{__('Main colors')}</h4>
+        <h4>{__("Main colors")}</h4>
         <FormGroup>
           <ControlLabel>{__('Background color')}</ControlLabel>
           <FlexContent>
             <ColorPickerWrap>
               {renderColor({
-                label: 'Body',
-                name: 'bodyColor',
-                value: bodyColor
+                label: "Body",
+                name: "bodyColor",
+                value: bodyColor,
               })}
               {renderColor({
-                label: 'Header',
-                name: 'headerColor',
-                value: headerColor
+                label: "Header",
+                name: "headerColor",
+                value: headerColor,
               })}
               {renderColor({
-                label: 'Footer',
-                name: 'footerColor',
-                value: footerColor
+                label: "Footer",
+                name: "footerColor",
+                value: footerColor,
               })}
               {renderColor({
-                label: 'Help Center',
-                name: 'helpColor',
-                value: helpColor
+                label: "Help Center",
+                name: "helpColor",
+                value: helpColor,
               })}
               {renderColor({
-                label: 'Background',
-                name: 'backgroundColor',
-                value: backgroundColor
+                label: "Background",
+                name: "backgroundColor",
+                value: backgroundColor,
               })}
               {renderColor({
-                label: 'Active tab',
-                name: 'activeTabColor',
-                value: activeTabColor
+                label: "Active tab",
+                name: "activeTabColor",
+                value: activeTabColor,
               })}
             </ColorPickerWrap>
           </FlexContent>
@@ -220,7 +218,7 @@ function Appearance({
   const renderFonts = () => {
     return (
       <Block>
-        <h4>{__('Fonts and color')}</h4>
+        <h4>{__("Fonts and color")}</h4>
         <FlexRow>
           <FormGroup>
             <ControlLabel>{__('Base Font')}</ControlLabel>
@@ -278,7 +276,7 @@ function Appearance({
   const renderFormElements = () => {
     return (
       <Block>
-        <h4>{__('Form elements color')}</h4>
+        <h4>{__("Form elements color")}</h4>
         <FlexContent>
           <ColorPickerWrap>
             {renderColor({
@@ -302,12 +300,12 @@ function Appearance({
     );
   };
 
-  const onHeaderChange = e => {
-    handleFormChange('headerHtml', e.editor.getData());
+  const onHeaderChange = (content: string) => {
+    handleFormChange("headerHtml", content);
   };
 
-  const onFooterChange = e => {
-    handleFormChange('footerHtml', e.editor.getData());
+  const onFooterChange = (content: string) => {
+    handleFormChange("footerHtml", content);
   };
 
   return (
@@ -318,13 +316,13 @@ function Appearance({
       {renderFormElements()}
 
       <Block>
-        <h4>{__('Advanced')}</h4>
+        <h4>{__("Advanced")}</h4>
 
         <FlexContent>
           <FormGroup>
             <ControlLabel>{__('Header html')}</ControlLabel>
 
-            <EditorCK
+            <RichTextEditor
               content={headerHtml}
               onChange={onHeaderChange}
               height={200}
@@ -337,7 +335,7 @@ function Appearance({
           <FormGroup>
             <ControlLabel>{__('Footer html')}</ControlLabel>
 
-            <EditorCK
+            <RichTextEditor
               content={footerHtml}
               onChange={onFooterChange}
               height={200}

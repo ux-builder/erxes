@@ -13,12 +13,11 @@ export const REPAYMENT = {
 export const CONTRACT_STATUS = {
   DRAFT: 'draft',
   NORMAL: 'normal',
-  BAD: 'bad',
   CLOSED: 'closed',
-  ALL: ['draft', 'normal', 'bad', 'closed']
+  ALL: ['draft', 'normal', 'closed']
 };
 
-export const UNDUE_CALC_TYPE = {
+export const LOSS_CALC_TYPE = {
   FROMAMOUNT: 'fromAmount',
   FROMINTEREST: 'fromInterest',
   FROMTOTALPAYMENT: 'fromTotalPayment',
@@ -52,12 +51,14 @@ export const INVOICE_STATUS = {
 
 export const SCHEDULE_STATUS = {
   PENDING: 'pending',
+  EXPIRED: 'expired',
   DONE: 'done',
   SKIPPED: 'skipped',
   LESS: 'less',
   PRE: 'pre',
+  GIVE: 'give',
 
-  ALL: ['pending', 'done', 'skipped', 'pre', 'less']
+  ALL: ['pending', 'done', 'skipped', 'pre', 'less', 'expired', 'give']
 };
 
 export const LEASE_TYPES = {
@@ -81,3 +82,12 @@ export const INTEREST_CORRECTION_TYPE = {
   INTEREST_CHANGE: 'interestChange',
   ALL: ['stopInterest', 'interestReturn', 'interestChange']
 };
+
+export const COLLATERAL_TYPE = {
+  MOVABLE_ASSETS:'movableAssets',
+  REAL_ESTATE:'realEstate',
+  SECURITIES_CONTRACTS:'securitiesContracts',
+  SAVING:'saving',
+  WARRANTY:'warranty',
+  OTHER:'other'
+}

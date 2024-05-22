@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker, sendSegmentsMessage } from './messageBroker';
+import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporterByUrl';
 import segments from './segments';
@@ -19,28 +19,21 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import {
   updateContactsValidationStatus,
-  updateContactValidationStatus
+  updateContactValidationStatus,
 } from './verifierUtils';
 import exporter from './exporter';
 import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-export let redis;
-
-export let debug;
+import app from '@erxes/api-utils/src/app';
+import reports from './reports/reports'
 
 export default {
   name: 'contacts',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
 
@@ -48,11 +41,12 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
 
   meta: {
     imports,
+    reports,
     segments,
     automations,
     forms,
@@ -66,7 +60,7 @@ export default {
     documents,
     // for fixing permissions
     permissions,
-    notificationModules: NOTIFICATION_MODULES
+    notificationModules: NOTIFICATION_MODULES,
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -75,10 +69,7 @@ export default {
     context.subdomain = subdomain;
   },
 
-  onServerInit: async options => {
-    const app = options.app;
-    mainDb = options.db;
-
+  onServerInit: async () => {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
@@ -96,7 +87,7 @@ export default {
             sendSegmentsMessage({
               subdomain,
               action: 'removeSegment',
-              data: { segmentId: segment }
+              data: { segmentId: segment },
             });
           } catch (e) {
             console.log((e as Error).message);
@@ -104,7 +95,7 @@ export default {
         }
 
         return res.send(result.response);
-      })
+      }),
     );
 
     app.post(
@@ -125,14 +116,14 @@ export default {
         }
 
         return res.send('success');
-      })
+      }),
     );
 
     app.get('/verify', async (req, res) => {
       const { p } = req.query;
 
       const data = JSON.parse(
-        Buffer.from(p as string, 'base64').toString('utf8')
+        Buffer.from(p as string, 'base64').toString('utf8'),
       );
 
       const { email, customerId } = data;
@@ -150,22 +141,17 @@ export default {
         return res.send('Customer email does not match');
       }
 
-      if (customer.emails?.findIndex(e => e === email) === -1) {
+      if (customer.emails?.findIndex((e) => e === email) === -1) {
         return res.send('Customer email does not match');
       }
 
       await models.Customers.updateOne(
         { _id: customerId },
-        { $set: { primaryEmail: email, emailValidationStatus: 'valid' } }
+        { $set: { primaryEmail: email, emailValidationStatus: 'valid' } },
       );
 
       return res.send('Successfully verified, you can close this tab now');
     });
-
-    initBroker(options.messageBrokerClient);
-
-    redis = options.redis;
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
+  setupMessageConsumers,
 };

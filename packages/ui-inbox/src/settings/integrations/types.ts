@@ -1,7 +1,7 @@
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData
+  IWebhookData,
 } from '@erxes/ui-leads/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
@@ -118,7 +118,7 @@ export type RemoveMutationResponse = {
 };
 
 export type RepairMutationResponse = {
-  repairIntegration: (params: { variables: { _id: string } }) => Promise<any>;
+  repairIntegration: (params: { variables: { _id: string, kind: string } }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {
@@ -279,6 +279,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: any[];
   isActive?: boolean;
+  isConnected?: boolean;
   healthStatus?: IIntegartionHealthStatus;
   webhookData?: IWebhookData;
   leadMessengerApps?: ILeadMessengerApp[];

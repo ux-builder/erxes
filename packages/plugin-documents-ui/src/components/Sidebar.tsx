@@ -22,108 +22,27 @@ type Props = {
   currentTypeId?: string;
 };
 
-type State = {
-  type: IType;
-};
-
-class SideBar extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-  }
-
-  trigger = (
-    <Button
-      id={'AddTypeButton'}
-      btnStyle="success"
-      icon="plus-circle"
-      block={true}
-    >
-      Create Category
-    </Button>
-  );
-
-  editTrigger = (
-    <Button btnStyle="link">
-      <Tip text={__('Edit')}>
-        <Icon icon="edit-3"></Icon>
-      </Tip>
-    </Button>
-  );
-
-  content = props => {
-    const { type } = this.state;
-    const { renderButton, types } = this.props;
-    return <TypeForm {...props} type={type} renderButton={renderButton} />;
-  };
-
-  ListItem = (type, currentTypeName) => {
-    const { remove } = this.props;
-    const className = type && currentTypeName === type._id ? 'active' : '';
-
-    if (className) {
-      this.state = { type: type };
-    }
-
-    return (
-      <SidebarListItem isActive={className === 'active'} key={type._id}>
-        <Link to={`/{name}s?type=${type._id}`}>{__(type.name)}</Link>
-        {className && (
-          <ActionButtons>
-            <ModalTrigger
-              size="sm"
-              title="Edit type"
-              trigger={this.editTrigger}
-              content={this.content}
-              enforceFocus={false}
-            />
-
-            <Tip text={__('Delete')} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={remove.bind(null, type)}
-                icon="times-circle"
-              />
-            </Tip>
-          </ActionButtons>
-        )}
-      </SidebarListItem>
-    );
-  };
-
-  modalContent = props => {
-    const { renderButton } = this.props;
-    return <TypeForm {...props} renderButton={renderButton} />;
-  };
-
-  render() {
-    const { types, currentTypeId } = this.props;
-
-    return (
-      <LeftSidebar
-        header={
-          <Header>
-            <ModalTrigger
-              size="sm"
-              title={__('Add Todo Type')}
-              trigger={this.trigger}
-              content={this.modalContent}
-            />
-          </Header>
-        }
-        hasBorder
+export default function Sidebar({ queryParams, contentTypes }: Props) {
+  return (
+    <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+      <SidebarList
+        $noTextColor={true}
+        $noBackground={true}
+        id={'DocumentsSidebar'}
       >
-        <LeftSidebar.Header uppercase={true}>
-          {__('Categories')}
-        </LeftSidebar.Header>
-
-        <SidebarList noTextColor noBackground id="SideBar">
-          {types.map(type => {
-            return this.ListItem(type, currentTypeId);
-          })}
-        </SidebarList>
-      </LeftSidebar>
-    );
-  }
+        {contentTypes.map(({ label, contentType }) => (
+          <SidebarListItem
+            key={contentType}
+            $isActive={queryParams?.contentType === contentType}
+          >
+            <Link to={`/settings/documents/?contentType=${contentType}`}>
+              {__(label)}
+            </Link>
+          </SidebarListItem>
+        ))}
+      </SidebarList>
+    </LeftSidebar>
+  );
 }
 
 export default SideBar;

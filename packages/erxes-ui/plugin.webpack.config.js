@@ -22,7 +22,6 @@ const depNames = [
   "react-bootstrap",
   "react-dom",
   "react-router-dom",
-  "react-select-plus",
   "react-transition-group",
   "styled-components",
   "styled-components-ts",
@@ -87,6 +86,9 @@ module.exports = (configs) => (env, args) => {
       port: port,
       allowedHosts: "all",
       historyApiFallback: true,
+      client: {
+        overlay: false,
+      },
       headers: {
         "Access-Control-Allow-Origin": "*", // 모든 도메인에서의 요청을 허용
         "Access-Control-Allow-Methods":

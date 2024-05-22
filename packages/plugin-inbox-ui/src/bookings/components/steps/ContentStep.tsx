@@ -1,21 +1,21 @@
-import React from 'react';
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { FlexItem } from '@erxes/ui/src/layout/styles';
+import { Description, SubHeading } from "@erxes/ui-settings/src/styles";
 import {
+  Flex,
   FlexHeight as FlexItemContainer,
-  Flex
-} from '@erxes/ui/src/styles/main';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { extractAttachment, __ } from 'coreui/utils';
-import Select from 'react-select-plus';
-import SelectProductCategory from '../../containers/SelectProductCategory';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { BOOKING_DISPLAY_BLOCK } from '../../constants';
-import { IField } from '@erxes/ui/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+} from "@erxes/ui/src/styles/main";
+import { __, extractAttachment } from "coreui/utils";
+
+import { BOOKING_DISPLAY_BLOCK } from "../../constants";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexItem } from "@erxes/ui/src/layout/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IField } from "@erxes/ui/src/types";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import React from "react";
+import Select from "react-select";
+import SelectProductCategory from "../../containers/SelectProductCategory";
+import Uploader from "@erxes/ui/src/components/Uploader";
 
 type Name =
   | 'name'
@@ -81,8 +81,15 @@ function ContentStep({
     }));
   };
 
-  const images =
-    (image && delete image.__typename && extractAttachment([image])) || [];
+  const images = [] as any;
+
+  if (image && typeof image === "object") {
+    const imageClone = { ...image }; // Create a shallow clone of the object
+    if (imageClone.__typename) {
+      delete imageClone.__typename;
+      images.push(...extractAttachment([imageClone]));
+    }
+  }
 
   const renderGeneralSettings = () => {
     return (
@@ -143,6 +150,7 @@ function ContentStep({
   };
 
   const renderDisplayBlock = () => {
+    const options = generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST);
     return (
       <>
         <Flex>
@@ -150,15 +158,16 @@ function ContentStep({
             <FormGroup>
               <ControlLabel>{__('Display blocks')}</ControlLabel>
               <Select
-                options={generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST)}
-                placeholder={__('Choose line')}
-                value={line}
-                onChange={(e: any) => onChangeBooking('line', e ? e.value : '')}
+                options={options}
+                placeholder={__("Choose line")}
+                value={options.find((option) => option.value === line)}
+                isClearable={true}
+                onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
               />
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__('Columns')}</ControlLabel>
               <FormControl
@@ -172,7 +181,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__('Rows')}</ControlLabel>
               <FormControl
@@ -184,7 +193,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__('Margin')}</ControlLabel>
               <FormControl
@@ -245,8 +254,10 @@ function ContentStep({
                 e.map(field => field.value)
               )
             }
-            value={productFieldIds}
-            multi={true}
+            value={generateSelectOptions(productFields).filter((option) =>
+              productFieldIds?.includes(option.value)
+            )}
+            isMulti={true}
             placeholder={__('Choose custom properties')}
           />
         </FormGroup>

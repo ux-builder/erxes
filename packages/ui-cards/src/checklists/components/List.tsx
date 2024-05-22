@@ -1,25 +1,26 @@
-import debounce from 'lodash/debounce';
-import Button from '@erxes/ui/src/components/Button';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ProgressBar from '@erxes/ui/src/components/ProgressBar';
-import SortableList from '@erxes/ui/src/components/SortableList';
-import colors from '@erxes/ui/src/styles/colors';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { isEmptyContent } from '@erxes/ui/src/utils';
 import { __ } from 'coreui/utils';
-import React, { useEffect, useState } from 'react';
-import Item from '../containers/Item';
 import {
   ChecklistTitle,
   ChecklistTitleWrapper,
   ChecklistWrapper,
   FormControlWrapper,
   FormWrapper,
-  Progress
-} from '../styles';
-import { IChecklist, IChecklistItem } from '../types';
+  Progress,
+} from "../styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IChecklist, IChecklistItem } from "../types";
+import React, { useEffect, useState } from "react";
+import { isEmptyContent } from "@erxes/ui/src/utils";
+
+import Button from "@erxes/ui/src/components/Button";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import Item from "../containers/Item";
+import ProgressBar from "@erxes/ui/src/components/ProgressBar";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import colors from "@erxes/ui/src/styles/colors";
+import debounce from "lodash/debounce";
 
 type Props = {
   item: IChecklist;
@@ -39,10 +40,10 @@ function List(props: Props) {
     item.items.length === 0 ? true : false
   );
   const [isHidden, setIsHidden] = useState(
-    localStorage.getItem('isHidden') === 'true' ? true : false
+    localStorage.getItem("isHidden") === "true" ? true : false
   );
   const [itemContent, setItemContent] = useState(
-    getUnsavedContent(props.item._id) || ''
+    getUnsavedContent(props.item._id) || ""
   );
   const [title, setTitle] = useState(item.title);
   const [beforeTitle, setBeforeTitle] = useState(item.title);
@@ -87,7 +88,7 @@ function List(props: Props) {
   }
 
   function getUnsavedContent(id: string) {
-    return localStorage.getItem(id) || '';
+    return localStorage.getItem(id) || "";
   }
 
   function onContentChange(e) {
@@ -106,7 +107,7 @@ function List(props: Props) {
   }
 
   function onKeyPressAddItem(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
 
       saveAddItem();
@@ -125,12 +126,12 @@ function List(props: Props) {
     // for sorting alphanumerical strings
     const collator = new Intl.Collator(undefined, {
       numeric: true,
-      sensitivity: 'base'
+      sensitivity: "base",
     });
 
-    content.sort(collator.compare).map(text => props.addItem(text));
+    content.sort(collator.compare).map((text) => props.addItem(text));
 
-    setItemContent('');
+    setItemContent("");
     setIsAddingItem(false);
 
     localStorage.removeItem(item._id);
@@ -139,12 +140,12 @@ function List(props: Props) {
   function renderIsCheckedBtn() {
     const onClickHideShowBtn = () => {
       setIsHidden(!isHidden);
-      localStorage.setItem('isHidden', `${!isHidden}`);
+      localStorage.setItem("isHidden", `${!isHidden}`);
     };
-    const checkedItems = item.items.filter(data => data.isChecked);
+    const checkedItems = item.items.filter((data) => data.isChecked);
     const btnText = isHidden
       ? `Show checked items (${isHidden && checkedItems.length})`
-      : 'Hide completed items';
+      : "Hide completed items";
 
     if (item.percent) {
       return (
@@ -180,7 +181,7 @@ function List(props: Props) {
   function generateDoc(values: { title: string }) {
     return {
       _id: item._id,
-      title: values.title || title
+      title: values.title || title,
     };
   }
 
@@ -196,7 +197,7 @@ function List(props: Props) {
       setTitle(beforeTitle);
     };
 
-    const onChangeTitle = e =>
+    const onChangeTitle = (e) =>
       setTitle((e.currentTarget as HTMLTextAreaElement).value);
 
     const onSubmit = () => {
@@ -210,7 +211,7 @@ function List(props: Props) {
           {...formProps}
           name="title"
           autoFocus={true}
-          componentClass="textarea"
+          componentclass="textarea"
           onChange={onChangeTitle}
           value={title}
           required={true}
@@ -219,7 +220,7 @@ function List(props: Props) {
         {props.renderButton({
           values: generateDoc(values),
           isSubmitted,
-          callback: onSubmit
+          callback: onSubmit,
         })}
 
         <Button
@@ -246,7 +247,7 @@ function List(props: Props) {
   }
 
   function renderItems() {
-    const child = childItem => {
+    const child = (childItem) => {
       if (isHidden && childItem.isChecked) {
         return null;
       }
@@ -280,7 +281,7 @@ function List(props: Props) {
         <FormWrapper add={true}>
           <FormControlWrapper onBlur={onBlur}>
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               placeholder="Add an item"
               onChange={onContentChange}
               onKeyPress={onKeyPressAddItem}
@@ -307,7 +308,7 @@ function List(props: Props) {
 
     return (
       <Button size="small" btnStyle="simple" onClick={onAddItemClick}>
-        {__('Add an item')}
+        {__("Add an item")}
       </Button>
     );
   }

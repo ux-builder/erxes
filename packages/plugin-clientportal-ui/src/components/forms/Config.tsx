@@ -1,20 +1,21 @@
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { BlockRow, ToggleWrap } from "../../styles";
+import React, { useState } from "react";
 import { __ } from 'coreui/utils';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
-import { CONFIGURATIONS } from '../../constants';
-import { BlockRow, ToggleWrap } from '../../styles';
-import { ClientPortalConfig } from '../../types';
-import PasswordConfig from './PasswordConfig';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import { CONFIGURATIONS } from "../../constants";
+import { ClientPortalConfig } from "../../types";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexContent } from "@erxes/ui/src/layout/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { Formgroup } from "@erxes/ui/src/components/form/styles";
+import PasswordConfig from "./PasswordConfig";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -39,18 +40,19 @@ function General({
   erxesAppToken,
   otpConfig,
   mailConfig,
+  twoFactorConfig,
   socialpayConfig,
   name,
   manualVerificationConfig,
   passwordVerificationConfig,
-  tokenPassMethod = 'cookie',
+  tokenPassMethod = "cookie",
   tokenExpiration = 1,
   refreshTokenExpiration = 7,
   testUserEmail,
   testUserPhone,
   testUserPassword,
   testUserOTP,
-  handleFormChange
+  handleFormChange,
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
     otpConfig ? true : false
@@ -60,9 +62,11 @@ function General({
     mailConfig ? true : false
   );
 
-  const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
-    boolean
-  >(manualVerificationConfig ? true : false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(
+    twoFactorConfig ? true : false
+  );
+  const [manualVerificationEnabled, setManualVerificationEnabled] =
+    useState<boolean>(manualVerificationConfig ? true : false);
 
   const [userIds] = useState<string[]>(
     manualVerificationConfig ? manualVerificationConfig.userIds : []
@@ -76,78 +80,105 @@ function General({
     manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
   );
 
-  const onSelectUsers = values => {
-    handleFormChange('manualVerificationConfig', {
+  const smsConfigs = CONFIGURATIONS;
+
+  if (isEnabled("mobinet")) {
+    smsConfigs.push({
+      value: "mobinet",
+      label: "mobinet",
+    });
+  }
+
+  const onSelectUsers = (values) => {
+    handleFormChange("manualVerificationConfig", {
       userIds: values,
       verifyCompany,
-      verifyCustomer
+      verifyCustomer,
     });
   };
 
   const onChangeToggle = (type: string, value: boolean) => {
-    if (type === 'otpEnabled') {
+    if (type === "otpEnabled") {
       setOtpEnabled(value);
 
       if (!value) {
-        handleFormChange('otpConfig', null);
+        handleFormChange("otpConfig", null);
       } else {
-        handleFormChange('otpConfig', {
-          smsTransporterType: '',
+        handleFormChange("otpConfig", {
+          emailSubject: "OTP verification",
+          smsTransporterType: "",
           codeLength: 4,
-          content: 'Your verification code is {{ code }}',
+          content: "Your verification code is {{ code }}",
           expireAfter: 1,
-          loginWithOTP: false
+          loginWithOTP: false,
         });
       }
     }
 
-    if (type === 'mailEnabled') {
+    if (type === "mailEnabled") {
       setMailEnabled(value);
 
       if (!value) {
-        handleFormChange('mailConfig', null);
+        handleFormChange("mailConfig", null);
       }
     }
 
-    if (type === 'manualVerificationEnabled') {
+    if (type === "manualVerificationEnabled") {
       setManualVerificationEnabled(value);
 
       if (!value) {
-        handleFormChange('manualVerificationConfig', null);
+        handleFormChange("manualVerificationConfig", null);
       } else {
-        handleFormChange('manualVerificationConfig', {
+        handleFormChange("manualVerificationConfig", {
           userIds: [],
           verifyCustomer: false,
-          verifyCompany: false
+          verifyCompany: false,
         });
       }
     }
 
-    if (type === 'verifyCompany') {
+    if (type === "verifyCompany") {
       setVerifyCompany(value);
 
-      handleFormChange('manualVerificationConfig', {
+      handleFormChange("manualVerificationConfig", {
         userIds,
         verifyCompany: value,
-        verifyCustomer
+        verifyCustomer,
       });
     }
 
-    if (type === 'verifyCustomer') {
+    if (type === "verifyCustomer") {
       setVerifyCustomer(value);
 
-      handleFormChange('manualVerificationConfig', {
+      handleFormChange("manualVerificationConfig", {
         userIds,
         verifyCompany,
-        verifyCustomer: value
+        verifyCustomer: value,
       });
+    }
+
+    if (type === "twoFactorEnabled") {
+      setTwoFactorEnabled(value);
+
+      if (!value) {
+        handleFormChange("twoFactorConfig", null);
+      } else {
+        handleFormChange("twoFactorConfig", {
+          emailSubject: "OTP verification",
+          smsTransporterType: "",
+          codeLength: 4,
+          content: "Your verification code is {{ code }}",
+          expireAfter: 1,
+          loginWithOTP: false,
+        });
+      }
     }
   };
 
-  const onChangeConfiguration = option => {
-    handleFormChange('otpConfig', {
+  const onChangeConfiguration = (option) => {
+    handleFormChange("otpConfig", {
       ...otpConfig,
-      smsTransporterType: option.value
+      smsTransporterType: option.value,
     });
   };
 
@@ -158,7 +189,7 @@ function General({
     formValueName,
     formValue,
     placeholder,
-    formProps
+    formProps,
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       handleFormChange(
@@ -185,24 +216,28 @@ function General({
   }
 
   const renderOtp = () => {
-    const obj = otpConfig || {
-      content: '',
-      codeLength: 4,
-      smsTransporterType: 'messagePro',
-      loginWithOTP: false,
-      expireAfter: 1
+    const obj = {
+      ...(otpConfig || {
+        emailSubject: "OTP Verification",
+        content: "",
+        codeLength: 4,
+        smsTransporterType: "messagePro",
+        loginWithOTP: false,
+        expireAfter: 1,
+      }),
     };
-    const handleChange = e => {
+
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
       obj[key] = value;
 
-      if (key === 'content') {
+      if (key === "content") {
         let content = value;
 
-        const base = ' {{ code }} ';
-        const regex = new RegExp('[sS]*?' + base + '[sS]*?', 'i');
+        const base = " {{ code }} ";
+        const regex = new RegExp("[sS]*?" + base + "[sS]*?", "i");
 
         if (!regex.test(value)) {
           content = content.replace(/{{ code }}/g, base);
@@ -210,31 +245,35 @@ function General({
             content = base;
           }
 
-          content = content.replace('  ', ' ');
+          content = content.replace("  ", " ");
         }
 
         obj.content = content;
       }
 
-      if (['codeLength', 'expireAfter'].includes(key)) {
+      if (["codeLength", "expireAfter"].includes(key)) {
         obj[key] = Number(value);
       }
 
-      if (key === 'loginWithOTP') {
+      if (key === "loginWithOTP") {
         obj[key] = e.currentTarget.checked;
       }
 
-      handleFormChange('otpConfig', obj);
+      handleFormChange("otpConfig", obj);
     };
 
+    const options = smsConfigs.filter((obj, index) => {
+      return index === smsConfigs.findIndex((o) => obj.value === o.value);
+    });
+
     return (
-      <CollapseContent title={__('Mobile OTP')} compact={true} open={false}>
+      <CollapseContent title={__("OTP")} compact={true} open={false}>
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>{__('Enable OTP config')}</ControlLabel>
             <Toggle
               checked={otpEnabled}
-              onChange={() => onChangeToggle('otpEnabled', !otpEnabled)}
+              onChange={() => onChangeToggle("otpEnabled", !otpEnabled)}
               icons={{
                 checked: <span>{__('Yes')}</span>,
                 unchecked: <span>{__('No')}</span>
@@ -249,15 +288,32 @@ function General({
               <ControlLabel>{__('Sms Configuration')}</ControlLabel>
               <Select
                 placeholder={__('Choose a configuration')}
-                value={obj.smsTransporterType}
-                options={CONFIGURATIONS}
+                value={options.find((o) => o.value === obj.smsTransporterType)}
+                options={smsConfigs.filter((obj, index) => {
+                  return (
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
+                  );
+                })}
+                isClearable={true}
                 name="SMS Configuration"
                 onChange={onChangeConfiguration}
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel required={true}>{__('Content')}</ControlLabel>
-              <p>{__('OTP message body')}</p>
+              <ControlLabel>{__("emailSubject")}</ControlLabel>
+              <p>{__("OTP email subject")}</p>
+              <FlexContent>
+                <FormControl
+                  id="emailSubject"
+                  name="emailSubject"
+                  value={obj.emailSubject}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__("Content")}</ControlLabel>
+              <p>{__("OTP body")}</p>
               <FlexContent>
                 <FormControl
                   id="content"
@@ -279,7 +335,7 @@ function General({
                   name="codeLength"
                   value={obj.codeLength}
                   onChange={handleChange}
-                  type={'number'}
+                  type={"number"}
                   min={4}
                 />
               </FlexContent>
@@ -294,7 +350,7 @@ function General({
                   name="expireAfter"
                   value={obj.expireAfter}
                   onChange={handleChange}
-                  type={'number'}
+                  type={"number"}
                   min={1}
                   max={10}
                 />
@@ -312,7 +368,7 @@ function General({
                   name="loginWithOTP"
                   checked={obj.loginWithOTP}
                   onChange={handleChange}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                 />
               </FlexContent>
             </FormGroup>
@@ -321,25 +377,191 @@ function General({
       </CollapseContent>
     );
   };
+  const renderTwoFactor = () => {
+    const obj = {
+      ...(twoFactorConfig || {
+        emailSubject: "2 Factor Auth",
+        content: "",
+        codeLength: 4,
+        smsTransporterType: "messagePro",
+        enableTwoFactor: false,
+        expireAfter: 1,
+      }),
+    };
+    const handleChange = (e) => {
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
 
-  const renderSocialPayConfig = () => {
-    const config = socialpayConfig || {
-      certId: '',
-      publicKey: ''
+      obj[key] = value;
+
+      if (key === "content") {
+        let content = value;
+
+        const base = " {{ code }} ";
+        const regex = new RegExp("[sS]*?" + base + "[sS]*?", "i");
+
+        if (!regex.test(value)) {
+          content = content.replace(/{{ code }}/g, base);
+          if (content.search(base) === -1) {
+            content = base;
+          }
+
+          content = content.replace("  ", " ");
+        }
+
+        obj.content = content;
+      }
+
+      if (["codeLength", "expireAfter"].includes(key)) {
+        obj[key] = Number(value);
+      }
+
+      if (key === "enableTwoFactor") {
+        obj[key] = e.currentTarget.checked;
+      }
+
+      handleFormChange("twoFactorConfig", obj);
     };
 
-    const handleChange = e => {
+    const onChangeConfiguration = (option) => {
+      handleFormChange("twoFactorConfig", {
+        ...twoFactorConfig,
+        smsTransporterType: option.value,
+      });
+    };
+
+    return (
+      <CollapseContent
+        title={__("2 Factor Authentication")}
+        compact={true}
+        open={false}
+      >
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable 2 Factor Authentication config</ControlLabel>
+            <Toggle
+              checked={twoFactorEnabled}
+              onChange={() =>
+                onChangeToggle("twoFactorEnabled", !twoFactorEnabled)
+              }
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>,
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
+
+        {twoFactorEnabled && (
+          <>
+            <FormGroup>
+              <ControlLabel>2FA Sms Configuration</ControlLabel>
+              <Select
+                placeholder="Choose a configuration"
+                value={smsConfigs.find(
+                  (o) => o.value === obj.smsTransporterType
+                )}
+                options={smsConfigs.filter((obj, index) => {
+                  return (
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
+                  );
+                })}
+                name="SMS Configuration"
+                onChange={onChangeConfiguration}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>emailSubject</ControlLabel>
+              <p>2FA email subject</p>
+              <FlexContent>
+                <FormControl
+                  id="emailSubject"
+                  name="emailSubject"
+                  value={obj.emailSubject}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Content</ControlLabel>
+              <p>2FA body</p>
+              <FlexContent>
+                <FormControl
+                  id="content"
+                  name="content"
+                  value={obj.content}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>2FA code length</ControlLabel>
+              <p>2FA code length</p>
+              <FlexContent>
+                <FormControl
+                  id="codeLength"
+                  name="codeLength"
+                  value={obj.codeLength}
+                  onChange={handleChange}
+                  type={"number"}
+                  min={4}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>OTP expiry</ControlLabel>
+              <p>{"OTP expiration duration (min)"}</p>
+              <FlexContent>
+                <FormControl
+                  id="expireAfter"
+                  name="expireAfter"
+                  value={obj.expireAfter}
+                  onChange={handleChange}
+                  type={"number"}
+                  min={1}
+                  max={10}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>2FA enable</ControlLabel>
+              <p>activate 2FA</p>
+              <FlexContent>
+                <FormControl
+                  id="enableTwoFactor"
+                  name="enableTwoFactor"
+                  checked={obj.enableTwoFactor}
+                  onChange={handleChange}
+                  componentclass="checkbox"
+                />
+              </FlexContent>
+            </FormGroup>
+          </>
+        )}
+      </CollapseContent>
+    );
+  };
+  const renderSocialPayConfig = () => {
+    const config = socialpayConfig || {
+      certId: "",
+      publicKey: "",
+    };
+
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
       config[key] = value;
 
-      handleFormChange('socialpayConfig', config);
+      handleFormChange("socialpayConfig", config);
     };
 
     return (
       <CollapseContent
-        title={__('SocialPay Config')}
+        title={__("SocialPay Config")}
         compact={true}
         open={false}
       >
@@ -376,31 +598,29 @@ function General({
     const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
       invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
-      subject: `${name} - invitation`
+      subject: `${name} - invitation`,
     };
 
     const onChangeSubject = (e: React.FormEvent) => {
       obj.subject = (e.currentTarget as HTMLInputElement).value;
-      handleFormChange('mailConfig', obj);
+      handleFormChange("mailConfig", obj);
     };
 
-    const onEditorChange = e => {
-      const value = e.editor.getData();
-      const editorNumber: number =
-        e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
+    const onEditorChange = (type: string) => (content: string) => {
+      const value = content;
 
-      if (editorNumber % 2 !== 0) {
+      if (type === "registrationContent") {
         obj.registrationContent = value;
-      } else {
+      } else if (type === "invitationContent") {
         obj.invitationContent = value;
       }
 
-      handleFormChange('mailConfig', obj);
+      handleFormChange("mailConfig", obj);
     };
 
     return (
       <CollapseContent
-        title={__('Confirmation mail settings')}
+        title={__("Confirmation mail settings")}
         compact={true}
         open={false}
       >
@@ -409,10 +629,10 @@ function General({
             <ControlLabel>{__('Enable mail config')}</ControlLabel>
             <Toggle
               checked={mailEnabled}
-              onChange={() => onChangeToggle('mailEnabled', !mailEnabled)}
+              onChange={() => onChangeToggle("mailEnabled", !mailEnabled)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -438,20 +658,20 @@ function General({
               </ControlLabel>
               <p>{__('Registration mail body')}</p>
               <FlexContent>
-                <EditorCK
-                  content={obj.registrationContent || ''}
-                  onChange={onEditorChange}
+                <RichTextEditor
+                  content={obj.registrationContent || ""}
+                  onChange={onEditorChange("registrationContent")}
                   height={300}
-                  name={'registrationContent'}
-                  insertItems={{
+                  name="registrationContent"
+                  placeholderProp={{
                     items: [
                       {
-                        value: 'link',
-                        name: 'Link'
-                      }
+                        value: "link",
+                        name: "Link",
+                      },
                     ],
-                    title: 'Attributes',
-                    label: 'Attributes'
+                    title: "Attributes",
+                    label: "Attributes",
                   }}
                 />
               </FlexContent>
@@ -463,24 +683,24 @@ function General({
               </ControlLabel>
               <p>{__('Invitation mail body')}</p>
               <FlexContent>
-                <EditorCK
-                  content={obj.invitationContent || ''}
-                  onChange={onEditorChange}
+                <RichTextEditor
+                  content={obj.invitationContent || ""}
+                  onChange={onEditorChange("invitationContent")}
                   height={300}
-                  name={'invitationContent'}
-                  insertItems={{
+                  name="invitationContent"
+                  placeholderProp={{
                     items: [
                       {
-                        value: 'link',
-                        name: 'Link'
+                        value: "link",
+                        name: "Link",
                       },
                       {
-                        value: 'password',
-                        name: 'Password'
-                      }
+                        value: "password",
+                        name: "Password",
+                      },
                     ],
-                    title: 'Attributes',
-                    label: 'Attributes'
+                    title: "Attributes",
+                    label: "Attributes",
                   }}
                 />
               </FlexContent>
@@ -494,7 +714,7 @@ function General({
   const renderManualVerification = () => {
     return (
       <CollapseContent
-        title={__('Manual verification')}
+        title={__("Manual verification")}
         compact={true}
         open={false}
       >
@@ -505,13 +725,13 @@ function General({
               checked={manualVerificationEnabled}
               onChange={() =>
                 onChangeToggle(
-                  'manualVerificationEnabled',
+                  "manualVerificationEnabled",
                   !manualVerificationEnabled
                 )
               }
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -519,9 +739,9 @@ function General({
         {manualVerificationEnabled && (
           <>
             <FormGroup>
-              <ControlLabel required={true}>{__('Team members')}</ControlLabel>
+              <ControlLabel required={true}>{__("Team members")}</ControlLabel>
 
-              <p>{__('Select team members who can verify')}</p>
+              <p>{__("Select team members who can verify")}</p>
               <SelectTeamMembers
                 label={__('Select team members')}
                 name="userIds"
@@ -537,11 +757,11 @@ function General({
                 <Toggle
                   checked={verifyCustomer}
                   onChange={() =>
-                    onChangeToggle('verifyCustomer', !verifyCustomer)
+                    onChangeToggle("verifyCustomer", !verifyCustomer)
                   }
                   icons={{
                     checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    unchecked: <span>No</span>,
                   }}
                 />
               </FormGroup>
@@ -553,11 +773,11 @@ function General({
                 <Toggle
                   checked={verifyCompany}
                   onChange={() =>
-                    onChangeToggle('verifyCompany', !verifyCompany)
+                    onChangeToggle("verifyCompany", !verifyCompany)
                   }
                   icons={{
                     checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    unchecked: <span>No</span>,
                   }}
                 />
               </FormGroup>
@@ -584,11 +804,11 @@ function General({
               )}
             </p>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               placeholder="select"
               value={tokenPassMethod}
               onChange={(e: any) =>
-                handleFormChange('tokenPassMethod', e.currentTarget.value)
+                handleFormChange("tokenPassMethod", e.currentTarget.value)
               }
             >
               <option value="cookie">{__('Cookie')}</option>
@@ -600,7 +820,7 @@ function General({
             <ControlLabel>{__('Token expiration duration')}</ControlLabel>
             <p>{__('shortDuration')}</p>
             <FormControl
-              componentClass="input"
+              componentclass="input"
               placeholder="token expiration duration"
               type="number"
               min={1}
@@ -608,7 +828,7 @@ function General({
               value={tokenExpiration}
               onChange={(e: any) =>
                 handleFormChange(
-                  'tokenExpiration',
+                  "tokenExpiration",
                   Number(e.currentTarget.value)
                 )
               }
@@ -629,7 +849,7 @@ function General({
               value={refreshTokenExpiration}
               onChange={(e: any) =>
                 handleFormChange(
-                  'refreshTokenExpiration',
+                  "refreshTokenExpiration",
                   Number(e.currentTarget.value)
                 )
               }
@@ -638,7 +858,7 @@ function General({
         </BlockRow>
       </CollapseContent>
       <CollapseContent
-        title={__('Test user settings')}
+        title={__("Test user settings")}
         compact={true}
         open={false}
       >
@@ -669,6 +889,7 @@ function General({
         </BlockRow>
       </CollapseContent>
       {renderOtp()}
+      {renderTwoFactor()}
       {renderSocialPayConfig()}
       {renderMailConfig()}
       <PasswordConfig
@@ -678,7 +899,7 @@ function General({
       {renderManualVerification()}
 
       <CollapseContent
-        title={__('Google Application Credentials')}
+        title={__("Google Application Credentials")}
         compact={true}
         open={false}
       >
@@ -704,7 +925,7 @@ function General({
         })}
       </CollapseContent>
       <CollapseContent
-        title={__('Facebook Application Credentials')}
+        title={__("Facebook Application Credentials")}
         compact={true}
         open={false}
       >
@@ -715,7 +936,7 @@ function General({
         })}
       </CollapseContent>
       <CollapseContent
-        title={__('Erxes App Token')}
+        title={__("Erxes App Token")}
         compact={true}
         open={false}
       >

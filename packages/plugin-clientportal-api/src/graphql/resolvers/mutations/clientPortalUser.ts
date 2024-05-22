@@ -1,4 +1,3 @@
-import { sendRequest } from '@erxes/api-utils/src';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
@@ -10,19 +9,23 @@ import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
-  IUser
+  IUser,
+  ITwoFactorDevice,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
+import fetch from 'node-fetch';
+import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
 
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
   phoneOtp?: string;
   password?: string;
+  twoFactor?: ITwoFactorDevice;
 }
 
 interface IClientPortalUserEdit extends IUser {
@@ -55,7 +58,7 @@ const clientPortalUserMutations = {
       token,
       password,
       passwordConfirmation,
-      username
+      username,
     }: {
       token: string;
       password?: string;
@@ -68,7 +71,7 @@ const clientPortalUserMutations = {
       token,
       password,
       passwordConfirmation,
-      username
+      username,
     });
 
     return user;
@@ -109,7 +112,7 @@ const clientPortalUserMutations = {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.createUser(subdomain, {
-      ...args
+      ...args,
     });
 
     return user._id;
@@ -120,9 +123,9 @@ const clientPortalUserMutations = {
     args: IVerificationParams,
     context: IContext
   ) => {
-    const { models, res } = context;
+    const { models, res, subdomain } = context;
 
-    const user = await models.ClientPortalUsers.verifyUser(args);
+    const user = await models.ClientPortalUsers.verifyUser(subdomain, args);
 
     if (!user) {
       throw new Error('User not found');
@@ -134,8 +137,8 @@ const clientPortalUserMutations = {
 
     const optConfig = clientPortal.otpConfig;
 
-    if (args.phoneOtp && optConfig && optConfig.loginWithOTP) {
-      return tokenHandler(user, clientPortal, res);
+    if (optConfig && optConfig.loginWithOTP) {
+      return tokenHandler(user, clientPortal, res, false);
     }
 
     return 'verified';
@@ -159,9 +162,16 @@ const clientPortalUserMutations = {
     args: ILoginParams,
     { models, res }: IContext
   ) => {
-    const { user, clientPortal } = await models.ClientPortalUsers.login(args);
+    const { user, clientPortal, isPassed2FA } =
+      await models.ClientPortalUsers.login(args);
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(
+      user,
+      clientPortal,
+      res,
+      clientPortal.twoFactorConfig?.enableTwoFactor,
+      isPassed2FA
+    );
   },
 
   clientPortalFacebookAuthentication: async (
@@ -172,17 +182,17 @@ const clientPortalUserMutations = {
     const { clientPortalId, accessToken } = args;
 
     try {
-      const response = await sendRequest({
-        url: 'https://graph.facebook.com/v12.0/me',
-        method: 'GET',
-        params: {
-          access_token: accessToken,
-          fields:
-            'id,name,email,gender,education,work,picture,last_name,first_name'
-        }
-      });
+      const response = await fetch(
+        'https://graph.facebook.com/v12.0/me?' +
+          new URLSearchParams({
+            access_token: accessToken,
+            fields:
+              'id,name,email,gender,education,work,picture,last_name,first_name',
+          })
+      ).then(r => r.json());
+
       const { id, name, email, picture, first_name, last_name } =
-        response || [];
+        response || {};
       let qry: any = {};
       let user: any = {};
 
@@ -198,9 +208,9 @@ const clientPortalUserMutations = {
         subdomain,
         action: 'customers.findOne',
         data: {
-          customerPrimaryEmail: email
+          customerPrimaryEmail: email,
         },
-        isRPC: true
+        isRPC: true,
       });
       if (customer) {
         qry = { erxesCustomerId: customer._id, clientPortalId };
@@ -217,7 +227,7 @@ const clientPortalUserMutations = {
           firstName: first_name,
           lastName: last_name,
           clientPortalId,
-          isEmailVerified: email ? true : false
+          isEmailVerified: email ? true : false,
         });
       }
 
@@ -231,9 +241,9 @@ const clientPortalUserMutations = {
             primaryEmail: trimmedMail,
             state: 'lead',
             avatar: picture?.data?.url,
-            emailValidationStatus: email && 'valid'
+            emailValidationStatus: email && 'valid',
           },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -249,7 +259,7 @@ const clientPortalUserMutations = {
         user.clientPortalId
       );
 
-      return tokenHandler(user, clientPortal, res);
+      return tokenHandler(user, clientPortal, res, false);
     } catch (e) {
       throw new Error(e.message);
     }
@@ -269,22 +279,24 @@ const clientPortalUserMutations = {
     }
 
     const getGoogleOauthToken = async ({
-      authCode
+      authCode,
     }: {
       authCode: string;
     }): Promise<IGoogleOauthToken> => {
       try {
-        const authResponse = await sendRequest({
-          url: 'https://oauth2.googleapis.com/token',
-          method: 'POST',
-          params: {
-            code: authCode,
-            client_id: clientPortals.googleClientId || '',
-            grant_type: 'authorization_code',
-            client_secret: clientPortals.googleClientSecret || '',
-            redirect_uri: clientPortals.googleRedirectUri || ''
+        const authResponse = await fetch(
+          'https://oauth2.googleapis.com/token?' +
+            new URLSearchParams({
+              code: authCode,
+              client_id: clientPortals.googleClientId || '',
+              grant_type: 'authorization_code',
+              client_secret: clientPortals.googleClientSecret || '',
+              redirect_uri: clientPortals.googleRedirectUri || '',
+            }),
+          {
+            method: 'POST',
           }
-        });
+        ).then(r => r.json());
         return authResponse;
       } catch (err) {
         throw new Error(err);
@@ -293,23 +305,24 @@ const clientPortalUserMutations = {
 
     async function getGoogleUser({
       id_token,
-      access_token
+      access_token,
     }: {
       id_token: string;
       access_token: string;
     }): Promise<IGoogleUserResult> {
       try {
-        const userResponse = await sendRequest({
-          url: 'https://www.googleapis.com/oauth2/v1/userinfo',
-          method: 'GET',
-          params: {
-            alt: 'json',
-            access_token
-          },
-          headers: {
-            Authorization: `Bearer ${id_token}`
+        const userResponse = await fetch(
+          'https://www.googleapis.com/oauth2/v1/userinfo?' +
+            new URLSearchParams({
+              alt: 'json',
+              access_token,
+            }),
+          {
+            headers: {
+              Authorization: `Bearer ${id_token}`,
+            },
           }
-        });
+        ).then(r => r.json());
         return userResponse;
       } catch (err) {
         throw Error(err);
@@ -320,17 +333,11 @@ const clientPortalUserMutations = {
     const response = await getGoogleOauthToken({ authCode: code });
 
     // Use the token to get the User
-    const {
-      name,
-      email,
-      picture,
-      id,
-      family_name,
-      given_name
-    } = await getGoogleUser({
-      id_token: response.id_token,
-      access_token: response.access_token
-    });
+    const { name, email, picture, id, family_name, given_name } =
+      await getGoogleUser({
+        id_token: response.id_token,
+        access_token: response.access_token,
+      });
     let qry: any = {};
     let user: any = {};
 
@@ -346,9 +353,9 @@ const clientPortalUserMutations = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: email
+        customerPrimaryEmail: email,
       },
-      isRPC: true
+      isRPC: true,
     });
     if (customer) {
       qry = { erxesCustomerId: customer._id, clientPortalId };
@@ -368,7 +375,7 @@ const clientPortalUserMutations = {
         lastName: family_name,
         firstName: given_name,
         isEmailVerified: true,
-        clientPortalId
+        clientPortalId,
       });
     } else {
       user.avatar = picture;
@@ -381,8 +388,8 @@ const clientPortalUserMutations = {
             avatar: picture,
             lastName: family_name,
             firstName: given_name,
-            isEmailVerified: true
-          }
+            isEmailVerified: true,
+          },
         }
       );
     }
@@ -397,9 +404,9 @@ const clientPortalUserMutations = {
           primaryEmail: trimmedMail,
           state: 'lead',
           avatar: picture,
-          emailValidationStatus: 'valid'
+          emailValidationStatus: 'valid',
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -415,7 +422,7 @@ const clientPortalUserMutations = {
       user.clientPortalId
     );
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(user, clientPortal, res, false);
   },
 
   /*
@@ -425,7 +432,7 @@ const clientPortalUserMutations = {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
-      httpOnly: true
+      httpOnly: true,
     };
 
     if (!['test', 'development'].includes(NODE_ENV)) {
@@ -454,7 +461,7 @@ const clientPortalUserMutations = {
   ) {
     return models.ClientPortalUsers.changePassword({
       _id: (cpUser && cpUser._id) || '',
-      ...args
+      ...args,
     });
   },
 
@@ -463,7 +470,12 @@ const clientPortalUserMutations = {
    */
   clientPortalResetPasswordWithCode(
     _root,
-    args: { phone: string; password: string; code: string },
+    args: {
+      phone: string;
+      password: string;
+      code: string;
+      isSecondary: boolean;
+    },
     { models }: IContext
   ) {
     return models.ClientPortalUsers.changePasswordWithCode(args);
@@ -479,10 +491,15 @@ const clientPortalUserMutations = {
 
   async clientPortalForgotPassword(
     _root,
-    args: { clientPortalId: string; phone: string; email: string },
+    args: {
+      clientPortalId: string;
+      phone: string;
+      email: string;
+      isSecondary: boolean;
+    },
     { models, subdomain }: IContext
   ) {
-    const { clientPortalId, phone, email } = args;
+    const { clientPortalId, phone, email, isSecondary = false } = args;
     const query: any = { clientPortalId };
 
     if (!phone && !email) {
@@ -505,19 +522,20 @@ const clientPortalUserMutations = {
       email
     );
 
-    const passwordVerificationConfig = clientPortal.passwordVerificationConfig || {
-      verifyByOTP: false,
-      smsContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
-      emailSubject: 'Reset password',
-      emailContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`
-    };
+    const passwordVerificationConfig =
+      clientPortal.passwordVerificationConfig || {
+        verifyByOTP: false,
+        smsContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
+        emailSubject: 'Reset password',
+        emailContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
+      };
 
     const verifyByLink = !passwordVerificationConfig.verifyByOTP;
 
     const config = clientPortal.otpConfig || {
       content: '',
       smsTransporterType: 'messagepro',
-      codeLength: 4
+      codeLength: 4,
     };
 
     if (phone) {
@@ -549,10 +567,10 @@ const clientPortalUserMutations = {
         template: {
           name: 'base',
           data: {
-            content: emailContent
-          }
-        }
-      }
+            content: emailContent,
+          },
+        },
+      },
     });
 
     return 'sent';
@@ -566,8 +584,15 @@ const clientPortalUserMutations = {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.invite(subdomain, {
-      ...args
+      ...args,
     });
+
+    if (args.erxesCompanyId) {
+      await models.Companies.createOrUpdateCompany({
+        erxesCompanyId: args.erxesCompanyId,
+        clientPortalId: args.clientPortalId,
+      });
+    }
 
     return user;
   },
@@ -586,7 +611,7 @@ const clientPortalUserMutations = {
       smsTransporterType: '',
       codeLength: 4,
       loginWithOTP: false,
-      expireAfter: 5
+      expireAfter: 5,
     };
 
     if (!config.loginWithOTP) {
@@ -606,7 +631,7 @@ const clientPortalUserMutations = {
       if (clientPortal?.testUserPhone && clientPortal._id) {
         const cpUser = await models.ClientPortalUsers.findOne({
           firstName: 'test clientportal user',
-          clientPortalId: clientPortal._id
+          clientPortalId: clientPortal._id,
         });
 
         if (cpUser) {
@@ -626,15 +651,14 @@ const clientPortalUserMutations = {
             clientPortal?.testUserOTP &&
             config.codeLength === clientPortal?.testUserOTP?.toString().length
           ) {
-            const testPhoneCode = await models.ClientPortalUsers.imposeVerificationCode(
-              {
+            const testPhoneCode =
+              await models.ClientPortalUsers.imposeVerificationCode({
                 clientPortalId: clientPortal._id,
                 codeLength: config.codeLength,
                 phone: clientPortal?.testUserPhone,
                 expireAfter: config.expireAfter,
-                testUserOTP: clientPortal?.testUserOTP
-              }
-            );
+                testUserOTP: clientPortal?.testUserOTP,
+              });
 
             const body =
               config.content.replace(/{.*}/, testPhoneCode) ||
@@ -642,7 +666,9 @@ const clientPortalUserMutations = {
 
             await sendSms(
               subdomain,
-              'messagePro',
+              config.smsTransporterType
+                ? config.smsTransporterType
+                : 'messagePro',
               clientPortal?.testUserPhone,
               body
             );
@@ -659,7 +685,7 @@ const clientPortalUserMutations = {
       clientPortalId: clientPortal._id,
       codeLength: config.codeLength,
       phone: user.phone,
-      expireAfter: config.expireAfter
+      expireAfter: config.expireAfter,
     });
 
     if (phoneCode) {
@@ -667,10 +693,341 @@ const clientPortalUserMutations = {
         config.content.replace(/{.*}/, phoneCode) ||
         `Your verification code is ${phoneCode}`;
 
-      await sendSms(subdomain, 'messagePro', phone, body);
+      await sendSms(
+        subdomain,
+        config.smsTransporterType ? config.smsTransporterType : 'messagePro',
+        phone,
+        body
+      );
     }
 
     return { userId: user._id, message: 'Sms sent' };
+  },
+
+  clientPortal2FAGetCode: async (
+    _root,
+    args: {
+      byPhone: boolean;
+      byEmail: boolean;
+      deviceToken?: string;
+    },
+    { models, subdomain, res, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+    const { byPhone, byEmail, deviceToken } = args;
+
+    const clientPortal = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
+
+    const config = clientPortal.twoFactorConfig || {
+      content: '',
+      smsTransporterType: '',
+      codeLength: 4,
+      enableTwoFactor: false,
+      expireAfter: 5,
+    };
+
+    if (!config.enableTwoFactor) {
+      throw new Error('Login with 2FA is not enabled');
+    }
+
+    const doc = { phone: cpUser.phone, email: cpUser.email };
+
+    try {
+      if (clientPortal?.testUserPhone && clientPortal._id) {
+        const cpUser = await models.ClientPortalUsers.findOne({
+          firstName: 'test clientportal user',
+          clientPortalId: clientPortal._id,
+        });
+
+        if (cpUser) {
+          if (!clientPortal?.testUserOTP) {
+            throw new Error('Test user phone otp not provided!');
+          }
+
+          if (
+            config.codeLength !== clientPortal?.testUserOTP?.toString().length
+          ) {
+            throw new Error(
+              'Client portal otp config and test user otp does not same length!'
+            );
+          }
+
+          if (
+            clientPortal?.testUserOTP &&
+            config.codeLength === clientPortal?.testUserOTP?.toString().length
+          ) {
+            const testPhoneCode =
+              await models.ClientPortalUsers.imposeVerificationCode({
+                clientPortalId: clientPortal._id,
+                codeLength: config.codeLength,
+                phone: clientPortal?.testUserPhone,
+                expireAfter: config.expireAfter,
+                testUserOTP: clientPortal?.testUserOTP,
+              });
+
+            const body =
+              config.content.replace(/{.*}/, testPhoneCode) ||
+              `Your verification code is ${testPhoneCode}`;
+
+            await sendSms(
+              subdomain,
+              config.smsTransporterType
+                ? config.smsTransporterType
+                : 'messagePro',
+              clientPortal?.testUserPhone,
+              body
+            );
+          }
+
+          return { userId: cpUser._id, message: 'Sms sent' };
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+    if (byPhone) {
+      if (!cpUser.phone) {
+        throw new Error("User doesn't have phone");
+      }
+      const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
+        clientPortalId: clientPortal._id,
+        codeLength: config.codeLength,
+        phone: cpUser.phone,
+        expireAfter: config.expireAfter,
+      });
+
+      if (phoneCode) {
+        const body =
+          config.content.replace(/{.*}/, phoneCode) ||
+          `Your verification code is ${phoneCode}`;
+
+        await sendSms(
+          subdomain,
+          config.smsTransporterType ? config.smsTransporterType : 'messagePro',
+          cpUser.phone,
+          body
+        );
+      }
+      return { userId: cpUser._id, message: 'Sms sent' };
+    }
+
+    if (cpUser.email && byEmail) {
+      if (!cpUser.email) {
+        throw new Error("User doesn't have email");
+      }
+      const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
+        clientPortalId: clientPortal._id,
+        codeLength: config.codeLength,
+        email: cpUser.email,
+        expireAfter: config.expireAfter,
+      });
+
+      if (emailCode) {
+        const body =
+          config.content.replace(/{.*}/, emailCode) ||
+          `Your OTP is ${emailCode}`;
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [cpUser.email],
+            title: config.emailSubject || 'OTP verification',
+            template: {
+              name: 'base',
+              data: {
+                content: body,
+              },
+            },
+          },
+        });
+      }
+      return { userId: cpUser._id, message: 'Sent' };
+    }
+  },
+
+  clientPortalVerify2FA: async (
+    _root,
+    args: { emailOtp?: string; phoneOtp?: string; twoFactor: ITwoFactorDevice },
+    context: IContext
+  ) => {
+    const { models, res, subdomain, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+
+    if (!args.twoFactor) {
+      throw new Error('Provide Two Factor Params.');
+    }
+
+    const clientPortal = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
+
+    const twoFactorConfig = clientPortal.twoFactorConfig;
+    const user = await models.ClientPortalUsers.verifyUser(subdomain, {
+      emailOtp: args.emailOtp,
+      phoneOtp: args.phoneOtp,
+      twoFactor: args.twoFactor,
+      userId: cpUser.id,
+    });
+
+    if (twoFactorConfig && twoFactorConfig.enableTwoFactor) {
+      const twoFactorDevices: ITwoFactorDevice[] =
+        cpUser.twoFactorDevices || [];
+      if (!twoFactorDevices.includes(args.twoFactor)) {
+        twoFactorDevices.push(args.twoFactor);
+        await cpUser.update({ $set: { twoFactorDevices } });
+      }
+      return tokenHandler(
+        cpUser,
+        clientPortal,
+        res,
+        twoFactorConfig.enableTwoFactor,
+        true
+      );
+    }
+
+    return '2Factor not enabled';
+  },
+
+  clientPortal2FADeleteKey: async (
+    _root,
+    args: { key: string },
+    context: IContext
+  ) => {
+    const { models, res, subdomain, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+
+    const pull = await models.ClientPortalUsers.updateOne(
+      { _id: cpUser.id },
+      { $pull: { twoFactorDevices: { key: args.key } } }
+    );
+
+    return 'success';
+  },
+  clientPortalLoginWithMailOTP: async (
+    _root,
+    args: { email: string; clientPortalId: string; deviceToken },
+    { models, subdomain, res }: IContext
+  ) => {
+    const { email, clientPortalId, deviceToken } = args;
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+    const config = clientPortal.otpConfig || {
+      content: '',
+      codeLength: 4,
+      loginWithOTP: false,
+      expireAfter: 5,
+      emailSubject: 'Email verification',
+    };
+
+    if (!config.loginWithOTP) {
+      throw new Error('Login with OTP is not enabled');
+    }
+
+    const doc = { email };
+
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
+      subdomain,
+      clientPortal,
+      doc,
+      deviceToken
+    );
+
+    try {
+      if (clientPortal?.testUserEmail && clientPortal._id) {
+        const cpUser = await models.ClientPortalUsers.findOne({
+          firstName: 'test clientportal user',
+          clientPortalId: clientPortal._id,
+        });
+        if (cpUser) {
+          if (!clientPortal?.testUserOTP) {
+            throw new Error('Test user email otp not provided!');
+          }
+
+          if (
+            config.codeLength !== clientPortal?.testUserOTP?.toString().length
+          ) {
+            throw new Error(
+              'Client portal otp config and test user otp does not same length!'
+            );
+          }
+
+          if (
+            clientPortal?.testUserOTP &&
+            config.codeLength === clientPortal?.testUserOTP?.toString().length
+          ) {
+            const testEmailCode =
+              await models.ClientPortalUsers.imposeVerificationCode({
+                clientPortalId: clientPortal._id,
+                codeLength: config.codeLength,
+                email: clientPortal?.testUserEmail,
+                expireAfter: config.expireAfter,
+                testUserOTP: clientPortal?.testUserOTP,
+              });
+
+            const body =
+              config.content.replace(/{.*}/, testEmailCode) ||
+              `Your OTP is ${testEmailCode}`;
+
+            await sendCoreMessage({
+              subdomain,
+              action: 'sendEmail',
+              data: {
+                toEmails: [email],
+                title: config.emailSubject || 'OTP verification',
+                template: {
+                  name: 'base',
+                  data: {
+                    content: body,
+                  },
+                },
+              },
+            });
+          }
+
+          return { userId: user._id, message: 'sent' };
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
+    const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
+      clientPortalId: clientPortal._id,
+      codeLength: config.codeLength,
+      email: user.email,
+      expireAfter: config.expireAfter,
+    });
+
+    if (emailCode) {
+      const body =
+        config.content.replace(/{.*}/, emailCode) || `Your OTP is ${emailCode}`;
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: config.emailSubject || 'OTP verification',
+          template: {
+            name: 'base',
+            data: {
+              content: body,
+            },
+          },
+        },
+      });
+    }
+
+    return { userId: user._id, message: 'Sent' };
   },
 
   clientPortalLoginWithSocialPay: async (
@@ -683,14 +1040,8 @@ const clientPortalUserMutations = {
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
     const data = await fetchUserFromSocialpay(token, clientPortal);
-    const {
-      individualId,
-      mobileNumber,
-      email,
-      firstName,
-      lastName,
-      imgUrl
-    } = data;
+    const { individualId, mobileNumber, email, firstName, lastName, imgUrl } =
+      data;
 
     const doc = {
       firstName,
@@ -698,7 +1049,7 @@ const clientPortalUserMutations = {
       phone: mobileNumber,
       email,
       code: individualId,
-      avatar: imgUrl
+      avatar: imgUrl,
     };
 
     const user = await models.ClientPortalUsers.loginWithoutPassword(
@@ -707,7 +1058,7 @@ const clientPortalUserMutations = {
       doc
     );
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(user, clientPortal, res, false);
   },
 
   clientPortalUsersSendVerificationRequest: async (
@@ -727,9 +1078,9 @@ const clientPortalUserMutations = {
       $or: [
         { email: { $regex: new RegExp(`^${login}$`, 'i') } },
         { username: { $regex: new RegExp(`^${login}$`, 'i') } },
-        { phone: { $regex: new RegExp(`^${login}$`, 'i') } }
+        { phone: { $regex: new RegExp(`^${login}$`, 'i') } },
       ],
-      clientPortalId
+      clientPortalId,
     });
 
     if (!cpuser) {
@@ -756,7 +1107,7 @@ const clientPortalUserMutations = {
     const verificationRequest = {
       attachments,
       description,
-      status: 'pending'
+      status: 'pending',
     };
 
     await models.ClientPortalUsers.updateOne(
@@ -769,7 +1120,7 @@ const clientPortalUserMutations = {
       action: 'users.findOne',
       data: { role: 'system' },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     const { manualVerificationConfig } = await models.ClientPortals.getConfig(
@@ -790,8 +1141,8 @@ const clientPortalUserMutations = {
         link: `/settings/client-portal/users/details/${cpuser._id}`,
         createdUser: createdBy,
         receivers:
-          (manualVerificationConfig && manualVerificationConfig.userIds) || []
-      }
+          (manualVerificationConfig && manualVerificationConfig.userIds) || [],
+      },
     });
 
     return 'Verification request sent';
@@ -825,7 +1176,7 @@ const clientPortalUserMutations = {
       attachments: [],
       description: '',
       status: 'notVerified',
-      verifiedBy: user._id
+      verifiedBy: user._id,
     };
 
     verificationRequest.status = status;
@@ -851,7 +1202,7 @@ const clientPortalUserMutations = {
 
     const user = await models.ClientPortalUsers.findOne({
       clientPortalId,
-      phone
+      phone,
     });
 
     if (user && user._id === cpUser._id) {
@@ -874,7 +1225,7 @@ const clientPortalUserMutations = {
       smsTransporterType: 'messagePro',
       codeLength: 4,
       loginWithOTP: false,
-      expireAfter: 5
+      expireAfter: 5,
     };
 
     const code = randomize('0', config.codeLength);
@@ -888,7 +1239,7 @@ const clientPortalUserMutations = {
 
     await sendSms(
       subdomain,
-      config.smsTransporterType,
+      config.smsTransporterType ? config.smsTransporterType : 'messagePro',
       phone,
       config.content.replace(/{.*}/, code)
     );
@@ -941,7 +1292,7 @@ const clientPortalUserMutations = {
       subdomain,
       action: 'companies.findOne',
       data: { _id: erxesCompanyId },
-      isRPC: true
+      isRPC: true,
     });
 
     let setOps: any = { erxesCompanyId };
@@ -959,8 +1310,8 @@ const clientPortalUserMutations = {
           mainType: 'customer',
           mainTypeId: erxesCustomerId,
           relType: 'company',
-          relTypeId: erxesCompanyId
-        }
+          relTypeId: erxesCompanyId,
+        },
       });
     } catch (error) {
       throw new Error(error);
@@ -968,13 +1319,13 @@ const clientPortalUserMutations = {
 
     if (cpUser) {
       const cp = await models.ClientPortals.findOne({
-        _id: cpUser.clientPortalId
+        _id: cpUser.clientPortalId,
       }).lean();
 
       if (cp || cp.kind === 'vendor') {
         await models.Companies.createOrUpdateCompany({
           erxesCompanyId,
-          clientPortalId: cp._id
+          clientPortalId: cp._id,
         });
       }
     }
@@ -995,7 +1346,7 @@ const clientPortalUserMutations = {
       const user = await models.ClientPortalUsers.findOne({
         _id: { $ne: _id },
         phone: doc.phone,
-        clientPortalId: doc.clientPortalId
+        clientPortalId: doc.clientPortalId,
       });
 
       if (user) {
@@ -1041,7 +1392,7 @@ const clientPortalUserMutations = {
         );
 
         const { tokenExpiration = 1 } = clientPortal || {
-          tokenExpiration: 1
+          tokenExpiration: 1,
         };
 
         const cookieOptions: any = {};
@@ -1062,7 +1413,7 @@ const clientPortalUserMutations = {
           { userId: user._id, type: user.type } as any,
           process.env.JWT_TOKEN_SECRET || '',
           {
-            expiresIn: `${tokenExpiration}d`
+            expiresIn: `${tokenExpiration}d`,
           }
         );
 
@@ -1091,7 +1442,7 @@ const clientPortalUserMutations = {
       newPassword,
       oldPassword
     );
-  }
+  },
 };
 
 checkPermission(

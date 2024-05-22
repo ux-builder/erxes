@@ -1,11 +1,12 @@
+import React, { useState } from 'react';
+
+import Attachment from './Attachment';
+import { IAttachment } from '../types';
+import colors from '../styles/colors';
+import { rgba } from '../styles/ecolor';
 import { confirm } from '../utils';
 import { __ } from 'coreui/utils';
-import React, { useState } from 'react';
 import styled from 'styled-components';
-import { rgba } from '../styles/ecolor';
-import colors from '../styles/colors';
-import { IAttachment } from '../types';
-import Attachment from './Attachment';
 
 const List = styled.div`
   margin: 10px 0;
@@ -25,7 +26,7 @@ const Delete = styled.span`
   }
 `;
 
-const ToggleButton = styled(Delete.withComponent('div'))`
+const ToggleButton = styled(styled.div(Delete as any))`
   padding: 7px 15px;
   border-radius: 4px;
   margin-bottom: 15px;

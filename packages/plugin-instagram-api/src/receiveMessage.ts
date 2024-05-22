@@ -2,7 +2,7 @@ import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IMessageData } from './types';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { INTEGRATION_KINDS } from './constants';
 
 const receiveMessage = async (
@@ -30,6 +30,7 @@ const receiveMessage = async (
     pageId,
     userId,
     facebookPageId,
+    INTEGRATION_KINDS.MESSENGER,
     facebookPageTokensMap
   );
 
@@ -60,8 +61,8 @@ const receiveMessage = async (
   }
 
   const formattedAttachments = (attachments || [])
-    .filter(att => att.type !== 'fallback')
-    .map(att => ({
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
       type: att.type,
       url: att.payload ? att.payload.url : ''
     }));
@@ -122,12 +123,15 @@ const receiveMessage = async (
         }
       });
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            ...created.toObject(),
+            conversationId: conversation.erxesApiId
+          }
         }
-      });
+      );
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')

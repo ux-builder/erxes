@@ -1,8 +1,4 @@
-import Button from '../Button';
-import FormControl from '../form/Control';
-import FormGroup from '../form/Group';
-import ControlLabel from '../form/Label';
-import { FlexPad, InlineForm } from '../step/styles';
+import { FlexPad, InlineForm } from "../step/styles";
 import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
@@ -14,13 +10,23 @@ import ModalTrigger from '../ModalTrigger';
 import RuleForm from './RuleForm';
 import { __ } from 'coreui/utils';
 
+import Button from "../Button";
+import ControlLabel from "../form/Label";
+import FormControl from "../form/Control";
+import FormGroup from "../form/Group";
+import { IConditionsRule } from "../../types";
+import ModalTrigger from "../ModalTrigger";
+import React from "react";
+import RuleForm from "./RuleForm";
+import styled from "styled-components";
+
 const RuleDescription = styled.p`
   text-transform: initial;
 `;
 
 type Props = {
   rules: IConditionsRule[];
-  onChange: (name: 'rules', rules: IConditionsRule[]) => void;
+  onChange: (name: "rules", rules: IConditionsRule[]) => void;
   description?: string;
 };
 
@@ -33,11 +39,11 @@ class ConditionsRule extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      rules: props.rules || []
+      rules: props.rules || [],
     };
   }
 
-  addRule = e => {
+  addRule = (e) => {
     const rules = this.state.rules;
     const selectedOption = e.target.options[e.target.selectedIndex];
 
@@ -46,8 +52,8 @@ class ConditionsRule extends React.Component<Props, State> {
         _id: Math.random().toString(),
         kind: selectedOption.value,
         text: selectedOption.text,
-        condition: '',
-        value: ''
+        condition: "",
+        value: "",
       });
 
       this.setState({ rules });
@@ -82,17 +88,17 @@ class ConditionsRule extends React.Component<Props, State> {
     const remove = () => {
       let rules = this.state.rules;
 
-      rules = rules.filter(r => r._id !== rule._id);
+      rules = rules.filter((r) => r._id !== rule._id);
 
       this.setState({ rules });
-      this.props.onChange('rules', rules);
+      this.props.onChange("rules", rules);
     };
 
     const changeProp = (name, value) => {
       const rules = this.state.rules;
 
       // find current editing one
-      const currentRule = rules.find(r => r._id === rule._id);
+      const currentRule = rules.find((r) => r._id === rule._id);
 
       // set new value
       if (currentRule) {
@@ -100,15 +106,15 @@ class ConditionsRule extends React.Component<Props, State> {
       }
 
       this.setState({ rules });
-      this.props.onChange('rules', rules);
+      this.props.onChange("rules", rules);
     };
 
-    const onChangeValue = e => {
-      changeProp('value', e.target.value);
+    const onChangeValue = (e) => {
+      changeProp("value", e.target.value);
     };
 
-    const onChangeCondition = e => {
-      changeProp('condition', e.target.value);
+    const onChangeCondition = (e) => {
+      changeProp("condition", e.target.value);
     };
 
     return (
@@ -119,12 +125,7 @@ class ConditionsRule extends React.Component<Props, State> {
         </ControlLabel>
         <InlineForm>
           <FormControl
-            type="text"
-            value={rule.value}
-            onChange={onChangeValue}
-          />
-          <FormControl
-            componentClass="select"
+            componentclass="select"
             defaultValue={rule.condition}
             onChange={onChangeCondition}
           >
@@ -152,7 +153,7 @@ class ConditionsRule extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = props => <RuleForm {...props} onChange={this.addRule} />;
+    const content = (props) => <RuleForm {...props} onChange={this.addRule} />;
 
     return (
       <ModalTrigger title="Add rule" trigger={trigger} content={content} />
@@ -177,7 +178,7 @@ class ConditionsRule extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          {this.state.rules.map(rule => this.renderRule(rule))}
+          {this.state.rules.map((rule) => this.renderRule(rule))}
         </FormGroup>
 
         <FormGroup>{this.renderAddRule()}</FormGroup>

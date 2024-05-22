@@ -66,8 +66,16 @@ ${
     smsTransporterType: String
     loginWithOTP: Boolean
     expireAfter: Int
+    emailSubject: String
   }
-
+  type TwoFactorConfig {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    enableTwoFactor: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
   type MailConfig {
     subject: String
     invitationContent : String
@@ -94,7 +102,18 @@ ${
     smsTransporterType: String
     loginWithOTP: Boolean
     expireAfter: Int
+    emailSubject: String
   }
+
+  input TwoFactorConfigInput {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    enableTwoFactor: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
+
 
   input MailConfigInput {
     subject: String
@@ -162,6 +181,8 @@ ${
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
+    twoFactorConfig: TwoFactorConfig
+
     mailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
     passwordVerificationConfig: PasswordVerificationConfig
@@ -284,6 +305,7 @@ ${
     testUserOTP: String
 
     otpConfig: OTPConfigInput
+    twoFactorConfig:TwoFactorConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
     passwordVerificationConfig: JSON
@@ -293,12 +315,47 @@ ${
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
   }
+
+  enum UserCardEnum {
+    deal
+    task
+    ticket
+    purchase
+  }
+  enum UserCardStatusEnum {
+    participating
+    invited
+    left
+    rejected
+    won
+    lost
+    completed
+  }
+  enum UserCardPaymentEnum {
+    paid
+    unpaid
+  }
+  type ClientPortalParticipant {
+    _id: String
+    contentType: UserCardEnum
+    contentTypeId: String
+    cpUserId: String
+    cpUser: ClientPortalUser
+    status: UserCardStatusEnum
+    paymentStatus: UserCardPaymentEnum
+    paymentAmount: Float
+    offeredAmount: Float
+    hasVat: Boolean
+    createdAt: Date
+    modifiedAt: Date
+  }
+
 `;
 
 export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
-  clientPortalGetConfigByDomain: ClientPortal
+  clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
   clientPortalConfigsTotalCount: Int
   ${
@@ -323,6 +380,8 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
     clientPortalUserDeals(userId: String): [Deal]
     clientPortalUserPurchases(userId: String): [Purchase]
     clientPortalUserTasks(userId: String): [Task]
+    clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
+    clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
    `
       : ''
   }
@@ -331,7 +390,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String): 
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): 
 [KnowledgeBaseArticle]
    `
       : ''
@@ -362,8 +421,23 @@ export const mutations = cardAvailable => `
         labelIds: [String]
         productsData: JSON
       ): JSON
+      clientPortalParticipantRelationEdit(
+        type: String!
+        cardId: String!
+        oldCpUserIds: [String]
+        cpUserIds: [String]
+      ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
+      clientPortalParticipantEdit(    _id: String!,
+        contentType: UserCardEnum,
+        contentTypeId: String,
+        cpUserId: String,
+        status: UserCardStatusEnum,
+        paymentStatus: UserCardPaymentEnum,
+        paymentAmount: Float,
+        offeredAmount: Float,
+        hasVat: Boolean):ClientPortalParticipant
      `
       : ''
   }

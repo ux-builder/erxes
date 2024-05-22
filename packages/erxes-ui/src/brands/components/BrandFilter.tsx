@@ -1,26 +1,33 @@
-import Box from '../../components/Box';
-import DataWithLoader from '../../components/DataWithLoader';
-import { IRouterProps } from '../../types';
-import { router } from '../../utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '../../layout/styles';
-import { IBrand } from '../../brands/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { FieldStyle, SidebarCounter, SidebarList } from "../../layout/styles";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Box from "../../components/Box";
+import DataWithLoader from "../../components/DataWithLoader";
+import { IBrand } from "../../brands/types";
+
+interface IProps {
 import { __ } from 'coreui/utils';
-interface IProps extends IRouterProps {
+import { router } from '../../utils';
   counts: { [key: string]: number };
   brands: IBrand[];
   loading: boolean;
   emptyText?: string;
 }
 
-function Brands({ history, counts, brands, loading, emptyText }: IProps) {
+function Brands({ counts, brands, loading, emptyText }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // useEffect(() => {
+  //   router.removeParams(navigate, location, 'page');
+  // }, [location.search]);
+
   const data = (
     <SidebarList>
-      {brands.map(brand => {
+      {brands.map((brand) => {
         const onClick = () => {
-          router.setParams(history, { brand: brand._id });
-          router.removeParams(history, 'page');
+          router.setParams(navigate, location, { brand: brand._id });
         };
 
         return (
@@ -29,7 +36,7 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'brand') === brand._id ? 'active' : ''
+                router.getParam(location, "brand") === brand._id ? "active" : ""
               }
               onClick={onClick}
             >
@@ -44,15 +51,16 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by brand')}
+      title={__("Filter by brand")}
       collapsible={brands.length > 5}
       name="showFilterByBrand"
+      isOpen={router.getParam(location, "brand")}
     >
       <DataWithLoader
         data={data}
         loading={loading}
         count={brands.length}
-        emptyText={emptyText || 'Empty'}
+        emptyText={emptyText || "Empty"}
         emptyIcon="leaf"
         size="small"
         objective={true}
@@ -61,4 +69,4 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(Brands);
+export default Brands;

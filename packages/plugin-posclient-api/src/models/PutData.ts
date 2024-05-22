@@ -1,7 +1,8 @@
 import { DISTRICTS } from './definitions/constants';
 import { IModels } from '../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { IEbarimtConfig } from './definitions/configs';
+import { IPutResponseDocument } from './definitions/putResponses';
 
 const formatNumber = (num: number): string => {
   return num && num.toFixed ? num.toFixed(2) : '0.00';
@@ -88,7 +89,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       totalAmount: formatNumber(detail.amount),
       vat: formatNumber(vat),
       cityTax: formatNumber(citytax),
-      discount: formatNumber(detail.discount || 0)
+      discount: formatNumber(detail.discount || 0),
     };
   }
 
@@ -121,12 +122,8 @@ export class PutData<IListArgs extends IPutDataArgs> {
   }
 
   public async generateTransactionInfo() {
-    const {
-      stocks,
-      sumAmount,
-      vatAmount,
-      citytaxAmount
-    } = await this.generateStocks();
+    const { stocks, sumAmount, vatAmount, citytaxAmount } =
+      await this.generateStocks();
 
     return {
       cashAmount: formatNumber(sumAmount),
@@ -144,11 +141,11 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
       customerNo: this.params.customerCode,
       billIdSuffix: Math.round(
-        Math.random() * (999999 - 100000) + 100000
+        Math.random() * (999999 - 100000) + 100000,
       ).toString(),
 
       // Хэрвээ буцаах гэж байгаа бол түүний ДДТД
-      returnBillId: this.params.returnBillId
+      returnBillId: this.params.returnBillId,
     };
   }
 
@@ -164,10 +161,26 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
-    const prePutResponse = await this.models.PutResponses.putHistory({
+    const continuePutResponses: IPutResponseDocument[] =
+      await this.models.PutResponses.find({
+        contentType,
+        contentId,
+        taxType: this.params.taxType,
+        modifiedAt: { $exists: false }
+      }).lean();
+
+    if (continuePutResponses.length) {
+      for (const cpr of continuePutResponses) {
+        if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+          throw new Error('The previously submitted data has not yet been processed');
+        }
+      }
+    }
+
+    const prePutResponse: IPutResponseDocument | undefined = await this.models.PutResponses.putHistory({
       contentType,
       contentId,
-      taxType: this.params.taxType || ''
+      taxType: this.params.taxType || '',
     });
 
     if (prePutResponse) {
@@ -176,19 +189,19 @@ export class PutData<IListArgs extends IPutDataArgs> {
         prePutResponse.stocks &&
         prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
-          (this.transactionInfo.taxType || '1') &&
+        (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===
-          (this.transactionInfo.billType || '1')
+        (this.transactionInfo.billType || '1')
       ) {
         return this.models.PutResponses.findOne({
-          billId: prePutResponse.billId
+          billId: prePutResponse.billId,
         }).lean() as any;
       }
 
       this.transactionInfo.returnBillId = prePutResponse.billId;
       await this.models.PutResponses.updateOne(
         { _id: prePutResponse._id },
-        { $set: { status: 'inactive' } }
+        { $set: { status: 'inactive' } },
       );
     }
 
@@ -196,36 +209,35 @@ export class PutData<IListArgs extends IPutDataArgs> {
       sendInfo: { ...this.transactionInfo },
       contentId,
       contentType,
-      number
+      number,
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/put?lib=${rd}`,
+    const responseBody = await fetch(`${url}/put?lib=${rd}`, {
       method: 'POST',
-      body: { data: this.transactionInfo },
-      params: { data: this.transactionInfo }
-    });
-
-    const response = JSON.parse(responseStr);
+      body: JSON.stringify({ data: this.transactionInfo }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000
+    }).then((res) => res.json());
 
     if (
-      response.billType == '1' &&
-      response.lottery == '' &&
-      response.success
+      responseBody.billType == '1' &&
+      responseBody.lottery == '' &&
+      responseBody.success
     ) {
       if (prePutResponse) {
-        response.lottery = prePutResponse.lottery;
+        responseBody.lottery = prePutResponse.lottery;
       } else {
-        response.getInformation = await sendRequest({
-          url: `${url}/getInformation?lib=${rd}`,
-          method: 'GET'
-        });
+        responseBody.getInformation = await fetch(
+          `${url}/getInformation?lib=${rd}`,
+        ).then((res) => res.text());
       }
     }
 
     await this.models.PutResponses.updatePutResponse(resObj._id, {
-      ...response,
-      customerName: this.params.customerName
+      ...responseBody,
+      customerName: this.params.customerName,
     });
 
     return this.models.PutResponses.findOne({ _id: resObj._id }).lean();
@@ -239,7 +251,7 @@ export const returnBill = async (
     contentId: string;
     number: string;
     config: IEbarimtConfig;
-  }
+  },
 ) => {
   const config = doc.config;
   const url = config.ebarimtUrl || '';
@@ -247,12 +259,12 @@ export const returnBill = async (
 
   const prePutResponses = await models.PutResponses.putHistories({
     contentType,
-    contentId
+    contentId,
   });
 
   if (!prePutResponses.length) {
     return {
-      error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.'
+      error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.',
     };
   }
 
@@ -275,12 +287,12 @@ export const returnBill = async (
 
     const data = {
       returnBillId: prePutResponse.billId,
-      date: date
+      date: date,
     };
 
     await models.PutResponses.updateOne(
       { _id: prePutResponse._id },
-      { $set: { status: 'inactive' } }
+      { $set: { status: 'inactive' } },
     );
 
     const resObj = await models.PutResponses.createPutResponse({
@@ -288,19 +300,19 @@ export const returnBill = async (
       contentId,
       contentType,
       number: doc.number,
-      returnBillId: prePutResponse.billId
+      returnBillId: prePutResponse.billId,
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/returnBill?lib=${rd}`,
+    const responseBody = await fetch(`${url}/returnBill?lib=${rd}`, {
       method: 'POST',
-      body: { data },
-      params: { ...data }
-    });
+      body: JSON.stringify({ data }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => res.json());
 
-    const response = JSON.parse(responseStr);
     await models.PutResponses.updatePutResponse(resObj._id, {
-      ...response
+      ...responseBody,
     });
     resultObjIds.push(resObj._id);
   }

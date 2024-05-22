@@ -1,10 +1,11 @@
-import { ControlLabel, Form, FormGroup } from '../form';
+import { ControlLabel, Form, FormGroup } from "../form";
+
+import Button from "../Button";
+import FormControl from "../form/Control";
+import { ModalFooter } from "../../styles/main";
+import React from "react";
+import { VISITOR_AUDIENCE_RULES } from "../../constants/engage";
 import { __ } from 'coreui/utils';
-import Button from '../Button';
-import FormControl from '../form/Control';
-import { ModalFooter } from '../../styles/main';
-import React from 'react';
-import { VISITOR_AUDIENCE_RULES } from '../../constants/engage';
 
 type Props = {
   closeModal: () => void;
@@ -34,7 +35,7 @@ class RuleForm extends React.Component<Props, State> {
           <ControlLabel>{__('Rules')}</ControlLabel>
           <p> {__('Add rules as many as you want')}</p>
 
-          <FormControl componentClass="select" onChange={this.onSelect}>
+          <FormControl componentclass="select" onChange={this.onSelect}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
                 {__(rule.text)}

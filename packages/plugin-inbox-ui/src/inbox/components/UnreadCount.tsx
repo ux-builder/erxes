@@ -1,6 +1,7 @@
-import Label from '@erxes/ui/src/components/Label';
-import { __, setBadge } from '@erxes/ui/src/utils/core';
-import React from 'react';
+import { __, setBadge } from "@erxes/ui/src/utils/core";
+
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
 
 type Props = {
   unreadConversationsCount?: number;
@@ -10,11 +11,8 @@ class UnreadCount extends React.Component<Props> {
   componentWillReceiveProps(nextProps: any) {
     const unreadCount = nextProps.unreadConversationsCount;
 
-    if (
-      unreadCount != null &&
-      unreadCount !== this.props.unreadConversationsCount
-    ) {
-      setBadge(unreadCount, __('Team Inbox').toString());
+    if (unreadCount !== this.props.unreadConversationsCount) {
+      setBadge(unreadCount, __("Team Inbox").toString());
     }
   }
 

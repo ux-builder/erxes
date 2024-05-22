@@ -11,14 +11,13 @@ import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug, serviceDiscovery, graphqlPubsub } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
   sendNotificationsMessage,
-  sendToWebhook,
   sendCommonMessage,
   sendAutomationsMessage
 } from '../../messageBroker';
@@ -28,6 +27,8 @@ import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { generateModels, IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -136,7 +137,7 @@ export const publishConversationsChanged = async (
   const models = await generateModels(subdomain);
 
   for (const _id of _ids) {
-    graphqlPubsub.publish('conversationChanged', {
+    graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type }
     });
 
@@ -163,18 +164,22 @@ export const publishMessage = async (
   message: IMessageDocument,
   customerId?: string
 ) => {
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
-    const unreadCount = await models.ConversationMessages.widgetsGetUnreadMessagesCount(
-      message.conversationId
-    );
+    const unreadCount =
+      await models.ConversationMessages.widgetsGetUnreadMessagesCount(
+        message.conversationId
+      );
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
         unreadCount
@@ -200,6 +205,14 @@ export const sendNotifications = async (
   }
 ) => {
   for (const conversation of conversations) {
+    if (!conversation || !conversation._id) {
+      throw new Error('Error: Conversation or Conversation ID is undefined');
+    }
+
+    if (!user || !user._id) {
+      throw new Error('Error: User or User ID is undefined');
+    }
+
     const doc = {
       createdUser: user,
       link: `/inbox/index?_id=${conversation._id}`,
@@ -218,22 +231,18 @@ export const sendNotifications = async (
       case 'conversationAddMessage':
         doc.action = `sent you a message`;
         doc.receivers = conversationNotifReceivers(conversation, user._id);
-
         break;
       case 'conversationAssigneeChange':
         doc.action = 'has assigned you to conversation ';
-
         break;
       case 'unassign':
         doc.notifType = 'conversationAssigneeChange';
         doc.action = 'has removed you from conversation';
-
         break;
       case 'conversationStateChange':
         doc.action = `changed conversation status to ${(
           conversation.status || ''
         ).toUpperCase()}`;
-
         break;
       default:
         break;
@@ -246,7 +255,6 @@ export const sendNotifications = async (
     });
 
     if (mobile) {
-      // send mobile notification ======
       try {
         await sendCoreMessage({
           subdomain,
@@ -268,7 +276,7 @@ export const sendNotifications = async (
           }
         });
       } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
+        debugError(`Failed to send mobile notification: ${e.message}`);
       }
     }
   }
@@ -418,10 +426,11 @@ const conversationMutations = {
       _id: { $in: conversationIds }
     });
 
-    const conversations: IConversationDocument[] = await models.Conversations.assignUserConversation(
-      conversationIds,
-      assignedUserId
-    );
+    const conversations: IConversationDocument[] =
+      await models.Conversations.assignUserConversation(
+        conversationIds,
+        assignedUserId
+      );
 
     // notify graphl subscription
     publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
@@ -458,13 +467,12 @@ const conversationMutations = {
     { _ids }: { _ids: string[] },
     { user, models, subdomain }: IContext
   ) {
-    const {
-      oldConversations,
-      oldConversationById
-    } = await getConversationById(models, { _id: { $in: _ids } });
-    const updatedConversations = await models.Conversations.unassignUserConversation(
-      _ids
+    const { oldConversations, oldConversationById } = await getConversationById(
+      models,
+      { _id: { $in: _ids } }
     );
+    const updatedConversations =
+      await models.Conversations.unassignUserConversation(_ids);
 
     await sendNotifications(subdomain, {
       user,
@@ -543,21 +551,6 @@ const conversationMutations = {
         },
         user
       );
-
-      if (await serviceDiscovery.isEnabled('zerocodeai')) {
-        // const messagesCount = await models.ConversationMessages.count({ conversationId: conversation._id });
-        // const messages = await models.ConversationMessages.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(messagesCount / 10);
-
-        sendCommonMessage({
-          subdomain,
-          serviceName: 'zerocodeai',
-          action: 'analyze',
-          data: {
-            conversation,
-            messages: [{ content: 'muu' }, { content: 'sain' }]
-          }
-        });
-      }
     }
 
     serverTiming.endTime('putLog');
@@ -639,9 +632,12 @@ const conversationMutations = {
       ]
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${message.conversationId}`,
+      {
+        conversationMessageInserted: message
+      }
+    );
 
     return models.Conversations.updateOne(
       { _id },

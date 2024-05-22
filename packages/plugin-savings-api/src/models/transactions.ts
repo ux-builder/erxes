@@ -1,8 +1,9 @@
 import { ITransaction, transactionSchema } from './definitions/transactions';
 import { findContractOfTr } from './utils/findUtils';
 import {
+  checkTransactionValidation,
   removeTrAfterSchedule,
-  trAfterSchedule
+  transactionDealt
 } from './utils/transactionUtils';
 import { Model } from 'mongoose';
 import { ITransactionDocument } from './definitions/transactions';
@@ -14,10 +15,10 @@ import { TRANSACTION_TYPE } from './definitions/constants';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
   createTransaction(
-    subdomain: string,
-    doc: ITransaction
+    doc: ITransaction,
+    subdomain?: string
   ): Promise<ITransactionDocument>;
-  updateTransaction(subdomain: any, _id: string, doc: ITransaction);
+  updateTransaction(_id: string, doc: ITransaction);
   changeTransaction(_id: string, doc: ITransaction);
   removeTransactions(_ids: string[]);
 }
@@ -44,10 +45,12 @@ export const loadTransactionClass = (models: IModels) => {
      * Create a transaction
      */
     public static async createTransaction(
-      subdomain: string,
-      doc: ITransaction
+      doc: ITransaction,
+      subdomain?: string
     ) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
+
+      
 
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
@@ -55,14 +58,13 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
-        throw new Error(
-          'At this moment transaction can not been created because this date closed'
-        );
+      await checkTransactionValidation(periodLock,doc,subdomain)
 
       const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean<IContractDocument>();
+
+      if (!contract) throw new Error('Contract not found');
 
       if (!doc.currency && contract?.currency) {
         doc.currency = contract?.currency;
@@ -87,6 +89,9 @@ export const loadTransactionClass = (models: IModels) => {
             { _id: contract._id },
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
+          if (doc.dealtType) {
+            await transactionDealt(doc, models,subdomain);
+          }
           break;
 
         default:
@@ -101,11 +106,7 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * Update Transaction
      */
-    public static async updateTransaction(
-      subdomain,
-      _id: string,
-      doc: ITransaction
-    ) {
+    public static async updateTransaction(_id: string, doc: ITransaction) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
       const periodLock = await models.PeriodLocks.findOne({
@@ -136,8 +137,6 @@ export const loadTransactionClass = (models: IModels) => {
       const newTr = await models.Transactions.getTransaction({
         _id
       });
-
-      await trAfterSchedule(models, newTr);
 
       return newTr;
     }
@@ -188,11 +187,10 @@ export const loadTransactionClass = (models: IModels) => {
      * Remove Transaction
      */
     public static async removeTransactions(_ids) {
-      const transactions: ITransactionDocument[] = await models.Transactions.find(
-        { _id: _ids }
-      )
-        .sort({ payDate: -1 })
-        .lean();
+      const transactions: ITransactionDocument[] =
+        await models.Transactions.find({ _id: _ids })
+          .sort({ payDate: -1 })
+          .lean();
 
       for await (const oldTr of transactions) {
         if (oldTr) {

@@ -1,5 +1,5 @@
-import { QueryResponse } from '../types';
 import { IBrand } from '../brands/types';
+import { QueryResponse } from '../types';
 
 export interface IOnboardingHistory {
   _id: string;
@@ -30,6 +30,7 @@ export interface IUserDetails {
 
 export interface IUserLinks {
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   linkedIn?: string;
   youtube?: string;
@@ -59,7 +60,63 @@ export interface IUserDoc {
   score?: number;
   branchIds: string[];
   departmentIds: string[];
+  positionIds: string[];
   employeeId?: string;
+}
+
+export interface IChargeItemInfo {
+  free?: number;
+  purchased?: number;
+  used?: number;
+  count?: number;
+  subscriptionId?: string;
+  interval?: string;
+  expiryDate?: Date;
+}
+export interface ICharge {
+  freeIntegration: IChargeItemInfo;
+  teamMember: IChargeItemInfo;
+  coc: IChargeItemInfo;
+  emailSend: IChargeItemInfo;
+  emailVerification: IChargeItemInfo;
+  phoneVerification: IChargeItemInfo;
+  whiteLabel: IChargeItemInfo;
+  'twitter-dm': IChargeItemInfo;
+  sms: IChargeItemInfo;
+}
+
+export declare type IOrganization = {
+  name: string;
+  subdomain: string;
+  domain?: string;
+  description?: string;
+  iconColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  icon?: string;
+  dnsStatus?: string;
+  favicon?: string;
+  logo?: string;
+  createdAt?: Date;
+  charge: ICharge;
+  promoCodes?: string[];
+  isPaid?: boolean;
+  isWhiteLabel?: boolean;
+  setupService?: any;
+  plan?: string;
+  expiryDate?: Date;
+  bundleNames?: string[];
+  experienceName?: string;
+  onboardingDone?: boolean;
+  contactRemaining?: boolean;
+};
+
+export interface IUserOrganization {
+  _id: string;
+  createdUserEmail: string;
+  createdUserId: string;
+  name: string;
+  subdomain: string;
 }
 
 export interface IUser extends IUserDoc {
@@ -69,11 +126,14 @@ export interface IUser extends IUserDoc {
   onboardingHistory?: IOnboardingHistory;
   branchIds: string[];
   departmentIds: string[];
+  positionIds: string[];
   customFieldsData?: {
     [key: string]: any;
   };
   isShowNotification?: boolean;
   isSubscribed?: boolean;
+  organizations: IUserOrganization[];
+  currentOrganization: IOrganization;
 }
 
 export type AllUsersQueryResponse = {
@@ -83,6 +143,7 @@ export type AllUsersQueryResponse = {
 export type CurrentUserQueryResponse = {
   currentUser: IUser;
   loading: boolean;
+  error: any;
   subscribeToMore: any;
   refetch: () => void;
 };

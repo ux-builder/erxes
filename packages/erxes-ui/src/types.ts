@@ -2,9 +2,9 @@ import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { IUser } from './auth/types';
 
 export interface IRouterProps {
-  history: any;
   location: any;
   match: any;
+  navigate: any;
 }
 
 export interface IAttachment {
@@ -87,6 +87,7 @@ export interface IField {
   contentTypeId?: string;
   type: string;
   validation?: string;
+  regexValidation?: string;
   field?: string;
   text?: string;
   code?: string;
@@ -162,12 +163,14 @@ export type IButtonMutateProps = {
 
 export type IMentionUser = {
   id: string;
-  avatar: string;
+  avatar?: string;
   username: string;
   fullName?: string;
+  title?: string;
 };
 
 export type IEditorProps = {
+  placeholder?: string;
   onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
@@ -177,13 +180,13 @@ export type IEditorProps = {
   removeButtons?: string;
   removePlugins?: string;
   toolbarCanCollapse?: boolean;
-  mentionUsers?: IMentionUser[];
+  showMentions?: boolean;
   toolbar?: any[];
   autoFocus?: boolean;
   toolbarLocation?: 'top' | 'bottom';
   autoGrow?: boolean;
-  autoGrowMinHeight?: number;
-  autoGrowMaxHeight?: number;
+  autoGrowMinHeight?: number | string;
+  autoGrowMaxHeight?: number | string;
   name?: string;
   isSubmitted?: boolean;
   formItems?: any;

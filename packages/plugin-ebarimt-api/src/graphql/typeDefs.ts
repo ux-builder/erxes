@@ -1,11 +1,12 @@
-import gql from 'graphql-tag';
-
 import {
-  types as ebarimtTypes,
-  queries as ebarimtQueries
+  mutations as ebarimtMutations,
+  queries as ebarimtQueries,
+  types as ebarimtTypes
 } from './schema/ebarimt';
 
-const typeDefs = async serviceDiscovery => {
+import gql from 'graphql-tag';
+
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
@@ -14,6 +15,10 @@ const typeDefs = async serviceDiscovery => {
     
     extend type Query {
       ${ebarimtQueries}
+    }
+
+    extend type Mutation {
+      ${ebarimtMutations}
     }
 
   `;

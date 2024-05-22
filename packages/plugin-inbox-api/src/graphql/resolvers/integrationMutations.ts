@@ -7,18 +7,18 @@ import {
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
-  IUiOptions
+  IUiOptions,
 } from '../../models/definitions/integrations';
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
-import { debug } from '../../configs';
-import messageBroker, {
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import {
   sendContactsMessage,
   sendIntegrationsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendCommonMessage
+  sendCommonMessage,
 } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
@@ -65,7 +65,7 @@ const createIntegration = async (
     {
       type: MODULE_NAMES.INTEGRATION,
       newData: { ...doc, createdUserId: user._id, isActive: true },
-      object: integration
+      object: integration,
     },
     user
   );
@@ -77,8 +77,8 @@ const createIntegration = async (
     action: 'registerOnboardHistory',
     data: {
       type: `${type}IntegrationCreated`,
-      user
-    }
+      user,
+    },
   });
 
   return integration;
@@ -111,7 +111,7 @@ const editIntegration = async (
       type: MODULE_NAMES.INTEGRATION,
       object: integration,
       newData: fields,
-      updatedDocument: updated
+      updatedDocument: updated,
     },
     user
   );
@@ -119,10 +119,130 @@ const editIntegration = async (
   return updated;
 };
 
+interface IOnboardingPrams {
+  brandName: string;
+  logo?: string;
+  color?: string;
+  name: string;
+}
+
+interface IOnboardingPramsEdit extends IOnboardingPrams {
+  _id: string;
+  brandId: string;
+}
+
 const integrationMutations = {
+  /**
+   * Creates a new messenger onboarding
+   */
+  async integrationsCreateMessengerOnboarding(
+    _root,
+    doc: IOnboardingPramsEdit,
+    { user, models, subdomain }: IContext
+  ) {
+    const integrationsCount = await models.Integrations.find({}).count();
+
+    if (integrationsCount > 0) {
+      return models.Integrations.findOne();
+    }
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: 'brands.create',
+      data: { name: doc.brandName },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    let channel = await models.Channels.findOne({
+      name: 'Default channel',
+    });
+
+    if (!channel) {
+      channel = await models.Channels.createChannel(
+        { name: 'Default channel', memberIds: [user._id] },
+        user._id
+      );
+    }
+
+    const integrationDocs = {
+      name: 'Default brand',
+      channelIds: [channel._id],
+      brandId: brand._id,
+      messengerData: {},
+    } as IIntegration;
+
+    const integration = await models.Integrations.createMessengerIntegration(
+      integrationDocs,
+      user._id
+    );
+
+    const uiOptions = { ...doc };
+
+    await models.Integrations.saveMessengerAppearanceData(
+      integration._id,
+      uiOptions
+    );
+
+    return createIntegration(
+      models,
+      subdomain,
+      integrationDocs,
+      integration,
+      user,
+      'messenger'
+    );
+  },
+
+  async integrationsEditMessengerOnboarding(
+    _root,
+    { _id, brandId, ...fields }: IOnboardingPramsEdit,
+    { user, models, subdomain }: IContext
+  ) {
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: 'brands.updateOne',
+      data: { _id: brandId, fields: { name: fields.brandName } },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    const integration = await models.Integrations.getIntegration({ _id });
+    const channel = await models.Channels.findOne({
+      name: 'Default channel',
+    });
+
+    const integrationDocs = {
+      name: 'Default brand',
+      brandId: brand._id,
+      channelIds: [channel?._id],
+    } as IIntegration;
+
+    const updated = await models.Integrations.updateMessengerIntegration(
+      _id,
+      integrationDocs
+    );
+
+    const uiOptions = { logo: fields.logo, color: fields.color };
+
+    await models.Integrations.saveMessengerAppearanceData(
+      updated._id,
+      uiOptions
+    );
+
+    return editIntegration(
+      subdomain,
+      integrationDocs,
+      integration,
+      user,
+      updated,
+      models
+    );
+  },
+
   /**
    * Creates a new messenger integration
    */
+
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,
@@ -275,10 +395,10 @@ const integrationMutations = {
               accountId: doc.accountId,
               kind: doc.kind,
               integrationId: integration._id,
-              data: data ? JSON.stringify(data) : ''
-            }
+              data: data ? JSON.stringify(data) : '',
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -290,7 +410,7 @@ const integrationMutations = {
         {
           type: MODULE_NAMES.INTEGRATION,
           newData: { ...doc, createdUserId: user._id, isActive: true },
-          object: integration
+          object: integration,
         },
         user
       );
@@ -311,8 +431,13 @@ const integrationMutations = {
 
     const doc: any = { name, brandId, details };
 
-    const { kind } = integration;
-
+    let { kind } = integration;
+    if (kind === 'facebook-messenger' || kind === 'facebook-post') {
+      kind = 'facebook';
+    }
+    if (kind === 'instagram-messenger' || kind === 'instagram-post') {
+      kind = 'instagram';
+    }
     await models.Integrations.updateOne({ _id }, { $set: doc });
 
     const updated = await models.Integrations.getIntegration({ _id });
@@ -338,12 +463,12 @@ const integrationMutations = {
         integrationId: integration._id,
         doc: {
           accountId: doc.accountId,
-          kind: doc.kind,
+          kind: kind,
           integrationId: integration._id,
-          data: details ? JSON.stringify(details) : ''
-        }
+          data: details ? JSON.stringify(details) : '',
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     await putUpdateLog(
@@ -353,7 +478,7 @@ const integrationMutations = {
         type: MODULE_NAMES.INTEGRATION,
         object: { name: integration.name, brandId: integration.brandId },
         newData: { name, brandId },
-        updatedDocument: updated
+        updatedDocument: updated,
       },
       user
     );
@@ -370,25 +495,27 @@ const integrationMutations = {
     { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
+    const kind = integration.kind.split('-')[0];
 
-    try {
-      const kind = integration.kind.split('-')[0];
-      const commonParams = {
-        subdomain,
-        data: { integrationId: _id },
-        isRPC: true,
-        action: 'removeIntegrations'
-      };
+    if (!['lead', 'messenger'].includes(kind)) {
+      try {
+        const commonParams = {
+          subdomain,
+          data: { integrationId: _id },
+          isRPC: true,
+          action: 'removeIntegrations',
+        };
 
-      if (await isServiceRunning(kind)) {
-        await sendCommonMessage({ serviceName: kind, ...commonParams });
-      } else {
-        await sendIntegrationsMessage({ ...commonParams });
-      }
-    } catch (e) {
-      if (e.message !== 'Integration not found') {
-        debug.error(e);
-        throw e;
+        if (await isServiceRunning(kind)) {
+          await sendCommonMessage({ serviceName: kind, ...commonParams });
+        } else {
+          await sendIntegrationsMessage({ ...commonParams });
+        }
+      } catch (e) {
+        if (e.message !== 'Integration not found') {
+          debugError(e);
+          throw e;
+        }
       }
     }
 
@@ -418,9 +545,9 @@ const integrationMutations = {
         action: 'api_to_integrations',
         data: {
           action: 'remove-account',
-          _id
+          _id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       for (const id of erxesApiIds) {
@@ -429,7 +556,7 @@ const integrationMutations = {
 
       return 'success';
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       throw e;
     }
   },
@@ -449,14 +576,14 @@ const integrationMutations = {
         action: 'api_to_integrations',
         data: {
           action: 'repair-integrations',
-          _id
+          _id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return response;
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       throw e;
     }
   },
@@ -485,7 +612,7 @@ const integrationMutations = {
         description: `"${integration.name}" has been ${
           status === true ? 'archived' : 'unarchived'
         }.`,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
       user
     );
@@ -502,9 +629,9 @@ const integrationMutations = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        primaryPhone: args.to
+        primaryPhone: args.to,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!customer) {
@@ -519,20 +646,19 @@ const integrationMutations = {
         subdomain,
         action: 'sendSms',
         data: args,
-        isRPC: true
+        isRPC: true,
       });
 
       if (response && response.status === 'ok') {
         await putActivityLog(subdomain, {
-          messageBroker: messageBroker(),
           action: 'add',
           data: {
             action: 'send',
             contentType: 'sms',
             createdBy: user._id,
             contentId: customer._id,
-            content: { to: args.to, text: args.content }
-          }
+            content: { to: args.to, text: args.content },
+          },
         });
       }
 
@@ -557,19 +683,19 @@ const integrationMutations = {
       subdomain,
       action: 'findOne',
       data: { _id: sourceIntegration.formId },
-      isRPC: true
+      isRPC: true,
     });
 
     const sourceFields = await sendFormsMessage({
       subdomain,
       action: 'fields.find',
       data: { query: { contentTypeId: sourceForm._id } },
-      isRPC: true
+      isRPC: true,
     });
 
     const formDoc = docModifier({
       ...sourceForm,
-      title: `${sourceForm.title}-copied`
+      title: `${sourceForm.title}-copied`,
     });
 
     delete formDoc._id;
@@ -579,7 +705,7 @@ const integrationMutations = {
       subdomain,
       action: 'createForm',
       data: { formDoc, userId: user._id },
-      isRPC: true
+      isRPC: true,
     });
 
     const leadData = sourceIntegration.leadData;
@@ -591,8 +717,8 @@ const integrationMutations = {
       leadData: leadData && {
         ...leadData.toObject(),
         viewCount: 0,
-        contactsGathered: 0
-      }
+        contactsGathered: 0,
+      },
     });
 
     delete doc._id;
@@ -602,7 +728,7 @@ const integrationMutations = {
       user._id
     );
 
-    const fields = sourceFields.map(e => ({
+    const fields = sourceFields.map((e) => ({
       options: e.options,
       isVisible: e.isVisible,
       contentType: e.contentType,
@@ -614,13 +740,13 @@ const integrationMutations = {
       isRequired: e.isRequired,
       isDefinedByErxes: false,
       associatedFieldId: e.associatedFieldId,
-      pageNumber: e.pageNumber
+      pageNumber: e.pageNumber,
     }));
 
     sendFormsMessage({
       subdomain,
       action: 'fields.insertMany',
-      data: { fields }
+      data: { fields },
     });
 
     await putCreateLog(
@@ -629,7 +755,7 @@ const integrationMutations = {
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: copiedIntegration
+        object: copiedIntegration,
       },
       user
     );
@@ -641,8 +767,8 @@ const integrationMutations = {
       action: 'registerOnboardHistory',
       data: {
         type: 'leadIntegrationCreate',
-        user
-      }
+        user,
+      },
     });
 
     return copiedIntegration;
@@ -686,7 +812,7 @@ const integrationMutations = {
     );
 
     return editIntegration(subdomain, doc, integration, user, updated, models);
-  }
+  },
 };
 
 checkPermission(

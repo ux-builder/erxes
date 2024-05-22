@@ -1,27 +1,27 @@
-import { readFile } from '@erxes/ui/src/utils';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { readFile } from "@erxes/ui/src/utils";
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import { ICategory, IPollOption, IPost, ITag } from '../../types';
-import { SelectTeamMembers } from '@erxes/ui/src';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { CustomRangeContainer } from '../../styles';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import PollOptions from './PollOptions';
-import React from 'react';
-import Select from 'react-select-plus';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
+  IFormProps,
+} from "@erxes/ui/src/types";
+import { ICategory, IPollOption, IPost, ITag } from "../../types";
+import { SelectTeamMembers } from "@erxes/ui/src";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { CustomRangeContainer } from "../../styles";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import PollOptions from "./PollOptions";
+import React from "react";
+import Select from "react-select";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 
 type Props = {
   post?: IPost;
@@ -52,8 +52,8 @@ class PostForm extends React.Component<Props, State> {
     const post = props.post || ({} as IPost);
 
     this.state = {
-      content: post.content || '',
-      title: post.title || '',
+      content: post.content || "",
+      title: post.title || "",
       categoryId: post.categoryId,
       selectedTags: post.tagIds || [],
       pollOptions: post.pollOptions || [],
@@ -63,12 +63,12 @@ class PostForm extends React.Component<Props, State> {
       createdAt: post.createdAt || new Date().toString(),
       thumbnail: post.thumbnail
         ? {
-            name: post && post.thumbnailAlt ? post.thumbnailAlt : '',
-            type: 'image',
-            url: post.thumbnail
+            name: post && post.thumbnailAlt ? post.thumbnailAlt : "",
+            type: "image",
+            url: post.thumbnail,
           }
         : ({} as IAttachment),
-      selectedUser: post.createdById || ''
+      selectedUser: post.createdById || "",
     };
   }
 
@@ -91,7 +91,7 @@ class PostForm extends React.Component<Props, State> {
         const option = {
           _id,
           order,
-          title
+          title,
         };
         return option;
       }
@@ -101,7 +101,7 @@ class PostForm extends React.Component<Props, State> {
       _id: finalValues._id,
       title: finalValues.title,
       content: this.state.content,
-      thumbnail: readFile(this.state.thumbnail.url) || '',
+      thumbnail: readFile(this.state.thumbnail.url) || "",
       categoryId: finalValues.categoryId,
       description: finalValues.description,
       tagIds: this.state.selectedTags,
@@ -109,12 +109,12 @@ class PostForm extends React.Component<Props, State> {
       isPollMultiChoice: this.state.multipleChoice,
       pollOptions: optionsCleaned,
       createdAt: this.state.createdAt,
-      createdById: this.state.selectedUser
+      createdById: this.state.selectedUser,
     };
   };
 
-  onChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onChange = (content: string) => {
+    this.setState({ content });
   };
 
   renderOptions = () => {
@@ -126,7 +126,7 @@ class PostForm extends React.Component<Props, State> {
           No category
         </option>
         {categories &&
-          categories.map(p => (
+          categories.map((p) => (
             <option key={p._id} value={p._id}>
               {p.name}
             </option>
@@ -136,16 +136,16 @@ class PostForm extends React.Component<Props, State> {
   };
 
   onChangeRangeFilter = (date, key: string) => {
-    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    const formattedDate = date ? dayjs(date).format("YYYY-MM-DD") : "";
     this.setState({ ...this.state, [key]: formattedDate });
   };
 
-  onChangeThumbnail = attachment => {
+  onChangeThumbnail = (attachment) => {
     return this.setState({
       thumbnail:
         attachment && attachment.length !== 0
           ? attachment[0]
-          : ({} as IAttachment)
+          : ({} as IAttachment),
     });
   };
 
@@ -157,7 +157,7 @@ class PostForm extends React.Component<Props, State> {
       selectedTags,
       pollOptions,
       multipleChoice,
-      hasEndDate
+      hasEndDate,
     } = this.state;
 
     const { isSubmitted, values } = formProps;
@@ -165,15 +165,15 @@ class PostForm extends React.Component<Props, State> {
     const object = post || ({} as IPost);
 
     const renderTagOptions = () => {
-      return (tags || []).map(tag => ({
+      return (tags || []).map((tag) => ({
         value: tag._id,
         label: tag.name,
-        _id: tag._id
+        _id: tag._id,
       }));
     };
 
-    const onChange = members => {
-      const ids = members.map(m => m._id);
+    const onChange = (members) => {
+      const ids = members.map((m) => m._id);
       this.setState({ selectedTags: ids });
     };
 
@@ -181,7 +181,7 @@ class PostForm extends React.Component<Props, State> {
       this.setState({ pollOptions: ops });
     };
 
-    const onUserChange = memberId => {
+    const onUserChange = (memberId) => {
       this.setState({ selectedUser: memberId });
     };
 
@@ -193,7 +193,7 @@ class PostForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Title')}</ControlLabel>
+          <ControlLabel required={true}>{__("Title")}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -206,7 +206,7 @@ class PostForm extends React.Component<Props, State> {
         <FormGroup>
           <FlexContent>
             <FlexItem>
-              <ControlLabel>{__('Thumbnail')}</ControlLabel>
+              <ControlLabel>{__("Thumbnail")}</ControlLabel>
               <Uploader
                 defaultFileList={thumbnail}
                 onChange={this.onChangeThumbnail}
@@ -215,14 +215,16 @@ class PostForm extends React.Component<Props, State> {
             </FlexItem>
             <FlexItem>
               <CustomRangeContainer>
-                <ControlLabel>{__('Created At')}</ControlLabel>
+                <ControlLabel>{__("Created At")}</ControlLabel>
                 <DateControl
                   value={this.state.createdAt}
                   required={false}
                   name="createdAt"
-                  onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
-                  placeholder={'End date'}
-                  dateFormat={'YYYY-MM-DD'}
+                  onChange={(date) =>
+                    this.onChangeRangeFilter(date, "createdAt")
+                  }
+                  placeholder={"End date"}
+                  dateFormat={"YYYY-MM-DD"}
                 />
               </CustomRangeContainer>
             </FlexItem>
@@ -236,7 +238,7 @@ class PostForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="categoryId"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={categoryId}
               >
                 {this.renderOptions()}
@@ -251,7 +253,7 @@ class PostForm extends React.Component<Props, State> {
                   name="selectedUser"
                   multi={false}
                   initialValue={this.state.selectedUser}
-                  onSelect={e => onUserChange(e)}
+                  onSelect={(e) => onUserChange(e)}
                 />
               </CustomRangeContainer>
             </FlexItem>
@@ -259,23 +261,25 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Description')}</ControlLabel>
+          <ControlLabel>{__("Description")}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={object.description}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Tags')}</ControlLabel>
+          <ControlLabel>{__("Tags")}</ControlLabel>
           <Select
-            placeholder={__('Choose tags')}
+            placeholder={__("Choose tags")}
             options={renderTagOptions()}
-            value={selectedTags}
+            value={renderTagOptions().filter((o) =>
+              selectedTags.includes(o.value)
+            )}
             onChange={onChange}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
 
@@ -289,7 +293,7 @@ class PostForm extends React.Component<Props, State> {
                   {...formProps}
                   name="multipleChoice"
                   className="toggle-message"
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={multipleChoice}
                   onChange={() => {
                     this.setState({ multipleChoice: !multipleChoice });
@@ -304,7 +308,7 @@ class PostForm extends React.Component<Props, State> {
                   {...formProps}
                   name="hasEndDate"
                   className="toggle-message"
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={hasEndDate}
                   onChange={() => {
                     this.setState({ hasEndDate: !hasEndDate });
@@ -319,9 +323,11 @@ class PostForm extends React.Component<Props, State> {
                     value={this.state.endDate}
                     required={false}
                     name="endDate"
-                    onChange={date => this.onChangeRangeFilter(date, 'endDate')}
-                    placeholder={'End date'}
-                    dateFormat={'YYYY-MM-DD'}
+                    onChange={(date) =>
+                      this.onChangeRangeFilter(date, "endDate")
+                    }
+                    placeholder={"End date"}
+                    dateFormat={"YYYY-MM-DD"}
                   />
                 </CustomRangeContainer>
               </FlexItem>
@@ -329,19 +335,19 @@ class PostForm extends React.Component<Props, State> {
           </FlexContent>
           <PollOptions
             emptyMessage="There is no options"
-            onChangeOption={options => changeOption(options || [])}
+            onChangeOption={(options) => changeOption(options || [])}
             options={pollOptions}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK
-            content={content || ''}
+          <ControlLabel required={true}>{__("Content")}</ControlLabel>
+          <RichTextEditor
+            content={content || ""}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`post_${post ? post._id : 'create'}`}
+            name={`post_${post ? post._id : "create"}`}
           />
         </FormGroup>
 
@@ -352,15 +358,15 @@ class PostForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           {renderButton({
-            passedName: 'post',
+            passedName: "post",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: post
+            object: post,
           })}
         </ModalFooter>
       </>

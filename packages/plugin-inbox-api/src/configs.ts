@@ -4,13 +4,13 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { generateAllDataLoaders } from './dataLoaders';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
   identifyCustomer,
   trackCustomEvent,
   trackViewPageEvent,
-  updateCustomerProperties
+  updateCustomerProperties,
 } from './events';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -28,30 +28,24 @@ import dashboards from './dashboards';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
-import reports from './reports';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
+import reports from './reports/reports'
+import app from '@erxes/api-utils/src/app';
+import exporter from './exporter';
 
 export default {
   name: 'inbox',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
   meta: {
     reports,
@@ -66,7 +60,8 @@ export default {
     permissions,
     dashboards,
     notificationModules: NOTIFICATION_MODULES,
-    payment
+    payment,
+    exporter,
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -80,17 +75,13 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric
+      setMetric: res.setMetric,
     };
 
     return context;
   },
   middlewares: [(serverTiming as any)()],
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    const app = options.app;
-
+  onServerInit: async () => {
     // events
     app.post(
       '/events-receive',
@@ -106,13 +97,13 @@ export default {
                   name,
                   triggerAutomation,
                   customerId,
-                  attributes
+                  attributes,
                 });
 
           return res.json(response);
         },
-        res => res.json({ status: 'success' })
-      )
+        (res) => res.json({ status: 'success' }),
+      ),
     );
 
     app.post(
@@ -125,8 +116,8 @@ export default {
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
         },
-        res => res.json({})
-      )
+        (res) => res.json({}),
+      ),
     );
 
     app.post(
@@ -138,16 +129,12 @@ export default {
           const response = await updateCustomerProperties(subdomain, req.body);
           return res.json(response);
         },
-        res => res.json({})
-      )
+        (res) => res.json({}),
+      ),
     );
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
     app.post('/webhooks/:id', webhookMiddleware);
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
+  setupMessageConsumers,
 };

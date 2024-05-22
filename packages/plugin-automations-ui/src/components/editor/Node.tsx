@@ -1,24 +1,24 @@
-import React, { memo, useState } from 'react';
-import { Handle, Position } from 'reactflow';
-
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import colors from '@erxes/ui/src/styles/colors';
+import { AutomationConstants, IAutomation, IAutomationNote } from "../../types";
 import { __ } from 'coreui/utils';
-import NoteFormContainer from '../../containers/forms/NoteForm';
-import { AutomationConstants, IAutomation, IAutomationNote } from '../../types';
-import { renderDynamicComponent } from '../../utils';
 import {
   BRANCH_HANDLE_OPTIONS,
   DEFAULT_HANDLE_OPTIONS,
-  DEFAULT_HANDLE_STYLE
-} from './constants';
-import { ScratchNode as CommonScratchNode, Trigger } from './styles';
-import { checkNote } from './utils';
+  DEFAULT_HANDLE_STYLE,
+} from "./constants";
+import { ScratchNode as CommonScratchNode, Trigger } from "./styles";
+import { Handle, Position } from "reactflow";
+import React, { memo, useState } from "react";
+
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import NoteFormContainer from "../../containers/forms/NoteForm";
+import { checkNote } from "./utils";
+import colors from "@erxes/ui/src/styles/colors";
+import { renderDynamicComponent } from "../../utils";
 
 const showHandler = (data, option) => {
-  if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
+  if (data.nodeType === "trigger" && ["left"].includes(option.id)) {
     return false;
   }
 
@@ -33,12 +33,14 @@ type Props = {
     type: string;
     nodeType: string;
     actionType: string;
+    triggerType?: string;
     icon: string;
     label: string;
     description: string;
+    config: any;
     toggleDrawer: ({
       type,
-      awaitingActionId
+      awaitingActionId,
     }: {
       type: string;
       awaitingActionId?: string;
@@ -61,17 +63,47 @@ export const ScratchNode = ({ data }: Props) => {
   const { toggleDrawer } = data;
 
   return (
-    <CommonScratchNode onClick={toggleDrawer.bind(this, { type: 'triggers' })}>
+    <CommonScratchNode onClick={toggleDrawer.bind(this, { type: "triggers" })}>
       <Icon icon="file-plus" size={25} />
       <p>{__('triggerAutomation')}?</p>
     </CommonScratchNode>
   );
 };
 
+const renderTriggerContent = (
+  constants: any[] = [],
+  nodeType,
+  type,
+  config
+) => {
+  if (nodeType !== "trigger") {
+    return null;
+  }
+  const constant = (constants || []).find((c) => c.type === type);
+
+  if (!!constant?.isCustom) {
+    return (
+      <div className="triggerContent">
+        {renderDynamicComponent(
+          {
+            componentType: "triggerContent",
+            config,
+            constant,
+            triggerType: type,
+          },
+          constant.type
+        )}
+      </div>
+    );
+  }
+
+  return null;
+};
+
 export default memo(({ id, data }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { toggleDrawer, onDoubleClick, removeItem, constants } = data;
+  const { toggleDrawer, onDoubleClick, removeItem, constants, config } = data;
 
   const onMouseEnter = () => {
     setIsHovered(true);
@@ -83,17 +115,17 @@ export default memo(({ id, data }: Props) => {
 
   const handleOnClick = ({
     optionId,
-    isOptionalConnect
+    isOptionalConnect,
   }: {
     optionId: string;
     isOptionalConnect?: boolean;
   }) => {
-    if (optionId.includes('right')) {
+    if (optionId.includes("right")) {
       toggleDrawer({
         type: `actions`,
         awaitingActionId: isOptionalConnect
-          ? optionId.replace('-right', '')
-          : id
+          ? optionId.replace("-right", "")
+          : id,
       });
     }
   };
@@ -102,7 +134,7 @@ export default memo(({ id, data }: Props) => {
     onDoubleClick(data.nodeType, id);
   };
 
-  const removeNode = e => {
+  const removeNode = (e) => {
     e.persist();
     removeItem(data.nodeType, id);
   };
@@ -113,10 +145,10 @@ export default memo(({ id, data }: Props) => {
 
       return (
         <CommonForm
-          renderContent={formProps => (
+          renderContent={(formProps) => (
             <NoteFormContainer
               formProps={formProps}
-              automationId={automation?._id || ''}
+              automationId={automation?._id || ""}
               isEdit={true}
               itemId={id}
               notes={checkNote(automationNotes, id)}
@@ -128,7 +160,7 @@ export default memo(({ id, data }: Props) => {
     };
 
     const trigger = (
-      <i className="icon-notes add-note" title={__('Write Note')}></i>
+      <i className="icon-notes add-note" title={__("Write Note")}></i>
     );
 
     return (
@@ -142,14 +174,14 @@ export default memo(({ id, data }: Props) => {
     }
 
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
-      c => c.type === data[`${data.nodeType}Type`]
+      (c) => c.type === data[`${data.nodeType}Type`]
     );
 
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
 
-    const handle = optionalId => (
+    const handle = (optionalId) => (
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
@@ -157,15 +189,16 @@ export default memo(({ id, data }: Props) => {
         position={Position.Right}
         onClick={handleOnClick.bind(this, {
           optionId: `${id}-${optionalId}-right`,
-          isOptionalConnect: true
+          isOptionalConnect: true,
         })}
         isConnectable
         style={{
-          right: '20px',
-          width: 10,
-          height: 10,
-          backgroundColor: colors.colorShadowGray,
-          zIndex: 4
+          right: "20px",
+          width: 15,
+          height: 15,
+          backgroundColor: colors.colorWhite,
+          border: `2px solid ${colors.colorCoreGray}`,
+          zIndex: 4,
         }}
       />
     );
@@ -174,9 +207,9 @@ export default memo(({ id, data }: Props) => {
       <div className="optional-connects">
         {renderDynamicComponent(
           {
-            componentType: 'optionalContent',
+            componentType: "optionalContent",
             data,
-            handle
+            handle,
           },
           constant.type
         )}
@@ -185,13 +218,13 @@ export default memo(({ id, data }: Props) => {
   };
 
   const handleOptions: HandleProps[] =
-    data?.actionType === 'if' ? BRANCH_HANDLE_OPTIONS : DEFAULT_HANDLE_OPTIONS;
+    data?.actionType === "if" ? BRANCH_HANDLE_OPTIONS : DEFAULT_HANDLE_OPTIONS;
 
   return (
     <>
       <Trigger
         type={data.nodeType}
-        isHoverActionBar={isHovered}
+        $isHoverActionBar={isHovered}
         key={id}
         onDoubleClick={handleDoubleClick}
         onMouseEnter={onMouseEnter}
@@ -204,7 +237,7 @@ export default memo(({ id, data }: Props) => {
               <i
                 className="icon-trash-alt delete-control"
                 onClick={removeNode}
-                title={__('Delete')}
+                title={__("Delete")}
               ></i>
             </div>
           </div>
@@ -215,11 +248,17 @@ export default memo(({ id, data }: Props) => {
         </div>
 
         {renderOptionalContent()}
+        {renderTriggerContent(
+          constants.triggersConst,
+          data.nodeType,
+          data.triggerType,
+          config
+        )}
 
         <p>{__(data.description)}</p>
       </Trigger>
       {handleOptions.map(
-        option =>
+        (option) =>
           showHandler(data, option) && (
             <Handle
               key={option.id}
@@ -233,7 +272,7 @@ export default memo(({ id, data }: Props) => {
                 <div
                   style={{
                     ...option.labelStyle,
-                    color: option.style.background
+                    color: option.style.background,
                   }}
                 >
                   {__(option.label)}

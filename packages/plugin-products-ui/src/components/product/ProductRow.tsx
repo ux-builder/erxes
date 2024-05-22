@@ -1,74 +1,89 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import React from 'react';
-import { IProduct } from '../../types';
-import { __ } from '@erxes/ui/src/utils/core';
-import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import {
+  ActionButtons,
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __,
+} from "@erxes/ui/src";
+
+import { IProduct } from "../../types";
+import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
+import React from "react";
+import Tags from "@erxes/ui/src/components/Tags";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   product: IProduct;
-  history: any;
   isChecked: boolean;
   toggleBulk: (product: IProduct, isChecked?: boolean) => void;
 };
 
-class Row extends React.Component<Props> {
-  render() {
-    const { product, history, toggleBulk, isChecked } = this.props;
+const Row: React.FC<Props> = (props) => {
+  const { product, toggleBulk, isChecked } = props;
+  const navigate = useNavigate();
 
-    const tags = product.getTags || [];
+  const tags = product.getTags || [];
 
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(product, e.target.checked);
-      }
-    };
+  const trigger = (
+    <Button btnStyle="link">
+      <Tip text={__("Edit")} placement="bottom">
+        <Icon icon="edit-3" />
+      </Tip>
+    </Button>
+  );
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
+  const onChange = (e) => {
+    if (toggleBulk) {
+      toggleBulk(product, e.target.checked);
+    }
+  };
 
-    const onTrClick = () => {
-      history.push(`/settings/product-service/details/${product._id}`);
-    };
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
 
-    const content = props => <ProductForm {...props} product={product} />;
+  const onTrClick = () => {
+    navigate(`/settings/product-service/details/${product._id}`);
+  };
 
-    const { code, name, type, category, unitPrice } = product;
+  const content = (props) => <ProductForm {...props} product={product} />;
 
-    return (
-      <tr onClick={onTrClick}>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        </td>
-        <td>{code}</td>
-        <td>{name}</td>
-        <td>
-          <TextInfo>{type}</TextInfo>
-        </td>
-        <td>{category ? category.name : ''}</td>
-        <td>{(unitPrice || 0).toLocaleString()}</td>
-        <td>
-          <Tags tags={tags} limit={2} />
-        </td>
-        <td onClick={onClick}>
+  const { code, name, type, category, unitPrice } = product;
+
+  return (
+    <tr onClick={onTrClick}>
+      <td onClick={onClick}>
+        <FormControl
+          checked={isChecked}
+          componentclass="checkbox"
+          onChange={onChange}
+        />
+      </td>
+      <td>{code}</td>
+      <td>{name}</td>
+      <td>
+        <TextInfo>{type}</TextInfo>
+      </td>
+      <td>{category ? category.name : ""}</td>
+      <td>{(unitPrice || 0).toLocaleString()}</td>
+      <td>
+        <Tags tags={tags} limit={2} />
+      </td>
+      <td onClick={onClick}>
+        <ActionButtons>
           <ModalTrigger
             title="Edit basic info"
-            trigger={<Icon icon="edit" />}
+            trigger={trigger}
             size="xl"
             content={content}
           />
-        </td>
-      </tr>
-    );
-  }
-}
+        </ActionButtons>
+      </td>
+    </tr>
+  );
+};
 
 export default Row;

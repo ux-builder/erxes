@@ -3,17 +3,18 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+  FormGroup,
+} from "@erxes/ui/src/components";
+import React, { useState } from "react";
+
+import { IFormProps } from "@erxes/ui/src/types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
 
 interface IProps {
   closeModal?: () => void;
   data: any;
-  callData?: { callerNumber: string };
+  callData?: { customerPhone: string };
   setConfig?: any;
 }
 
@@ -38,23 +39,23 @@ const renderInput = (
 
 const CallIntegrationForm = (props: IProps) => {
   const { closeModal, data = {}, setConfig } = props;
-  const [selectedIntegrationId, setSelectedIntegrationId] = useState('');
+  const [selectedIntegrationId, setSelectedIntegrationId] = useState("");
   const integration = selectedIntegrationId
-    ? data?.find(d => d._id === selectedIntegrationId)
+    ? data?.find((d) => d._id === selectedIntegrationId)
     : data?.[0];
 
   const saveCallConfig = () => {
     // tslint:disable-next-line:no-unused-expression
     integration &&
       localStorage.setItem(
-        'config:call_integrations',
+        "config:call_integrations",
         JSON.stringify({
           inboxId: integration?.inboxId,
           phone: integration?.phone,
           wsServer: integration?.wsServer,
           token: integration?.token,
           operators: integration?.operators,
-          isAvailable: true
+          isAvailable: true,
         })
       );
     // tslint:disable-next-line:no-unused-expression
@@ -65,7 +66,7 @@ const CallIntegrationForm = (props: IProps) => {
         wsServer: integration.wsServer,
         token: integration.token,
         operators: integration.operators,
-        isAvailable: true
+        isAvailable: true,
       });
     closeModal();
   };
@@ -74,14 +75,14 @@ const CallIntegrationForm = (props: IProps) => {
     // tslint:disable-next-line:no-unused-expression
     integration &&
       localStorage.setItem(
-        'config:call_integrations',
+        "config:call_integrations",
         JSON.stringify({
           inboxId: integration?.inboxId,
           phone: integration?.phone,
           wsServer: integration?.wsServer,
           token: integration?.token,
           operators: integration?.operators,
-          isAvailable: false
+          isAvailable: false,
         })
       );
     // tslint:disable-next-line:no-unused-expression
@@ -92,12 +93,12 @@ const CallIntegrationForm = (props: IProps) => {
         wsServer: integration.wsServer,
         token: integration.token,
         operators: integration.operators,
-        isAvailable: false
+        isAvailable: false,
       });
     closeModal();
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     setSelectedIntegrationId(e.target.value);
   };
 
@@ -108,13 +109,13 @@ const CallIntegrationForm = (props: IProps) => {
           <FormControl
             {...formProps}
             name="phone"
-            componentClass="select"
-            placeholder={__('Select phone')}
+            componentclass="select"
+            placeholder={__("Select phone")}
             defaultValue={integration?.phone}
             onChange={onChange}
             required={true}
           >
-            {data?.map(int => (
+            {data?.map((int) => (
               <option key={int._id} value={int._id}>
                 {int.phone}
               </option>
@@ -122,30 +123,30 @@ const CallIntegrationForm = (props: IProps) => {
           </FormControl>
         </FormGroup>
         {renderInput(
-          'wsServer',
-          'Web socket server',
+          "wsServer",
+          "Web socket server",
           integration?.wsServer,
           formProps
         )}
 
         {integration?.operators.map((operator: any, index: number) => {
           return (
-            <>
+            <div key={index}>
               <ControlLabel>Operator {index + 1}</ControlLabel>
-              {renderInput('userId', 'user id', operator.userId, formProps)}
+              {renderInput("userId", "user id", operator.userId, formProps)}
               {renderInput(
-                'gsUsername',
-                'grandstream username',
+                "gsUsername",
+                "grandstream username",
                 operator.gsUsername,
                 formProps
               )}
               {renderInput(
-                'gsPassword',
-                'grandstream password',
+                "gsPassword",
+                "grandstream password",
                 operator.gsPassword,
                 formProps
               )}
-            </>
+            </div>
           );
         })}
 
@@ -173,7 +174,7 @@ const CallIntegrationForm = (props: IProps) => {
             icon="check-circle"
             onClick={saveCallConfig}
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </>

@@ -118,6 +118,7 @@ export const types = `
     scheduleChecked: Boolean
     submittedByAdmin: Boolean
     totalBreakInMins: Int
+    note: String
   }
   
   type DuplicateSchedule {
@@ -184,8 +185,9 @@ export const types = `
     absenceInfo: IUserAbsenceInfo
 
     scheduledShifts: [Shift]
+    schedules: [Schedule]
     timeclocks: [Timeclock]
-    requests: [Absence]
+    requests: [JSON]
 
     totalHoursWorkedSelectedDay: Float
     totalHoursScheduledSelectedDay: Float
@@ -298,6 +300,11 @@ export const types = `
     list: [DeviceConfig]
     totalCount: Float
   }
+
+  type TimeclockReportByUsersListResponse {
+    list: [UserReport]
+    totalCount: Int
+  }
 `;
 
 const timeclockParams = `
@@ -382,7 +389,7 @@ export const queries = `
   absenceTypes:[AbsenceType]
   
   timeclockReports(${queryParams}): TimeclockReportsListResponse
-
+  timeclockReportByUsers(${queryParams}):TimeclockReportByUsersListResponse
   
   timeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): UserReport
   
@@ -420,8 +427,8 @@ export const mutations = `
 
   submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date): AbsenceType
   
-  sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
-  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int, note: String): Schedule
+  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int, note: String): Schedule
   editSchedule(_id: String!, shifts: [ShiftInput]): JSON
   checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 

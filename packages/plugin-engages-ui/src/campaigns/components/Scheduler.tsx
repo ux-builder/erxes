@@ -1,17 +1,17 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { DateContainer } from '@erxes/ui/src/styles/main';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IEngageScheduleDate } from "@erxes/ui-engage/src/types";
+import React from "react";
+import { SCHEDULE_TYPES } from "@erxes/ui-engage/src/constants";
+import { SelectMonth } from "@erxes/ui-engage/src/styles";
 import { __ } from 'coreui/utils';
-import { SCHEDULE_TYPES } from '@erxes/ui-engage/src/constants';
-import React from 'react';
-import { SelectMonth } from '@erxes/ui-engage/src/styles';
-import { IEngageScheduleDate } from '@erxes/ui-engage/src/types';
 
 type Props = {
   scheduleDate: IEngageScheduleDate;
-  onChange: (name: 'scheduleDate', value?: IEngageScheduleDate) => void;
+  onChange: (name: "scheduleDate", value?: IEngageScheduleDate) => void;
 };
 
 type State = {
@@ -30,7 +30,7 @@ class Scheduler extends React.Component<Props, State> {
       ? { ...this.state.scheduleDate }
       : null;
 
-    if (key === 'type' && !value) {
+    if (key === "type" && !value) {
       scheduleDate = null;
     }
 
@@ -40,7 +40,7 @@ class Scheduler extends React.Component<Props, State> {
 
     this.setState({ scheduleDate });
 
-    this.props.onChange('scheduleDate', scheduleDate);
+    this.props.onChange("scheduleDate", scheduleDate);
   };
 
   generateOptions(length) {
@@ -58,14 +58,14 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   renderMonthSelector() {
-    const { type, month } = this.state.scheduleDate || { type: '', month: '' };
+    const { type, month } = this.state.scheduleDate || { type: "", month: "" };
 
-    if (type !== 'year') {
+    if (type !== "year") {
       return null;
     }
 
-    const onChange = e =>
-      this.changeSchedule('month', (e.target as HTMLInputElement).value);
+    const onChange = (e) =>
+      this.changeSchedule("month", (e.target as HTMLInputElement).value);
 
     return (
       <React.Fragment>
@@ -78,14 +78,14 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   renderDaySelector() {
-    const { type, day } = this.state.scheduleDate || { type: '', day: '' };
+    const { type, day } = this.state.scheduleDate || { type: "", day: "" };
 
-    if (type !== 'year' && type !== 'month') {
+    if (type !== "year" && type !== "month") {
       return null;
     }
 
-    const onChange = e =>
-      this.changeSchedule('day', (e.target as HTMLInputElement).value);
+    const onChange = (e) =>
+      this.changeSchedule("day", (e.target as HTMLInputElement).value);
 
     return (
       <React.Fragment>
@@ -99,20 +99,20 @@ class Scheduler extends React.Component<Props, State> {
 
   renderDateTimeSelector() {
     const schedule = this.state.scheduleDate || {
-      type: 'pre',
-      dateTime: ''
+      type: "pre",
+      dateTime: "",
     };
 
     if (schedule.type === undefined) {
-      schedule.type = 'pre';
+      schedule.type = "pre";
     }
 
-    if (schedule.type !== 'pre') {
+    if (schedule.type !== "pre") {
       return null;
     }
 
-    const onChange = e => {
-      this.changeSchedule('dateTime', e);
+    const onChange = (e) => {
+      this.changeSchedule("dateTime", e);
     };
 
     return (
@@ -125,7 +125,7 @@ class Scheduler extends React.Component<Props, State> {
             required={false}
             name="dateTime"
             value={schedule.dateTime}
-            placeholder={'Date time'}
+            placeholder={"Date time"}
             onChange={onChange}
           />
         </DateContainer>
@@ -134,10 +134,10 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   render() {
-    const { type } = this.state.scheduleDate || { type: '' };
+    const { type } = this.state.scheduleDate || { type: "" };
 
-    const onChange = e =>
-      this.changeSchedule('type', (e.target as HTMLInputElement).value);
+    const onChange = (e) =>
+      this.changeSchedule("type", (e.target as HTMLInputElement).value);
 
     return (
       <FormGroup>

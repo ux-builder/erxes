@@ -5,7 +5,7 @@ import { bulk, single } from './api';
 import { validateBulkPhones, validateSinglePhone } from './apiPhoneVerifier';
 import { connect } from './connection';
 import './cronJobs/verifier';
-import { initRedis } from './redisClient';
+
 import { debugBase, debugCrons, debugRequest } from './utils';
 
 // load environment variables
@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 
 const urlencodedMiddleware = express.urlencoded({
-  extended: true
+  extended: true,
 }) as express.RequestHandler;
 const jsonMiddleware = express.json() as express.RequestHandler;
 
@@ -81,7 +81,6 @@ const { PORT } = process.env;
 
 app.listen(PORT, async () => {
   await connect();
-  initRedis();
   debugBase(`Email verifier server is running on port ${PORT}`);
 });
 

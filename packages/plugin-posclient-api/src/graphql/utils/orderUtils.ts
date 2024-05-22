@@ -3,7 +3,7 @@ import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   DISTRICTS,
   BILL_TYPES,
@@ -38,9 +38,7 @@ export const generateOrderNumber = async (
   models: IModels,
   config: IConfig
 ): Promise<string> => {
-  const todayStr = moment()
-    .format('YYYYMMDD')
-    .toString();
+  const todayStr = moment().format('YYYYMMDD').toString();
 
   const beginNumber =
     (config && config.beginNumber && `${config.beginNumber}.`) || '';
@@ -101,7 +99,7 @@ export const validateOrder = async (
 ) => {
   const { items = [] } = doc;
 
-  if (items.filter(i => !i.isPackage).length < 1) {
+  if (!items.filter(i => !i.isPackage).length) {
     throw new Error('Products missing in order. Please add products');
   }
 
@@ -129,7 +127,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      p => (p.isCheckRems || {})[config.token] || false
+      p => (p.isCheckRems || {})[config.token || ''] || false
     );
 
     if (checkProducts.length) {
@@ -289,11 +287,11 @@ export const prepareEbarimtData = async (
   let customerName = '';
 
   if (registerNumber) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: registerNumber }
-    });
+    const response = await fetch(
+      config.checkCompanyUrl +
+        '?' +
+        new URLSearchParams({ regno: registerNumber })
+    ).then(res => res.json());
 
     if (response.found) {
       billType = BILL_TYPES.ENTITY;
@@ -657,16 +655,18 @@ export const prepareOrderDoc = async (
     const deliveryProd = await models.Products.findOne({
       _id: config.deliveryConfig.productId
     }).lean();
+
     if (deliveryProd) {
+      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
         count: 1,
-        unitPrice: deliveryProd.unitPrice,
+        unitPrice: deliveryUnitPrice,
         isPackage: true,
         isTake: true
       });
-      doc.totalAmount += deliveryProd.unitPrice;
+      doc.totalAmount += deliveryUnitPrice;
     }
   }
 

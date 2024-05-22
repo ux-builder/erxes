@@ -1,11 +1,12 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { fieldsCombinedByContentType } from '../../../utils';
-import { serviceDiscovery } from '../../../configs';
+import { fieldsCombinedByContentType, getContentTypes } from '../../../utils';
+
 import { fetchService } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -22,11 +23,11 @@ export interface IFieldsQuery {
 
 const fieldQueries = {
   async fieldsGetTypes() {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.forms) {
@@ -35,7 +36,7 @@ const fieldQueries = {
         for (const type of types) {
           fieldTypes.push({
             description: type.description,
-            contentType: `${serviceName}:${type.type}`
+            contentType: `${serviceName}:${type.type}`,
           });
         }
       }
@@ -45,7 +46,7 @@ const fieldQueries = {
   },
 
   async getFieldsInputTypes() {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldInputTypes: Array<{ value: string; label: string }> = [
       { value: 'input', label: 'Input' },
       { value: 'list', label: 'String List' },
@@ -53,18 +54,20 @@ const fieldQueries = {
       { value: 'textarea', label: 'Text area' },
       { value: 'select', label: 'Select' },
       { value: 'multiSelect', label: 'Multiple select' },
+      { value: 'labelSelect', label: 'Label select' },
       { value: 'check', label: 'Checkbox' },
       { value: 'radio', label: 'Radio button' },
       { value: 'file', label: 'File' },
       { value: 'customer', label: 'Customer' },
       { value: 'product', label: 'Product' },
+      { value: 'users', label: 'Team members' },
       { value: 'branch', label: 'Branch' },
       { value: 'department', label: 'Department' },
-      { value: 'map', label: 'Location/Map' }
+      { value: 'map', label: 'Location/Map' },
     ];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.forms) {
@@ -73,7 +76,7 @@ const fieldQueries = {
         for (const type of types) {
           fieldInputTypes.push({
             value: type.value,
-            label: type.label
+            label: type.label,
           });
         }
       }
@@ -93,7 +96,8 @@ const fieldQueries = {
       isVisible,
       isVisibleToCreate,
       searchable,
-      pipelineId
+      pipelineId,
+      groupIds: inputGroupIds
     }: {
       contentType: string;
       contentTypeId: string;
@@ -101,11 +105,22 @@ const fieldQueries = {
       isVisibleToCreate: boolean;
       searchable: boolean;
       pipelineId: string;
+        groupIds: string[]
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const query: IFieldsQuery = { contentType };
-    console.log('query', query);
+
+    if (contentType) {
+      const [serviceName, serviceType] = contentType.split(":")
+
+      if (serviceType === "all") {
+        const contentTypes: Array<string> = await getContentTypes(serviceName);
+        query.contentType = { $in: contentTypes } as any;
+      } else {
+        query.contentType = contentType
+      }
+    }
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
@@ -121,13 +136,17 @@ const fieldQueries = {
 
     const groupIds: string[] = [];
 
+    if (inputGroupIds && inputGroupIds.length > 0) {
+      groupIds.push(...inputGroupIds)
+    }
+
     if (isVisibleToCreate !== undefined) {
       query.isVisibleToCreate = isVisibleToCreate;
 
       const erxesDefinedGroup = await models.FieldsGroups.findOne({
         contentType,
         isDefinedByErxes: true,
-        code: { $exists: false }
+        code: { $exists: false },
       });
 
       if (erxesDefinedGroup) {
@@ -137,7 +156,7 @@ const fieldQueries = {
 
     if (pipelineId) {
       const otherGroupIds = await models.FieldsGroups.find({
-        'config.boardsPipelines.pipelineIds': { $in: [pipelineId] }
+        'config.boardsPipelines.pipelineIds': { $in: [pipelineId] },
       })
         .select({ _id: 1 })
         .sort({ order: 1 });
@@ -146,7 +165,7 @@ const fieldQueries = {
 
       const fields = await models.Fields.find({
         ...query,
-        groupId: { $in: groupIds }
+        groupId: { $in: groupIds },
       }).sort({ order: 1 });
 
       allFields.push(...fields);
@@ -154,7 +173,7 @@ const fieldQueries = {
       for (const groupId of otherGroupIds) {
         const groupFields = await models.Fields.find({
           groupId,
-          ...query
+          ...query,
         }).sort({ order: 1 });
 
         allFields.push(...groupFields);
@@ -176,7 +195,7 @@ const fieldQueries = {
   async fieldsCombinedByContentType(
     _root,
     args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     return fieldsCombinedByContentType(models, subdomain, args);
   },
@@ -186,10 +205,10 @@ const fieldQueries = {
    */
   async fieldsDefaultColumnsConfig(
     _root,
-    { contentType }: { contentType: string }
+    { contentType }: { contentType: string },
   ): Promise<IFieldsDefaultColmns> {
     const [serviceName, type] = contentType.split(':');
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
 
     if (!service) {
       return [];
@@ -218,17 +237,25 @@ const fieldQueries = {
     _root,
     {
       contentType,
-      isVisibleToCreate
+      isVisibleToCreate,
     }: { contentType: string; isVisibleToCreate: boolean },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Fields.find({
       contentType,
       isDefinedByErxes: true,
       isVisibleToCreate,
-      relationType: { $exists: true }
+      relationType: { $exists: true },
     });
-  }
+  },
+
+  async fieldByCode(
+    _root,
+    { contentType, code }: { contentType: string; code: string },
+    { models }: IContext,
+  ) {
+    return models.Fields.findOne({ contentType, code });
+  },
 };
 
 requireLogin(fieldQueries, 'fieldsCombinedByContentType');
@@ -247,21 +274,32 @@ const fieldsGroupQueries = {
       contentType,
       isDefinedByErxes,
       codes,
-      config
+      config,
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
       codes: string[];
       config;
     },
-    { commonQuerySelector, models, subdomain }: IContext
+    { commonQuerySelector, models, subdomain }: IContext,
   ) {
     let query: any = {
-      $or: [{ ...commonQuerySelector }, { isDefinedByErxes: true }]
+      $or: [{ ...commonQuerySelector }, { isDefinedByErxes: true }],
     };
 
     // querying by content type
     query.contentType = contentType;
+
+    if (contentType) {
+      const [serviceName, serviceType] = contentType.split(":")
+
+      if (serviceType === "all") {
+        const contentTypes: Array<string> = await getContentTypes(serviceName);
+        query.contentType = { $in: contentTypes };
+      } else {
+        query.contentType = contentType
+      }
+    }
 
     if (config) {
       query = await fetchService(
@@ -269,7 +307,7 @@ const fieldsGroupQueries = {
         contentType,
         'groupsFilter',
         { config, contentType },
-        query
+        query,
       );
     }
 
@@ -288,7 +326,7 @@ const fieldsGroupQueries = {
   getSystemFieldsGroup(
     _root,
     { contentType }: { contentType: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const query: any = {};
 
@@ -297,7 +335,7 @@ const fieldsGroupQueries = {
     query.isDefinedByErxes = true;
 
     return models.FieldsGroups.findOne(query);
-  }
+  },
 };
 
 checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);

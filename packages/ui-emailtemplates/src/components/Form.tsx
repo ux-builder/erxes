@@ -1,16 +1,19 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IEmailTemplate } from '../types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IEmailTemplate } from "../types";
+import React from "react";
+import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
+
 import { __ } from 'coreui/utils';
 type Props = {
   object?: IEmailTemplate;
   contentType?: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
 type State = {
@@ -22,12 +25,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || ''
+      content: (props.object && props.object.content) || "",
     };
   }
 
-  onEditorChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onEditorChange = (content: string) => {
+    this.setState({ content });
   };
 
   generateDoc = (values: { _id?: string; name: string; content: string }) => {
@@ -41,7 +44,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: this.state.content
+      content: this.state.content,
     };
   };
 
@@ -64,12 +67,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
         <FormGroup>
           <ControlLabel>{__('Content')}</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={this.state.content}
             onChange={this.onEditorChange}
             autoGrow={true}
+            autoGrowMinHeight={300}
             isSubmitted={formProps.isSaved}
-            name={`emailTemplates_${object._id || 'create'}`}
+            name={`emailTemplates_${object._id || "create"}`}
             contentType={this?.props?.contentType}
           />
         </FormGroup>

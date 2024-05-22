@@ -6,11 +6,17 @@ import {
 } from './constants';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import {
+  customFieldSchema,
+  ICustomField
+} from '@erxes/api-utils/src/definitions/common';
 
 export interface IInsurancesData extends Document {
   insuranceTypeId: string;
   amount?: number;
 }
+
+type HolidayType = 'before' | 'exact' | 'after';
 
 export interface ICollateralData {
   collateralId: string;
@@ -20,7 +26,7 @@ export interface ICollateralData {
   percent: number;
   marginAmount: number;
   leaseAmount: number;
-
+  collateralTypeId: string;
   insuranceTypeId?: string;
   insuranceAmount?: number;
 }
@@ -44,6 +50,7 @@ export interface IContract {
   createdAt: Date;
   marginAmount?: number;
   givenAmount?: number;
+  loanBalanceAmount: number;
   leaseAmount: number;
   feeAmount?: number;
   /**
@@ -51,9 +58,10 @@ export interface IContract {
    */
   tenor: number;
   interestRate: number;
-  unduePercent: number;
+  lossPercent: number;
   repayment: string;
   startDate: Date;
+  firstPayDate: Date;
   endDate: Date;
   scheduleDays: number[];
   insuranceAmount: number;
@@ -102,7 +110,7 @@ export interface IContract {
 
   isExpired?: boolean;
   repaymentDate?: Date;
-  undueCalcType?: string;
+  lossCalcType?: string;
 
   skipInterestCalcMonth?: number;
 
@@ -122,6 +130,9 @@ export interface IContract {
   leaseType: string;
   commitmentInterest: number;
   savingContractId: string;
+  customFieldsData?: ICustomField[];
+  holidayType: HolidayType;
+  mustPayDate: Date;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -152,7 +163,7 @@ export const collateralDataSchema = {
   percent: { type: Number },
   marginAmount: { type: Number },
   leaseAmount: { type: Number },
-
+  collateralTypeId: { type: String },
   insuranceTypeId: { type: String },
   currency: { type: String },
   insuranceAmount: { type: Number }
@@ -218,6 +229,12 @@ export const contractSchema = schemaHooksWrapper(
       default: 0,
       label: 'Given amount'
     }),
+    loanBalanceAmount: field({
+      type: Number,
+      optional: true,
+      default: 0,
+      label: 'Balance amount'
+    }),
     feeAmount: field({
       type: Number,
       optional: true,
@@ -235,15 +252,15 @@ export const contractSchema = schemaHooksWrapper(
       max: 100,
       label: 'Loan Interest Rate'
     }),
-    unduePercent: field({
+    lossPercent: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Loan Undue percent'
+      label: 'Loan Loss percent'
     }),
     repayment: field({
       type: String,
-      enum: REPAYMENT_TYPE.map(option => option.value),
+      enum: REPAYMENT_TYPE.map((option) => option.value),
       required: true,
       label: 'Schedule Type',
       selectOptions: REPAYMENT_TYPE
@@ -261,6 +278,7 @@ export const contractSchema = schemaHooksWrapper(
       default: 0
     }),
     startDate: field({ type: Date, label: 'Start Date' }),
+    firstPayDate: field({ type: Date, label: 'First Pay Date' }),
     endDate: field({ type: Date, label: 'End Date' }),
     scheduleDays: field({
       type: [Number],
@@ -377,10 +395,10 @@ export const contractSchema = schemaHooksWrapper(
       optional: true,
       label: 'Repayment'
     }),
-    undueCalcType: field({
+    lossCalcType: field({
       type: String,
       optional: true,
-      label: 'Undue Calc Type'
+      label: 'Loss Calc Type'
     }),
     skipInterestCalcMonth: field({
       type: Number,
@@ -454,6 +472,27 @@ export const contractSchema = schemaHooksWrapper(
     savingContractId: field({
       type: String,
       label: 'Saving contract Id'
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
+    }),
+    holidayType: field({
+      type: String,
+      label: 'Holiday type'
+    }),
+    bankAccountNumber: field({
+      type: String,
+      label: 'Bank account number'
+    }),
+    bankAccountType: field({
+      type: String,
+      label: 'Bank account type'
+    }),
+    mustPayDate: field({
+      type: Date,
+      label: 'Must pay date'
     })
   }),
   'erxes_contractSchema'

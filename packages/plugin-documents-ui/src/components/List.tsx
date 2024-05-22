@@ -1,59 +1,160 @@
-import Button from '@erxes/ui/src/components/Button';
-import { I{Name}, IType } from '../types';
-import Row from './Row';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Form from './Form';
-import { Title } from '@erxes/ui-settings/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import {
+  FilterContainer,
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title,
+} from "@erxes/ui-settings/src/styles";
+import {
+  FormControl,
+  ModalTrigger,
+  Pagination,
+} from "@erxes/ui/src/components";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Form from "../containers/Form";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import { router } from "@erxes/ui/src/utils";
 
 type Props = {
-  {name}s: I{Name}[];
-  types: IType[];
-  typeId?: string;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: ({name}: I{Name}) => void;
-  edit: ({name}: I{Name}) => void;
+  queryParams: any;
+  list: any[];
+  totalCount: number;
+  contentType: string;
+  contentTypes: Array<{
+    label: string;
+    contentType: string;
+    subTypes: string[];
+  }>;
+  remove: (_id: string) => void;
   loading: boolean;
 };
 
 function List({
-  {name}s,
-  typeId,
-  types,
+  queryParams,
+  contentType,
+  contentTypes,
+  list,
+  totalCount,
   remove,
-  renderButton,
   loading,
-  edit
 }: Props) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  let timer;
+
+  const typeObject = contentTypes.find(
+    (type) => contentType === type.contentType
+  );
+
+  const searchHandler = (e) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const inputValue = e.target.value;
+
+    timer = setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: inputValue });
+    }, 500);
+  };
+
+  const renderSearch = () => {
+    return (
+      <InputBar type="searchBar">
+        <Icon icon="search-1" size={20} />
+        <FlexItem>
+          <FormControl
+            type="text"
+            placeholder={__("Type to search")}
+            onChange={searchHandler}
+            autoFocus={true}
+          />
+        </FlexItem>
+      </InputBar>
+    );
+  };
+
+  const modalContent = (modalProps) => {
+    const props = {
+      ...modalProps,
+      contentType,
+    };
+
+    return <Form {...props} />;
+  };
+
   const trigger = (
     <Button id={'Add{Name}Button'} btnStyle="success" icon="plus-circle">
       Add {Name}
     </Button>
   );
 
-  const modalContent = props => (
-    <Form {...props} types={types} renderButton={renderButton} {name}s={{name}s} />
-  );
+  function renderObjects() {
+    return list.map((obj) => {
+      return <Row key={obj._id} obj={obj} remove={remove} />;
+    });
+  }
 
-  const actionBarRight = (
-    <ModalTrigger
-      title={__('Add {name}')}
-      trigger={trigger}
-      content={modalContent}
-      enforceFocus={false}
-    />
-  );
+  function renderData() {
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>{__("name")}</th>
+            <th>{__("Actions")}</th>
+          </tr>
+        </thead>
+        <tbody>{renderObjects()}</tbody>
+      </Table>
+    );
+  }
 
-  const title = <Title capitalize={true}>{__('{Name}')}</Title>;
+  function renderContent() {
+    return (
+      <DataWithLoader
+        data={renderData()}
+        loading={loading}
+        count={list.length}
+        emptyText={__("There is no document") + "."}
+        emptyImage="/images/actions/8.svg"
+      />
+    );
+  }
 
-  const actionBar = (
-    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+  const actionBarRight = () => {
+    return (
+      <FilterContainer $marginRight={true}>
+        <FlexRow>
+          {renderSearch()}
+          {queryParams.contentType && (
+            <ModalTrigger
+              content={modalContent}
+              size="lg"
+              title={__("Add Document")}
+              autoOpenKey="showDocumentModal"
+              trigger={trigger}
+            />
+          )}
+        </FlexRow>
+      </FilterContainer>
+    );
+  };
+
+  const title = (
+    <Title $capitalize={true}>
+      {__(` ${typeObject?.label || ""} Documents (${totalCount})`)}
+    </Title>
   );
 
   const content = (
@@ -89,21 +190,18 @@ function List({
   );
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('{Name}s'), link: '/{name}s' }
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Documents"), link: "/settings/documents" },
   ];
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={__('{Name}s')} breadcrumb={breadcrumb} />}
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={loading}
-          count={{name}s.length}
-          emptyText={__('Theres no {name}')}
-          emptyImage="/images/actions/8.svg"
+      header={
+        <Wrapper.Header
+          title={__(`Documents`)}
+          breadcrumb={breadcrumb}
+          queryParams={{ contentType }}
+          filterTitle={typeObject?.label || ""}
         />
       }
       leftSidebar={<SideBarList currentTypeId={typeId} />}

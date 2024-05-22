@@ -2,16 +2,17 @@ import {
   HeaderContent,
   HeaderContentSmall,
   HeaderRow,
-  TitleRow
-} from '../../styles/item';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useEffect, useState } from 'react';
-import Move from '../../containers/editForm/Move';
-import { IItem, IOptions } from '../../types';
-import CloseDate from './CloseDate';
-import StartDate from './StartDate';
+  TitleRow,
+} from "../../styles/item";
+import { IItem, IOptions } from "../../types";
+import React, { useEffect, useState } from "react";
+
+import CloseDate from "./CloseDate";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import Move from "../../containers/editForm/Move";
+import StartDate from "./StartDate";
 
 type Props = {
   item: IItem;
@@ -56,7 +57,7 @@ function Top(props: Props) {
     saveItem({ [key]: value });
   };
 
-  const onChangeName = e => {
+  const onChangeName = (e) => {
     const itemName = (e.target as HTMLInputElement).value;
 
     setName(itemName);
@@ -100,7 +101,7 @@ function Top(props: Props) {
           <TitleRow>
             <Icon icon="atm-card" />
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               value={name}
               required={true}
               onBlur={onNameBlur}
@@ -123,6 +124,8 @@ function Top(props: Props) {
         <CloseDate
           onChangeField={onCloseDateFieldsChange}
           closeDate={item.closeDate}
+          isCheckDate={item.pipeline.isCheckDate}
+          createdDate={item.createdAt}
           reminderMinute={item.reminderMinute}
           isComplete={item.isComplete}
         />

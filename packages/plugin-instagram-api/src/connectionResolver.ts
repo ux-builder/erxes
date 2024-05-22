@@ -34,8 +34,26 @@ import {
 } from './models/Integrations';
 import { ILogModel, loadLogClass } from './models/Logs';
 import { ILogDocument } from './models/definitions/logs';
+import {
+  IPostConversationModel,
+  loadPostConversationClass
+} from './models/PostConversations';
+import { IPostConversationDocument } from './models/definitions/postConversations';
+import {
+  ICommentConversationModel,
+  loadCommentConversationClass
+} from './models/Comment_conversations';
+import {
+  ICommentConversationReplyModel,
+  loadCommentConversationReplyClass
+} from './models/Comment_conversations_reply';
 
+import { ICommentConversationDocument } from './models/definitions/comment_conversations';
+import { ICommentConversationReplyDocument } from './models/definitions/comment_conversations_reply';
 export interface IModels {
+  PostConversations: IPostConversationModel;
+  CommentConversation: ICommentConversationModel;
+  CommentConversationReply: ICommentConversationReplyModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
   ConversationMessages: IConversationMessageModel;
@@ -50,11 +68,25 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
+  models.PostConversations = db.model<
+    IPostConversationDocument,
+    IPostConversationModel
+  >('instagram_posts_conversations', loadPostConversationClass(models));
+
+  models.CommentConversation = db.model<
+    ICommentConversationDocument,
+    ICommentConversationModel
+  >('instagram_comment_conversations', loadCommentConversationClass(models));
+  models.CommentConversationReply = db.model<
+    ICommentConversationReplyDocument,
+    ICommentConversationReplyModel
+  >(
+    'instagram_conversations_reply_facebook',
+    loadCommentConversationReplyClass(models)
+  );
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'instagram_accounts',
     loadAccountClass(models)
@@ -87,7 +119,4 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

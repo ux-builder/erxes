@@ -1,9 +1,9 @@
-import _ from 'lodash';
-import { IField } from '../../types';
-import React from 'react';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { OperatorList } from '../styles';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IField } from "../../types";
+import { OperatorList } from "../styles";
+import React from "react";
+import _ from "lodash";
 import { __ } from 'coreui/utils';
 
 type Props = {
@@ -25,9 +25,9 @@ class PropertyList extends React.Component<Props, {}> {
         key = field.group;
       } else {
         key =
-          value && value.includes('.')
-            ? value.substr(0, value.indexOf('.'))
-            : 'general';
+          value && value.includes(".")
+            ? value.substr(0, value.indexOf("."))
+            : "general";
 
         key = _.startCase(key);
       }
@@ -42,20 +42,22 @@ class PropertyList extends React.Component<Props, {}> {
     }, {});
   };
 
-  onClickProperty = field => {
+  onClickProperty = (field) => {
     this.props.onClickProperty(field);
   };
 
-  renderFields = fields => {
-    const { searchValue } = this.props;
+  renderFields = (fields) => {
+    return fields.map((field) => {
+ // renderFields = fields => {
+ //   const { searchValue } = this.props;
 
-    const searchQuery = searchValue.toLowerCase();
+//    const searchQuery = searchValue.toLowerCase();
 
-    const filteredFields = fields.filter(field => {
-      const originalLabelLower = field.label.toLowerCase();
+  //  const filteredFields = fields.filter(field => {
+    //  const originalLabelLower = field.label.toLowerCase();
       // 번역된 라벨을 소문자로 변환
-      const translatedLabelLower = __(field.label).toLowerCase();
-      // 검색어가 원본 라벨 또는 번역된 라벨 중 하나라도 포함되는지 확인
+ //     const translatedLabelLower = __(field.label).toLowerCase();
+//       // 검색어가 원본 라벨 또는 번역된 라벨 중 하나라도 포함되는지 확인
       return (
         originalLabelLower.includes(searchQuery) ||
         translatedLabelLower.includes(searchQuery)
@@ -64,9 +66,9 @@ class PropertyList extends React.Component<Props, {}> {
     return filteredFields.map(field => {
       return (
         <FormControl
-          key={field._id || Math.random()}
-          componentClass="radio"
-          onChange={() => this.onClickProperty(field)}
+          key={Math.random()}
+          componentclass="radio"
+          onChange={this.onClickProperty.bind(this, field)}
         >
           {__(field.label)}
         </FormControl>
@@ -77,7 +79,7 @@ class PropertyList extends React.Component<Props, {}> {
   render() {
     const objects = this.groupByType();
 
-    return Object.keys(objects).map(key => {
+    return Object.keys(objects).map((key) => {
       return (
         <OperatorList key={Math.random()}>
           <FormGroup>

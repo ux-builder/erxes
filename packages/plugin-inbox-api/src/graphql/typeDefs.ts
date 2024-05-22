@@ -1,91 +1,87 @@
-import gql from 'graphql-tag';
-
 import {
-  types as ChannelTypes,
+  mutations as ChannelMutations,
   queries as ChannelQueries,
-  mutations as ChannelMutations
+  types as ChannelTypes,
 } from './channelTypeDefs';
-
 import {
-  types as ConversationTypes,
+  mutations as ConversationMutations,
   queries as ConversationQueries,
-  mutations as ConversationMutations
+  types as ConversationTypes,
 } from './conversationTypeDefs';
-
 import {
-  types as MessengerAppTypes,
-  queries as MessengerAppQueries,
-  mutations as MessengerAppMutations
-} from './messengerAppTypeDefs';
-
-import {
-  types as integrationTypes,
+  mutations as IntegrationMutations,
   queries as IntegrationQueries,
-  mutations as IntegrationMutations
+  types as integrationTypes,
 } from './integrationTypeDefs';
-
 import {
-  types as ResponseTemplateTypes,
+  mutations as MessengerAppMutations,
+  queries as MessengerAppQueries,
+  types as MessengerAppTypes,
+} from './messengerAppTypeDefs';
+import {
+  mutations as ResponseTemplateMutations,
   queries as ResponseTemplateQueries,
-  mutations as ResponseTemplateMutations
+  types as ResponseTemplateTypes,
 } from './responseTemplateTypeDefs';
-
 import {
-  types as widgetTypes,
+  mutations as ScriptMutations,
+  queries as ScriptQueries,
+  types as ScriptTypes,
+} from './scriptTypeDefs';
+import {
+  mutations as SkillMutations,
+  queries as SkillQueries,
+  types as SkillTypes,
+} from './skillTypeDefs';
+import {
+  mutations as widgetMutations,
   queries as widgetQueries,
-  mutations as widgetMutations
+  types as widgetTypes,
 } from './widgetTypeDefs';
 
-import {
-  types as SkillTypes,
-  queries as SkillQueries,
-  mutations as SkillMutations
-} from './skillTypeDefs';
+import gql from 'graphql-tag';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-import {
-  types as ScriptTypes,
-  queries as ScriptQueries,
-  mutations as ScriptMutations
-} from './scriptTypeDefs';
+const typeDefs = async () => {
+  const isProductsEnabled = await isEnabled('products');
+  const isTagsEnabled = await isEnabled('tags');
+  const isFormsEnabled = await isEnabled('forms');
+  const isKbEnabled = await isEnabled('knowledgebase');
+  const isContactsEnabled = await isEnabled('contacts');
+  const isDailycoEnabled = await isEnabled('dailyco');
+  const isCallsEnabled = await isEnabled('calls');
 
-const typeDefs = async serviceDiscovery => {
-  const isProductsEnabled = await serviceDiscovery.isEnabled('products');
-  const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
-  const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const isDailycoEnabled = await serviceDiscovery.isEnabled('dailyco');
-
-  const isEnabled = {
+  const isEnabledTable = {
     products: isProductsEnabled,
     tags: isTagsEnabled,
     forms: isFormsEnabled,
     knowledgeBase: isKbEnabled,
     contacts: isContactsEnabled,
-    dailyco: isDailycoEnabled
+    dailyco: isDailycoEnabled,
+    calls: isCallsEnabled,
   };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isEnabled)}
+    ${ConversationTypes(isEnabledTable)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isEnabled)}
+    ${integrationTypes(isEnabledTable)}
     ${ResponseTemplateTypes}
-    ${widgetTypes(isEnabled)}
+    ${widgetTypes(isEnabledTable)}
     ${SkillTypes}
-    ${ScriptTypes(isEnabled)}
+    ${ScriptTypes(isEnabledTable)}
     
     
     extend type Query {
-      ${ConversationQueries(isEnabled)}
+      ${ConversationQueries(isEnabledTable)}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
-      ${widgetQueries(isEnabled)}
+      ${widgetQueries(isEnabledTable)}
       ${SkillQueries}
       ${ScriptQueries}
     }
@@ -96,7 +92,7 @@ const typeDefs = async serviceDiscovery => {
       ${ChannelMutations}
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
-      ${widgetMutations(isEnabled)}
+      ${widgetMutations(isEnabledTable)}
       ${SkillMutations}
       ${ScriptMutations}
     }

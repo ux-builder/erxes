@@ -1,15 +1,15 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { FlexRow } from '../../styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Info from '@erxes/ui/src/components/Info';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { queries } from '../graphql';
-import styled from 'styled-components';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexRow } from "../../styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Info from "@erxes/ui/src/components/Info";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { __ } from "@erxes/ui/src/utils";
+import { queries } from "../graphql";
+import styled from "styled-components";
 
 type Props = {
   emailConfig: any;
@@ -21,28 +21,31 @@ type Props = {
 
 const ContentWrapper = styled.div`
   margin-top: 20px;
+  > div {
+    border: 0.0625rem solid #eee;
+  }
 `;
 
 const EmailConfigForm = (props: Props) => {
   const { data } = useQuery(gql(queries.configsGetEmailTemplate), {
     variables: {
-      name: props.templateName
-    }
+      name: props.templateName,
+    },
   });
 
   const defaultTemplate = data ? data.configsGetEmailTemplate : {};
 
   const { emailText, emailConfig, setEmailConfig } = props;
 
-  const email = emailConfig.email || '';
-  const type = emailConfig.type || 'simple';
+  const email = emailConfig.email || "";
+  const type = emailConfig.type || "simple";
   const template = emailConfig.template || defaultTemplate;
 
   const onChangeEmail = (e: any) => {
     setEmailConfig({
       type,
       template,
-      email: e.target.value
+      email: e.target.value,
     });
   };
 
@@ -50,23 +53,23 @@ const EmailConfigForm = (props: Props) => {
     setEmailConfig({
       email,
       template,
-      type: e.target.value
+      type: e.target.value,
     });
   };
 
-  const onEditorChange = (e: any) => {
+  const onEditorChange = (content: string) => {
     setEmailConfig({
       type,
       email,
-      template: e.editor.getData()
+      template: content,
     });
   };
 
   const renderTemplate = () => {
-    if (type === 'custom') {
+    if (type === "custom") {
       return (
         <ContentWrapper>
-          <EditorCK
+          <RichTextEditor
             content={template}
             onChange={onEditorChange}
             autoGrow={true}
@@ -80,7 +83,7 @@ const EmailConfigForm = (props: Props) => {
     return (
       <ContentWrapper>
         <Info>
-          {__('Your email will be sent with Erxes email template') + '.'}
+          {__("Your email will be sent with Erxes email template") + "."}
         </Info>
       </ContentWrapper>
     );
@@ -88,7 +91,7 @@ const EmailConfigForm = (props: Props) => {
 
   return (
     <>
-      <FlexRow alignItems="flex-start" justifyContent="space-between">
+      <FlexRow $alignItems="flex-start" $justifyContent="space-between">
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
           <p>{emailText}</p>
@@ -106,7 +109,7 @@ const EmailConfigForm = (props: Props) => {
           <p>{__('customEmail')}</p>
 
           <FormControl
-            componentClass="select"
+            componentclass="select"
             value={type}
             onChange={onChangeType}
           >

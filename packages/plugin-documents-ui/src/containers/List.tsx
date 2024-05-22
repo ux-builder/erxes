@@ -16,8 +16,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
-  history: any;
-  typeId: string;
+  queryParams: any;
 };
 
 type FinalProps = {

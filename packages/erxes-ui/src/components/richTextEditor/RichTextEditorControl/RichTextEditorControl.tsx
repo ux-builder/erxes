@@ -1,13 +1,12 @@
-import React, { useRef } from 'react';
-
-import { useRichTextEditorContext } from '../RichTextEditor.context';
-import { IRichTextEditorLabels } from '../labels';
 import { EditorControl } from './styles';
+import { IRichTextEditorLabels } from '../labels';
+import React from 'react';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 export type RichTextEditorControlStylesNames = 'control';
 
 export interface IRichTextEditorControlProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends React.ButtonHTMLAttributes<HTMLSpanElement> {
   /** Determines whether the control should have active state, false by default */
   active?: boolean;
 
@@ -18,23 +17,24 @@ export interface IRichTextEditorControlProps
   isSourceControl?: boolean;
 }
 
-export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
+export const RichTextEditorControl = (props: any) => {
   const { isSourceEnabled } = useRichTextEditorContext();
-  const ref = useRef<HTMLButtonElement>(null);
+  // const ref = useRef<HTMLButtonElement>(null);
 
   const {
     interactive,
     active,
     onMouseDown,
     isSourceControl,
+    disabled,
     ...others
   } = props;
 
   return (
     <EditorControl
       {...others}
-      type="button"
-      disabled={isSourceControl ? false : isSourceEnabled}
+      type="span"
+      disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
       data-interactive={interactive || undefined}
@@ -43,8 +43,8 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
       }
       aria-pressed={(active && interactive) || undefined}
       aria-hidden={!interactive || undefined}
-      innerRef={ref}
-      onMouseDown={event => {
+      // ref={ref}
+      onMouseDown={(event) => {
         event.preventDefault();
         onMouseDown?.(event);
       }}
@@ -59,7 +59,7 @@ export interface IRichTextEditorControlBaseProps
 
 export const RichTextEditorControlBase = <
   HTMLButtonElement,
-  RichTextEditorControlBaseProps
+  RichTextEditorControlBaseProps,
 >({
   className,
   icon: Icon,
@@ -67,7 +67,7 @@ export const RichTextEditorControlBase = <
 }: any) => {
   return (
     <RichTextEditorControl {...others}>
-      <Icon style={{ width: '1rem', height: '1rem' }} />
+      {Icon && <Icon style={{ width: '1rem', height: '1rem' }} />}
     </RichTextEditorControl>
   );
 };
@@ -83,10 +83,10 @@ export function createControl({
   label,
   isActive,
   operation,
-  icon
+  icon,
 }: ICreateControlProps) {
   return <HTMLButtonElement, RichTextEditorControlBaseProps>(
-    props: RichTextEditorControlBaseProps
+    props: RichTextEditorControlBaseProps,
   ) => {
     const { editor, labels } = useRichTextEditorContext();
     const _label = labels[label] as string;
@@ -98,8 +98,8 @@ export function createControl({
           isActive?.name
             ? editor?.isActive(isActive.name, isActive.attributes)
             : isActive?.attributes
-            ? editor?.isActive(isActive.attributes)
-            : false
+              ? editor?.isActive(isActive.attributes)
+              : false
         }
         onClick={() =>
           (editor as any)

@@ -1,23 +1,27 @@
 // TODO: check if related stages are selected in client portal config
 import { paginate } from '@erxes/api-utils/src';
 
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendKbMessage
+  sendKbMessage,
 } from '../../../messageBroker';
 import { getCards, getUserCards } from '../../../utils';
 
-const getByHost = async (models, requestInfo) => {
+const getByHost = async (models: IModels, requestInfo, clientPortalName?) => {
   const origin = requestInfo.headers.origin;
   const pattern = `.*${origin}.*`;
 
-  const config = await models.ClientPortals.findOne({
-    url: { $regex: pattern }
-  });
+  let config = await models.ClientPortals.findOne({ url: { $regex: pattern } });
+
+  if (clientPortalName) {
+    config = await models.ClientPortals.findOne({
+      name: clientPortalName,
+    });
+  }
 
   if (!config) {
     throw new Error('Not found');
@@ -46,7 +50,7 @@ const configClientPortalQueries = {
    */
   clientPortalGetLast(_root, { kind }, { models }: IContext) {
     return models.ClientPortals.findOne({ kind }).sort({
-      createdAt: -1
+      createdAt: -1,
     });
   },
 
@@ -60,10 +64,10 @@ const configClientPortalQueries = {
 
   async clientPortalGetConfigByDomain(
     _root,
-    _args,
+    { clientPortalName },
     { models, requestInfo }: IContext
   ) {
-    return getByHost(models, requestInfo);
+    return await getByHost(models, requestInfo, clientPortalName);
   },
 
   async clientPortalGetTaskStages(
@@ -77,9 +81,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'stages.find',
       data: {
-        pipelineId: config.taskPublicPipelineId
+        pipelineId: config.taskPublicPipelineId,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -94,9 +98,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'stages.findOne',
       data: {
-        _id: stageId
+        _id: stageId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (config.taskPublicPipelineId !== stage.pipelineId) {
@@ -107,9 +111,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tasks.find',
       data: {
-        stageId
+        stageId,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -123,10 +127,10 @@ const configClientPortalQueries = {
       action: 'topics.findOne',
       data: {
         query: {
-          _id
-        }
+          _id,
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -151,9 +155,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tickets.findOne',
       data: {
-        _id
+        _id,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -165,11 +169,13 @@ const configClientPortalQueries = {
     {
       categoryIds,
       searchValue,
-      topicId
+      topicId,
+      isPrivate,
     }: {
       searchValue?: string;
       categoryIds: string[];
       topicId?: string;
+      isPrivate: Boolean;
     },
     { subdomain }: IContext
   ) {
@@ -181,10 +187,10 @@ const configClientPortalQueries = {
           $or: [
             { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
             { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
-          ]
+            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+          ],
         },
-        { topicId }
+        { topicId },
       ];
     }
 
@@ -192,17 +198,28 @@ const configClientPortalQueries = {
       selector.categoryId = { $in: categoryIds };
     }
 
+    if (!isPrivate) {
+      selector.isPrivate = { $in: [null, false] };
+    }
+
+    if (isPrivate) {
+      selector.isPrivate = { $in: [null, false, true] };
+    }
+
     return sendKbMessage({
       subdomain,
       action: 'articles.find',
       data: {
-        query: selector,
+        query: {
+          ...selector,
+          status: { $ne: 'draft' },
+        },
         sort: {
-          createdDate: -1
-        }
+          createdDate: -1,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
 
@@ -212,12 +229,12 @@ const configClientPortalQueries = {
     { models, subdomain }: IContext
   ) {
     const configs = await models.FieldConfigs.find({
-      allowedClientPortalIds: _id
+      allowedClientPortalIds: _id,
     });
 
     const required = await models.FieldConfigs.find({
       allowedClientPortalIds: _id,
-      requiredOn: _id
+      requiredOn: _id,
     });
 
     if (!configs || configs.length === 0) {
@@ -232,11 +249,11 @@ const configClientPortalQueries = {
       data: {
         query: {
           _id: { $in: fieldIds },
-          contentType: 'clientportal:user'
-        }
+          contentType: 'clientportal:user',
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (!required.length || required.length === 0) {
@@ -252,7 +269,7 @@ const configClientPortalQueries = {
 
       return {
         ...field,
-        isRequired: true
+        isRequired: true,
       };
     });
   },
@@ -274,25 +291,25 @@ const configClientPortalQueries = {
     const users = await models.ClientPortalUsers.aggregate([
       {
         $match: {
-          _id: { $in: userIds }
-        }
+          _id: { $in: userIds },
+        },
       },
       {
         $lookup: {
           from: 'client_portals',
           localField: 'clientPortalId',
           foreignField: '_id',
-          as: 'clientPortal'
-        }
+          as: 'clientPortal',
+        },
       },
       {
-        $unwind: '$clientPortal'
+        $unwind: '$clientPortal',
       },
       {
         $match: {
-          'clientPortal.kind': userKind
-        }
-      }
+          'clientPortal.kind': userKind,
+        },
+      },
     ]);
 
     return users;
@@ -351,7 +368,84 @@ const configClientPortalQueries = {
     }
 
     return getUserCards(id, 'task', models, subdomain);
-  }
+  },
+
+  clientPortalParticipantDetail(
+    _root,
+    {
+      _id,
+      contentType,
+      contentTypeId,
+      cpUserId,
+    }: {
+      _id: string;
+      contentType: string;
+      contentTypeId: string;
+      cpUserId: string;
+    },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const filter = {} as any;
+    if (_id) filter._id = _id;
+    if (contentType) filter.contentType = contentType;
+    if (contentTypeId) filter.contentTypeId = contentTypeId;
+    if (cpUserId) filter.cpUserId = cpUserId;
+    return models.ClientPortalUserCards.findOne(filter);
+  },
+  async clientPortalParticipants(
+    _root,
+    {
+      contentType,
+      contentTypeId,
+      userKind,
+    }: {
+      contentType: string;
+      contentTypeId: string;
+      userKind: string;
+    },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const userIds = await models.ClientPortalUserCards.getUserIds(
+      contentType,
+      contentTypeId
+    );
+
+    if (!userIds || userIds.length === 0) {
+      return [];
+    }
+
+    const users = await models.ClientPortalUsers.aggregate([
+      {
+        $match: {
+          _id: { $in: userIds },
+        },
+      },
+      {
+        $lookup: {
+          from: 'client_portals',
+          localField: 'clientPortalId',
+          foreignField: '_id',
+          as: 'clientPortal',
+        },
+      },
+      {
+        $unwind: '$clientPortal',
+      },
+      {
+        $match: {
+          'clientPortal.kind': userKind,
+        },
+      },
+    ]);
+
+    const filter = {} as any;
+
+    if (contentType) filter.contentType = contentType;
+    if (contentTypeId) filter.contentTypeId = contentTypeId;
+    if (users?.length > 0) filter.cpUserId = { $in: users.map(d => d._id) };
+    else return [];
+    return models.ClientPortalUserCards.find(filter);
+  },
 };
 
 export default configClientPortalQueries;

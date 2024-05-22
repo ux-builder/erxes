@@ -1,21 +1,23 @@
 import {
-  generateCategoryOptions,
-  MainStyleModalFooter as ModalFooter,
   Button,
   Form as CommonForm,
   ControlLabel,
   FormControl,
   FormGroup,
+  MainStyleModalFooter as ModalFooter,
   Uploader,
-  extractAttachment
-} from '@erxes/ui/src';
+  extractAttachment,
+  generateCategoryOptions,
+} from "@erxes/ui/src";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import React from 'react';
-import { ICarCategory } from '../../types';
+  IFormProps,
+} from "@erxes/ui/src/types";
+
+import { ICarCategory } from "../../types";
+import React from "react";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 
 type Props = {
   categories: ICarCategory[];
@@ -27,6 +29,7 @@ type Props = {
 type State = {
   image?: IAttachment;
   secondaryImages?: IAttachment[];
+  productCategoryId?: String;
 };
 
 class CategoryForm extends React.Component<Props, State> {
@@ -34,11 +37,12 @@ class CategoryForm extends React.Component<Props, State> {
     super(props);
 
     const category = props.category || ({} as ICarCategory);
-    const { image, secondaryImages } = category;
+    const { image, secondaryImages, productCategoryId } = category;
 
     this.state = {
       image: image ? image : undefined,
-      secondaryImages: secondaryImages ? secondaryImages : undefined
+      secondaryImages: secondaryImages || undefined,
+      productCategoryId: productCategoryId || "",
     };
   }
 
@@ -46,10 +50,11 @@ class CategoryForm extends React.Component<Props, State> {
     _id?: string;
     image?: IAttachment;
     secondaryImages?: IAttachment[];
+    productCategoryId?: string;
   }) => {
     const { category } = this.props;
     const finalValues = values;
-    const { image, secondaryImages } = this.state;
+    const { image, secondaryImages, productCategoryId } = this.state;
 
     if (category) {
       finalValues._id = category._id;
@@ -60,7 +65,8 @@ class CategoryForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       image,
-      secondaryImages
+      secondaryImages,
+      productCategoryId,
     };
   };
   onChangeAttachment = (files: IAttachment[]) => {
@@ -69,6 +75,10 @@ class CategoryForm extends React.Component<Props, State> {
 
   onChangeAttachmentMore = (files: IAttachment[]) => {
     this.setState({ secondaryImages: files ? files : undefined });
+  };
+
+  onSelectChange = (value) => {
+    this.setState({ productCategoryId: value });
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -115,7 +125,7 @@ class CategoryForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             defaultValue={object.description}
           />
@@ -127,7 +137,7 @@ class CategoryForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="parentId"
-            componentClass="select"
+            componentclass="select"
             defaultValue={object.parentId}
           >
             <option value="" />
@@ -157,6 +167,22 @@ class CategoryForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Product Category</ControlLabel>
+
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={object.productCategoryId || ""}
+            customOption={{
+              value: "",
+              label: "...Clear product category filter",
+            }}
+            onSelect={(categoryId) => this.onSelectChange(categoryId)}
+            multi={false}
+          />
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -168,11 +194,11 @@ class CategoryForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'car category',
+            name: "car category",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>

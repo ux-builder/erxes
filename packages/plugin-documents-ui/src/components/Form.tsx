@@ -1,7 +1,12 @@
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Button from '@erxes/ui/src/components/Button';
+import {
+  Button,
+  Form as CommonForm,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+} from '@erxes/ui/src/components';
+
+import { IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
@@ -10,7 +15,9 @@ import { I{Name}, IType } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import RichTextEditor from '../containers/RichTextEditor';
+import { __ } from 'coreui/utils';
+import styled from 'styled-components';
 
 type Props = {
   closeModal?: () => void;
@@ -22,7 +29,11 @@ type Props = {
 } & ICommonFormProps;
 
 type State = {
-  expiryDate?: Date;
+  name?: string;
+  content?: string;
+  replacer?: string;
+  subType?: string;
+  code?: string;
 };
 
 type IItem = {
@@ -38,16 +49,15 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     const { {name} } = this.props;
 
     this.state = {
-      expiryDate: {name}
-        ? {name}.expiryDate
-        : dayjs()
-            .add(30, 'day')
-            .toDate()
+      name: obj.name,
+      content: obj.content,
+      subType: obj.subType,
+      code: obj.code,
     };
   }
 
-  onDateChange = value => {
-    this.setState({ expiryDate: value });
+  onContentChange = (content: string) => {
+    this.setState({ content });
   };
 
   generateDoc = (values: { _id?: string; name: string; content: string }) => {
@@ -65,18 +75,16 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     };
   };
 
-  generateTagOptions = (types: IItem[]) => {
-    const result: React.ReactNode[] = [];
+  onSave = () => {
+    const { name, content, replacer, subType, code } = this.state;
 
-    for (const type of types) {
-      result.push(
-        <option key={type._id} value={type._id}>
-          {type.name}
-        </option>
-      );
-    }
-
-    return result;
+    this.props.save({
+      name,
+      content,
+      replacer,
+      subType,
+      code,
+    });
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -98,37 +106,66 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={false}>Expiry Date</ControlLabel>
-          <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
-            dateFormat='YYYY/MM/DD'
-            timeFormat={false}
-            value={expiryDate}
-            closeOnSelect={true}
-            utc={true}
-            input={false}
-            onChange={this.onDateChange}
+          <ControlLabel required={false}>Code</ControlLabel>
+
+          <FormControl
+            name="code"
+            required={false}
+            autoFocus={true}
+            defaultValue={obj.code}
+            onChange={this.onChangeField.bind(this, 'code')}
+            {...formProps}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <div style={{ float: 'left', width: '100%' }}>
+            <RichTextEditor
+              contentType={obj.contentType || contentType}
+              content={obj.content}
+              onChange={this.onContentChange}
+              height={200}
+            />
+          </div>
+
+          <div style={{ clear: 'both' }} />
         </FormGroup>
 
         {types && (
           <FormGroup>
             <ControlLabel required={true}>Category</ControlLabel>
 
-            <FormControl
-              {...formProps}
-              name='typeId'
-              componentClass='select'
-              defaultValue={object.typeId}
-            >
-              {this.generateTagOptions(types)}
-            </FormControl>
-          </FormGroup>
-        )}
+          <FormControl
+            componentclass="textarea"
+            name="name"
+            required={true}
+            defaultValue={obj.replacer}
+            onChange={this.onChangeField.bind(this, 'replacer')}
+            {...formProps}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Sub Type</ControlLabel>
 
-        <ModalFooter id={'AddTagButtons'}>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
-            Cancel
+          <FormControl
+            componentclass="select"
+            name="subType"
+            value={subType}
+            onChange={this.onChangeField.bind(this, 'subType')}
+            {...formProps}
+          >
+            <option key="" value="" />
+            {(subTypes || []).map((e) => (
+              <option key={e} value={e}>
+                {e}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <ModalFooter>
+          <Button btnStyle="simple" type="button" onClick={closeModal}>
+            {__('Cancel')}
           </Button>
 
           {renderButton({

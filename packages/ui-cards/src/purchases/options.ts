@@ -9,8 +9,6 @@ const options = {
   Item: PurchaseItem,
   title: 'purchase',
   type: 'purchase',
-  additionalButton: '/settings/expenses/',
-  additionalButtonText: 'Manage expense',
   queriesName: {
     itemsQuery: 'purchases',
     itemsTotalCountQuery: 'purchasesTotalCount',
@@ -55,7 +53,21 @@ const options = {
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
-    const { priority, productIds, userIds, startDate, endDate } = queryParams;
+    const {
+      priority,
+      productIds,
+      userIds,
+      startDate,
+      endDate,
+      createdStartDate,
+      createdEndDate,
+      stateChangedStartDate,
+      stateChangedEndDate,
+      startDateStartDate,
+      startDateEndDate,
+      closeDateStartDate,
+      closeDateEndDate
+    } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
@@ -72,6 +84,36 @@ const options = {
 
     if (endDate) {
       extraParams.endDate = endDate;
+    }
+
+    if (createdStartDate) {
+      extraParams.createdStartDate = createdStartDate;
+    }
+
+    if (createdEndDate) {
+      extraParams.createdEndDate = createdEndDate;
+    }
+
+    if (stateChangedStartDate) {
+      extraParams.stateChangedStartDate = stateChangedStartDate;
+    }
+
+    if (stateChangedEndDate) {
+      extraParams.stateChangedEndDate = stateChangedEndDate;
+    }
+    if (startDateStartDate) {
+      extraParams.startDateStartDate = startDateStartDate;
+    }
+
+    if (startDateEndDate) {
+      extraParams.startDateEndDate = startDateEndDate;
+    }
+    if (closeDateStartDate) {
+      extraParams.closeDateStartDate = closeDateStartDate;
+    }
+
+    if (closeDateEndDate) {
+      extraParams.closeDateEndDate = closeDateEndDate;
     }
 
     if (productIds) {
