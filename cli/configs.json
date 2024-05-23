@@ -12,7 +12,6 @@
     { "name": "cards", "ui": "local" },
     { "name": "products", "ui": "local" },
     { "name": "segments", "ui": "local" },
-    { "name": "menu", "ui": "local" },
     { "name": "inbox", "ui": "local" },
     { "name": "contacts", "ui": "local" },
     { "name": "tags", "ui": "local" },
