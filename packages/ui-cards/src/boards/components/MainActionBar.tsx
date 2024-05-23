@@ -13,10 +13,9 @@ import {
   groupByGantt,
   groupByList,
   showByTime,
-import { __ } from 'coreui/utils';
   stackByChart,
 } from "../constants";
-
+import { __ } from 'coreui/utils';
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Filter from "@erxes/ui/src/components/filter/Filter";

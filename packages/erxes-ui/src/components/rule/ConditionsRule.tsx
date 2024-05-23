@@ -3,11 +3,6 @@ import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
 } from '../../constants/engage';
-import React from 'react';
-import styled from 'styled-components';
-import { IConditionsRule } from '../../types';
-import ModalTrigger from '../ModalTrigger';
-import RuleForm from './RuleForm';
 import { __ } from 'coreui/utils';
 
 import Button from "../Button";

@@ -10,7 +10,7 @@ import { ModalFooter } from "@erxes/ui/src/styles/main";
 import React from "react";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import { Alert } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
+
 
 type Props = {
   signatures: IEmailSignatureWithBrand[];

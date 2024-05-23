@@ -7,12 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { Alert } from '@erxes/ui/src/utils';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-<<<<<<< HEAD
 import { __ } from 'coreui/utils';
-=======
-import { __ } from '@erxes/ui/src/utils';
-
->>>>>>> bfa310b8689b5ecfeb21a28287bb2a8686935188
 type Props = {
   clientPortalUser: IClientPortalUser;
   assignCompany: (

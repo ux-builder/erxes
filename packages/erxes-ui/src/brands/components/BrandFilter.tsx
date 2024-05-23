@@ -5,10 +5,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Box from "../../components/Box";
 import DataWithLoader from "../../components/DataWithLoader";
 import { IBrand } from "../../brands/types";
-
-interface IProps {
 import { __ } from 'coreui/utils';
 import { router } from '../../utils';
+interface IProps {
+
   counts: { [key: string]: number };
   brands: IBrand[];
   loading: boolean;

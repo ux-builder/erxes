@@ -24,7 +24,6 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
 import Table from "@erxes/ui/src/components/table";
-import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   index: number;

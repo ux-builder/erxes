@@ -1,38 +1,38 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
 
-import * as cors from 'cors';
-import * as bodyParser from 'body-parser';
-import * as express from 'express';
-import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/subgraph';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import * as cookieParser from 'cookie-parser';
-import { debugInfo, debugError } from '../debuggers';
-import * as http from 'http';
-import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
-import { logConsumers } from '@erxes/api-utils/src/logUtils';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import * as path from 'path';
-import * as ws from 'ws';
+import * as cors from "cors";
+import * as bodyParser from "body-parser";
+import * as express from "express";
+import { filterXSS } from "xss";
+import { buildSubgraphSchema } from "@apollo/subgraph";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import * as cookieParser from "cookie-parser";
+import { debugInfo, debugError } from "../debuggers";
+import * as http from "http";
+import { connectToMessageBroker } from "@erxes/api-utils/src/messageBroker";
+import { logConsumers } from "@erxes/api-utils/src/logUtils";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
+import * as path from "path";
+import * as ws from "ws";
 
 import {
   getServices,
   join,
   leave,
-} from '@erxes/api-utils/src/serviceDiscovery';
-import { applyInspectorEndpoints } from '../inspect';
-import app from '@erxes/api-utils/src/app';
-import { consumeQueue, consumeRPCQueue } from '../messageBroker';
-import { extractUserFromHeader } from '../headers';
+} from "@erxes/api-utils/src/serviceDiscovery";
+import { applyInspectorEndpoints } from "../inspect";
+import app from "@erxes/api-utils/src/app";
+import { consumeQueue, consumeRPCQueue } from "../messageBroker";
+import { extractUserFromHeader } from "../headers";
 
 const { PORT, USE_BRAND_RESTRICTIONS } = process.env;
 
-app.use(bodyParser.json({ limit: '15mb' }));
-app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+app.use(bodyParser.json({ limit: "15mb" }));
+app.use(bodyParser.urlencoded({ limit: "15mb", extended: true }));
 
 export async function startPlugin(configs: any): Promise<express.Express> {
   if (configs.middlewares) {
@@ -62,15 +62,15 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   app.use(cookieParser());
 
   if (configs.hasSubscriptions) {
-    app.get('/subscriptionPlugin.js', async (req, res) => {
+    app.get("/subscriptionPlugin.js", async (req, res) => {
       res.sendFile(path.join(configs.subscriptionPluginPath));
     });
   }
 
   app.use((req: any, _res, next) => {
-    req.rawBody = '';
+    req.rawBody = "";
 
-    req.on('data', (chunk) => {
+    req.on("data", (chunk) => {
       req.rawBody += chunk.toString();
     });
 
@@ -109,7 +109,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   async function leaveServiceDiscovery() {
     try {
-      await leave(configs.name, PORT || '');
+      await leave(configs.name, PORT || "");
       console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
     } catch (e) {
       console.error(e);
@@ -117,7 +117,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   // If the Node process ends, close the Mongoose connection
-  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
+  (["SIGINT", "SIGTERM"] as NodeJS.Signals[]).forEach((sig) => {
     process.on(sig, async () => {
       await closeHttpServer();
       await leaveServiceDiscovery();
@@ -148,12 +148,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   await apolloServer.start();
 
   app.use(
-    '/graphql',
+    "/graphql",
     expressMiddleware(apolloServer, {
       context: async ({ req, res }) => {
         if (
-          req.body.operationName === 'IntrospectionQuery' ||
-          req.body.operationName === 'SubgraphIntrospectQuery'
+          req.body.operationName === "IntrospectionQuery" ||
+          req.body.operationName === "SubgraphIntrospectQuery"
         ) {
           return {};
         }
@@ -161,7 +161,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         let context;
 
-        if (USE_BRAND_RESTRICTIONS !== 'true') {
+        if (USE_BRAND_RESTRICTIONS !== "true") {
           context = {
             brandIdSelector: {},
             singleBrandIdSelector: {},
@@ -172,7 +172,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             res,
           };
         } else {
-          let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+          let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || "[]");
           let brandIds = [];
           let brandIdSelector = {};
           let commonQuerySelector = {};
@@ -212,24 +212,24 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         return context;
       },
-    }),
+    })
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve),
+    httpServer.listen({ port: PORT }, resolve)
   );
 
   if (configs.freeSubscriptions) {
     const wsServer = new ws.Server({
       server: httpServer,
-      path: '/subscriptions',
+      path: "/subscriptions",
     });
 
     await configs.freeSubscriptions(wsServer);
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
   );
 
   await connectToMessageBroker(configs.setupMessageConsumers);
@@ -263,7 +263,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.propertyConditionExtender`,
-          segments.propertyConditionExtender,
+          segments.propertyConditionExtender
         );
       }
 
@@ -272,7 +272,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.associationFilter`,
-          segments.associationFilter,
+          segments.associationFilter
         );
       }
 
@@ -281,7 +281,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.esTypesMap`,
-          segments.esTypesMap,
+          segments.esTypesMap
         );
       }
 
@@ -290,7 +290,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.initialSelector`,
-          segments.initialSelector,
+          segments.initialSelector
         );
       }
     }
@@ -309,7 +309,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (forms) {
       if (forms.fields) {
         consumeRPCQueue(`${configs.name}:fields.getList`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await forms.fields(args),
         }));
       }
@@ -318,9 +318,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:fields.groupsFilter`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await forms.groupsFilter(args),
-          }),
+          })
         );
       }
 
@@ -328,7 +328,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         forms.systemFieldsAvailable = true;
 
         consumeRPCQueue(`${configs.name}:systemFields`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await forms.systemFields(args),
         }));
       }
@@ -337,7 +337,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         forms.groupsHookAvailable = true;
 
         consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await forms.fieldsGroupsHook(args),
         }));
       }
@@ -346,7 +346,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         forms.relationsAvailable = true;
 
         consumeRPCQueue(`${configs.name}:relations`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await forms.relations(args),
         }));
       }
@@ -355,7 +355,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (tags) {
       if (tags.tag) {
         consumeRPCQueue(`${configs.name}:tag`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await tags.tag(args),
         }));
       }
@@ -364,13 +364,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         tags.publishChangeAvailable = true;
 
         consumeRPCQueue(`${configs.name}:publishChange`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await tags.publishChange(args),
         }));
       }
       if (tags.fixRelatedItems) {
         consumeRPCQueue(`${configs.name}:fixRelatedItems`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await tags.fixRelatedItems(args),
         }));
       }
@@ -381,7 +381,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         webhooks.getInfoAvailable = true;
 
         consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await webhooks.getInfo(args),
         }));
       }
@@ -399,9 +399,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:imports.prepareImportDocs`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await imports.prepareImportDocs(args),
-          }),
+          })
         );
       }
 
@@ -409,9 +409,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:imports.insertImportItems`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await imports.insertImportItems(args),
-          }),
+          })
         );
       }
     }
@@ -421,9 +421,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:exporter.prepareExportData`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await exporter.prepareExportData(args),
-          }),
+          })
         );
       }
 
@@ -431,9 +431,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:exporter.getExportDocs`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await exporter.getExportDocs(args),
-          }),
+          })
         );
       }
     }
@@ -443,36 +443,36 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:automations.receiveActions`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await automations.receiveActions(args),
-          }),
+          })
         );
       }
       if (automations?.getRecipientsEmails) {
         consumeRPCQueue(
           `${configs.name}:automations.getRecipientsEmails`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await automations.getRecipientsEmails(args),
-          }),
+          })
         );
       }
       if (automations?.replacePlaceHolders) {
         consumeRPCQueue(
           `${configs.name}:automations.replacePlaceHolders`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await automations.replacePlaceHolders(args),
-          }),
+          })
         );
       }
       if (automations?.checkCustomTrigger) {
         consumeRPCQueue(
           `${configs.name}:automations.checkCustomTrigger`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await automations.checkCustomTrigger(args),
-          }),
+          })
         );
       }
     }
@@ -482,9 +482,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeRPCQueue(
           `${configs.name}:reports.getChartResult`,
           async (args) => ({
-            status: 'success',
+            status: "success",
             data: await reports.getChartResult(args),
-          }),
+          })
         );
       }
     }
@@ -494,13 +494,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         initialSetup.generateAvailable = true;
 
         consumeQueue(`${configs.name}:initialSetup`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await initialSetup.generate(args),
         }));
 
-        app.post('/initial-setup', async (req, res) => {
+        app.post("/initial-setup", async (req, res) => {
           await initialSetup.generate({ subdomain: getSubdomain(req) });
-          return res.end('ok');
+          return res.end("ok");
         });
       }
     }
@@ -509,7 +509,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       configs.meta.isSearchable = true;
 
       consumeRPCQueue(`${configs.name}:search`, async (args) => ({
-        status: 'success',
+        status: "success",
         data: await search(args),
       }));
     }
@@ -519,7 +519,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         cronjobs.handleMinutelyJobAvailable = true;
 
         consumeQueue(`${configs.name}:handleMinutelyJob`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await cronjobs.handleMinutelyJob(args),
         }));
       }
@@ -528,7 +528,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         cronjobs.handle10MinutelyJobAvailable = true;
 
         consumeQueue(`${configs.name}:handle10MinutelyJob`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await cronjobs.handle10MinutelyJob(args),
         }));
       }
@@ -537,7 +537,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         cronjobs.handleHourlyJobAvailable = true;
 
         consumeQueue(`${configs.name}:handleHourlyJob`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await cronjobs.handleHourlyJob(args),
         }));
       }
@@ -546,7 +546,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         cronjobs.handleDailyJobAvailable = true;
 
         consumeQueue(`${configs.name}:handleDailyJob`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await cronjobs.handleDailyJob(args),
         }));
       }
@@ -556,17 +556,17 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       consumeRPCQueue(
         `${configs.name}:documents.editorAttributes`,
         async (args) => ({
-          status: 'success',
+          status: "success",
           data: await documents.editorAttributes(args),
-        }),
+        })
       );
 
       consumeRPCQueue(
         `${configs.name}:documents.replaceContent`,
         async (args) => ({
-          status: 'success',
+          status: "success",
           data: await documents.replaceContent(args),
-        }),
+        })
       );
     }
 
@@ -574,7 +574,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       readFileHook.isAvailable = true;
 
       consumeRPCQueue(`${configs.name}:readFileHook`, async (args) => ({
-        status: 'success',
+        status: "success",
         data: await readFileHook.action(args),
       }));
     }
@@ -583,7 +583,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       documentPrintHook.isAvailable = true;
 
       consumeRPCQueue(`${configs.name}:documentPrintHook`, async (args) => ({
-        status: 'success',
+        status: "success",
         data: await documentPrintHook.action(args),
       }));
     }
@@ -592,7 +592,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (payment.callback) {
         payment.callbackAvailable = true;
         consumeQueue(`${configs.name}:paymentCallback`, async (args) => ({
-          status: 'success',
+          status: "success",
           data: await payment.callback(args),
         }));
       }
@@ -600,7 +600,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
     if (cpCustomerHandle) {
       consumeQueue(`${configs.name}:cpCustomerHandle`, async (args) => ({
-        status: 'success',
+        status: "success",
         data: await cpCustomerHandle.cpCustomerHandle(args),
       }));
     }
@@ -608,7 +608,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   await join({
     name: configs.name,
-    port: PORT || '',
+    port: PORT || "",
     hasSubscriptions: configs.hasSubscriptions,
     importExportTypes: configs.importExportTypes,
     meta: configs.meta,

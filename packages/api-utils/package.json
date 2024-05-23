@@ -6,7 +6,6 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "//": "Do not put front end dependencies here!",
     "@types/amqplib": "0.10.4",
     "@types/lodash": "^4.14.178",
     "nodemon": "^3.1.0",

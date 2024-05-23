@@ -28,7 +28,6 @@
     "build": "webpack --config webpack.config.js --mode production"
   },
   "devDependencies": {
-    "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
     "@babel/core": "^7.23.7",
     "@babel/plugin-transform-runtime": "^7.23.7",
     "@babel/preset-env": "^7.23.8",

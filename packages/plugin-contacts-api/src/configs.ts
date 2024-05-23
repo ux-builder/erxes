@@ -26,6 +26,8 @@ import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
 import reports from './reports/reports'
+const { PORT } = process.env;
+const port = PORT || 4000;
 
 export default {
   name: 'contacts',
@@ -154,4 +156,5 @@ export default {
     });
   },
   setupMessageConsumers,
+  port,
 };

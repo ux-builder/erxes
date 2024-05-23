@@ -154,8 +154,6 @@ export const loadComponent = (scope, module) => {
     } catch (e) {
       console.error("Container initialization error:", e);
     }
-    if (container && container.get) {
-      const factory = await window[scope].get(module);
 
     try {
       const factory = await window[scope]?.get(module);

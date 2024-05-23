@@ -1,14 +1,7 @@
-import client from '../apolloClient';
-import { gql } from '@apollo/client';
-import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
 import { Alert } from '../utils';
 import Button from './Button';
-import Icon from './Icon';
 import { __ } from 'coreui/utils';
-
 import Icon from "./Icon";
 import client from "../apolloClient";
 import debounce from "lodash/debounce";
