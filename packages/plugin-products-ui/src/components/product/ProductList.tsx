@@ -1,4 +1,4 @@
-import { FlexItem, InputBar } from "@erxes/ui-settings/src/styles";
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import { IProduct, IProductCategory } from "../../types";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -10,7 +10,6 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Form from "@erxes/ui-products/src/containers/ProductForm";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import { Icon } from "@erxes/ui/src";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import ProductsMerge from "./detail/ProductsMerge";
@@ -245,19 +244,14 @@ const List: React.FC<IProps> = (props) => {
             onChange={onChangeChecked}
             checked={checked}
           />
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={search}
-                value={searchValue}
-                autoFocus={true}
-                onFocus={moveCursorAtTheEnd}
-              />
-            </FlexItem>
-          </InputBar>
+          <FormControl
+            type="text"
+            placeholder={__("Type to search")}
+            onChange={search}
+            value={searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"
@@ -293,19 +287,14 @@ const List: React.FC<IProps> = (props) => {
 
     return (
       <BarItems>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={search}
-              value={searchValue}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={search}
+          value={searchValue}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         {isEnabled("segments") && (
           <TemporarySegment btnSize="medium" contentType={`products:product`} />
         )}

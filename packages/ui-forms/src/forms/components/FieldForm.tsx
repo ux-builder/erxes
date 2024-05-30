@@ -244,7 +244,7 @@ class FieldForm extends React.Component<Props, State> {
           <>
             <FormControl
               id="regex"
-              placeholder="enter sample text here"
+              placeholder="Enter sample text here"
               componentclass="input"
               onChange={this.onRegexChange}
             />

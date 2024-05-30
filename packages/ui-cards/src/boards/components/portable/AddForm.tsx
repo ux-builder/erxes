@@ -341,7 +341,7 @@ class AddForm extends React.Component<Props, State> {
     const { type } = this.props.options;
 
     return (
-      <form onSubmit={this.save}>
+      <form>
         {this.renderSelect()}
         <HeaderRow>
           <HeaderContent>
@@ -413,9 +413,9 @@ class AddForm extends React.Component<Props, State> {
             disabled={this.state.disabled}
             btnStyle="success"
             icon="check-circle"
-            type="submit"
-          >
-            {__('Save')}
+            // type="submit"
+            onClick={this.save}>
+            Save
           </Button>
         </FormFooter>
       </form>
