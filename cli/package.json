@@ -39,6 +39,10 @@
     "lodash": "^4.17.21",
     "node-fetch": "2.6.7",
     "pm2": "^5.2.2",
+    "react-fast-compare": "^3.2.2",
     "yaml": "^1.10.2"
+  },
+  "devDependencies": {
+    "webpack-bundle-analyzer": "^4.10.2"
   }
 }

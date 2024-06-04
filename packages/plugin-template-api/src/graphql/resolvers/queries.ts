@@ -2,19 +2,19 @@ import { IContext } from '@erxes/api-utils/src/types';
 import { Accounts, Messages } from '../../models';
 
 const queries = {
-  async {name}ConversationDetail(
-    _root,
-    { conversationId },
+  async templateConversationDetail(
+    _root: any,
+    { conversationId }: { conversationId: string },
     _context: IContext
   ) {
     const messages = await Messages.find({
       inboxConversationId: conversationId
     });
 
-    const convertEmails = emails =>
-      (emails || []).map(item => ({ name: item.name, email: item.address }));
+    const convertEmails = (emails: any) =>
+      (emails || []).map((item: any) => ({ name: item.name, email: item.address }));
 
-    return messages.map(message => {
+    return messages.map((message: any) => {
       return {
         _id: message._id,
         mailData: {
@@ -30,7 +30,7 @@ const queries = {
     });
   },
 
-  async {name}Accounts(_root, _args, _context: IContext) {
+  async templateAccounts(_root: any, _args: any, _context: IContext) {
     return Accounts.getAccounts();
   }
 };

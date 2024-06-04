@@ -415,7 +415,7 @@ class AddForm extends React.Component<Props, State> {
             icon="check-circle"
             // type="submit"
             onClick={this.save}>
-            Save
+            {__("Save")}
           </Button>
         </FormFooter>
       </form>

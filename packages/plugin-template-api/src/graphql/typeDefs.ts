@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 const types = `
-  type {Name} {
+  type Template {
     _id: String!
     title: String
     mailData: JSON
@@ -9,12 +9,12 @@ const types = `
 `;
 
 const queries = `
-  {name}ConversationDetail(conversationId: String!): [{Name}]
-  {name}Accounts: JSON
+  templateConversationDetail(conversationId: String!): [Template]
+  templateAccounts: JSON
 `;
 
 const mutations = `
-  {name}AccountRemove(_id: String!): String
+  templateAccountRemove(_id: String!): String
 `;
 
 const typeDefs = gql`

@@ -71,5 +71,8 @@
     "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "react-fast-compare": "^3.2.2"
   }
 }

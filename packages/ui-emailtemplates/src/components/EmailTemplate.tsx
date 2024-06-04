@@ -31,7 +31,7 @@ const EmailTemplate = (props: Props) => {
   } = props;
   const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
 
-  renderDate(createdAt, modifiedAt) {
+  const renderDate = (createdAt, modifiedAt) => {
     const createdAtLabel = __('Created at');
     const modifiedAtLabel = __('Modified at');
     if (createdAt === modifiedAt) {
@@ -43,7 +43,7 @@ const EmailTemplate = (props: Props) => {
     }
 
     return `${modifiedAtLabel}: ${dayjs(modifiedAt).format('DD MMM YYYY')}`;
-  }
+  };
 
   const renderView = (content) => {
     const trigger = (
@@ -95,10 +95,9 @@ const EmailTemplate = (props: Props) => {
         <h5>{name}</h5>
         <div>
           <TemplateInfo>
-            <p>
-                {createdAt === modifiedAt
+            <p>{createdAt === modifiedAt
                   ? `${__('Created at')}`
-                  : `${__('Modified at')}`}
+                  : `${__('Modified at')}`}</p>
             <p>{renderDate(createdAt, modifiedAt)}</p>
           </TemplateInfo>
           <TemplateInfo>
@@ -116,5 +115,6 @@ const EmailTemplate = (props: Props) => {
     </Template>
   );
 };
+
 
 export default EmailTemplate;

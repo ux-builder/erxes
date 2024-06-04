@@ -4,7 +4,7 @@ import { setupMessageConsumers } from './messageBroker';
 import init from './controller';
 
 export default {
-  name: '{name}',
+  name: 'template',
   graphql: () => {
     return {
       typeDefs,
@@ -13,8 +13,8 @@ export default {
   },
   meta: {
     inboxIntegration: {
-      kind: '{name}',
-      label: '{Name}'
+      kind: 'template',
+      label: 'Template'
     }
   },
   apolloServerContext: async (context) => {

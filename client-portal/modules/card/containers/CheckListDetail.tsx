@@ -11,7 +11,7 @@ type Props = {
 };
 function CheckListDetail({ checklist, config }: Props) {
   const { data, loading } = useQuery(gql(queries.checklistDetail), {
-    variables: { _id: checklist._id },
+    variables: { _id: checklist?._id },
     skip: !checklist,
     context: {
       headers: {
@@ -23,6 +23,11 @@ function CheckListDetail({ checklist, config }: Props) {
   if (loading) {
     return <Spinner />;
   }
+
+  if (!data || !data.checklistDetail) {
+    return <div>No checklist details found.</div>;
+  }
+
 
   return <CheckList checklist={data.checklistDetail} />;
 }
