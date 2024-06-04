@@ -1,10 +1,8 @@
 import * as compose from 'lodash.flowright';
-
 import {
   TemplatesQueryResponse,
   TemplatesTotalCountQueryResponse
 } from '../../types';
-
 import List from '../../components/templates/List';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -29,8 +27,19 @@ function ListContainer(props: FinalProps) {
     return <Spinner objective={true} />;
   }
 
+  if (templatesQuery.error) {
+    console.error('Templates query error:', templatesQuery.error);
+  }
+
+  if (templatesCountQuery.error) {
+    console.error('Templates count query error:', templatesCountQuery.error);
+  }
+
   const templates = templatesQuery.webbuilderTemplates || [];
   const templatesCount = templatesCountQuery.webbuilderTemplatesTotalCount || 0;
+
+  console.log('Templates:', templates);
+  console.log('Templates Count:', templatesCount);
 
   const updatedProps = {
     ...props,

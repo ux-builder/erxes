@@ -47,11 +47,10 @@ class PageList extends React.Component<Props> {
                 <Icon icon="file-1" />
                 {page.name}
               </Link>
-              {isActive && (
-                <Icon
-                  icon="settings"
-                  onClick={() => handleItemSettings(page, "page")}
-                />
+               {isActive && (
+                <button onClick={() => handleItemSettings(page, "page")}>
+                  <Icon icon="settings" />
+                </button>
               )}
             </li>
           );

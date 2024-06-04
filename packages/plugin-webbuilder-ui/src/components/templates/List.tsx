@@ -104,7 +104,7 @@ function List(props: Props) {
   };
 
   const renderUseAction = (template) => {
-    const trigger = <Button btnStyle="white">{__('Use')}</Button>;
+    const trigger = <button type="button">{__('Use')}</button>; 
     const site = localStorage.getItem('webbuilderSiteId') || '';
 
     const content = ({ closeModal }) => (
