@@ -3,6 +3,7 @@ import {
   TemplatesQueryResponse,
   TemplatesTotalCountQueryResponse
 } from '../../types';
+
 import List from '../../components/templates/List';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -29,10 +30,12 @@ function ListContainer(props: FinalProps) {
 
   if (templatesQuery.error) {
     console.error('Templates query error:', templatesQuery.error);
+    console.error('Templates query error details:', templatesQuery.error.networkError || templatesQuery.error.graphQLErrors);
   }
 
   if (templatesCountQuery.error) {
     console.error('Templates count query error:', templatesCountQuery.error);
+    console.error('Templates count query error details:', templatesCountQuery.error.networkError || templatesCountQuery.error.graphQLErrors);
   }
 
   const templates = templatesQuery.webbuilderTemplates || [];

@@ -9,6 +9,8 @@ import { pageReplacer } from './utils';
 const permissions = require('./permissions');
 import app from '@erxes/api-utils/src/app';
 
+const HELPERS_DOMAIN = `http://localhost:3000`; 
+
 export default {
   name: 'webbuilder',
   permissions,
@@ -183,8 +185,6 @@ export default {
     });
 
     app.get('/demo/:templateId', async (req, res) => {
-      const HELPERS_DOMAIN = `https://helper.erxes.io`;
-
       const { templateId } = req.params;
 
       const url = `${HELPERS_DOMAIN}/get-webbuilder-demo-page?templateId=${templateId}`;
@@ -199,6 +199,26 @@ export default {
           </style>
         `,
       );
+    });
+    app.get('/xbuilder/sites/create', async (req, res) => {
+      const { searchValue } = req.query;
+
+      // 여기에서 searchValue를 이용해 데이터를 가져옵니다
+      const url = `${HELPERS_DOMAIN}/get-webbuilder-templates?searchValue=${searchValue}`;
+      try {
+        const response = await fetch(url);
+        const templates = await response.json();
+
+        // 데이터가 유효한지 확인
+        if (!Array.isArray(templates)) {
+          return res.status(500).send('Invalid response from helper service');
+        }
+
+        return res.json(templates);
+      } catch (error) {
+        console.error('Error fetching templates:', error);
+        return res.status(500).send('Error fetching templates');
+      }
     });
   },
   setupMessageConsumers,

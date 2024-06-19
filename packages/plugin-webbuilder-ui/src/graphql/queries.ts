@@ -140,6 +140,7 @@ const templateDetail = `
   }
 `;
 
+
 const sites = `
   query sites($page: Int, $perPage: Int, $searchValue: String, $fromSelect: Boolean) {
     webbuilderSites(page: $page, perPage: $perPage, searchValue: $searchValue, fromSelect: $fromSelect) {

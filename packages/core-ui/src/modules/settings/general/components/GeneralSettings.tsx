@@ -118,7 +118,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>{__(KEY_LABELS[key])}</ControlLabel>
+        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
           componentclass={componentClass}
@@ -181,7 +181,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>{__(KEY_LABELS[field])}</ControlLabel>
+        <ControlLabel>{KEY_LABELS[field]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         {value ? (
           <ImageWrapper>
@@ -197,14 +197,11 @@ class GeneralSettings extends React.Component<Props, State> {
     const { constants } = this.props;
     const { configsMap } = this.state;
     const allValues = constants.allValues || {};
-    // const defaultValues = constants.defaultValues || {};
+    const defaultValues = constants.defaultValues || {};
 
     const constant = allValues[kind] || [];
 
-    const translatedOptions = constant.map(option => ({
-      label: __(option.label),
-      value: option.value
-    }));
+    let value = configsMap[kind];
 
     if (!value || value.length === 0) {
       value = defaultValues[kind] || "";
@@ -216,7 +213,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>{__(KEY_LABELS[kind])}</ControlLabel>
+        <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
 
         <Select
           options={constant}
@@ -268,16 +265,6 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const { configsMap, language } = this.state;
 
-    const translatedLanguage = LANGUAGES.map(option => ({
-      label: __(option.label),
-      value: option.value
-    }));
-
-    const translatedCurrencies = CURRENCIES.map(option => ({
-      label: __(option.label),
-      value: option.value
-    }));
-
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
       { title: __("General system config") }
@@ -298,7 +285,9 @@ class GeneralSettings extends React.Component<Props, State> {
       value: item.value,
       label: `${item.label} (${item.extension})`
     }));
-    const mimeTypeDesc = __('mediaTypeListDesc');
+    const mimeTypeDesc = __(
+      "Comma-separated list of media types. Leave it blank for accepting all media types"
+    );
 
     const emailServiceOptions = [
       { label: "SES", value: "SES" },
@@ -384,10 +373,13 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="puzzle" />}
         >
           <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-            {this.renderUploadImage('THEME_LOGO', __('THEME_LOGO_DESCRIPTION'))}
             {this.renderUploadImage(
-              'THEME_FAVICON',
-              __('FAVICON_LOGO_DESCRIPTION')
+              "THEME_LOGO",
+              "Transparent PNG, around 3:1 aspect ratio. Max width: 600px."
+            )}
+            {this.renderUploadImage(
+              "THEME_FAVICON",
+              "16x16px transparent PNG."
             )}
             <FormGroup>
               <ControlLabel>{__("Text color")}</ControlLabel>
@@ -632,22 +624,24 @@ class GeneralSettings extends React.Component<Props, State> {
               type: configsMap.COMPANY_EMAIL_TEMPLATE_TYPE,
               template: configsMap.COMPANY_EMAIL_TEMPLATE
             }}
-            emailText={__('emailText')} // Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc.
+            emailText="Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc."
             setEmailConfig={this.onChangeEmailConfig}
             isSaved={this.state.isSaved}
           />
-
           <FormGroup>
             <ControlLabel>DEFAULT EMAIL SERVICE</ControlLabel>
-            <p>{__('chooseEmail')}</p>
+            <p>
+              {__(
+                "Choose your email service name. The default email service is SES."
+              )}
+            </p>
             <Select
-              options={[
-                { label: 'SES', value: 'SES' },
-                { label: __('Custom'), value: 'custom' }
-              ]}
-              value={configsMap.DEFAULT_EMAIL_SERVICE || 'SES'}
-              clearable={false}
-              searchable={false}
+              options={emailServiceOptions}
+              value={emailServiceOptions.find(
+                o => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
+              )}
+              isClearable={false}
+              isSearchable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
                 "DEFAULT_EMAIL_SERVICE"
