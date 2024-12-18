@@ -30,6 +30,7 @@ export interface IUserDetails {
 
 export interface IUserLinks {
   facebook?: string;
+  whatsapp?: string;
   instagram?: string;
   twitter?: string;
   linkedIn?: string;
@@ -107,6 +108,7 @@ export declare type IOrganization = {
   expiryDate?: Date;
   bundleNames?: string[];
   experienceName?: string;
+  experience?: any;
   onboardingDone?: boolean;
   contactRemaining?: boolean;
 };
@@ -127,6 +129,7 @@ export interface IUser extends IUserDoc {
   branchIds: string[];
   departmentIds: string[];
   positionIds: string[];
+  positions?: any[];
   customFieldsData?: {
     [key: string]: any;
   };
@@ -150,6 +153,10 @@ export type CurrentUserQueryResponse = {
 
 export type UsersQueryResponse = {
   users: IUser[];
+} & QueryResponse;
+
+export type UsersTotalCountQueryResponse = {
+  usersTotalCount: number;
 } & QueryResponse;
 
 export type UserDetailQueryResponse = {

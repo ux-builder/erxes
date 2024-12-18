@@ -1,7 +1,11 @@
-// import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
 import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { __ } from '@erxes/ui/src/utils/core';
+
+import { Verify } from '@erxes/ui-settings/src/general/components/styles';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -11,18 +15,17 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { __, getVersion } from '@erxes/ui/src/utils/core';
 import React from 'react';
+import { IUserDoc } from '@erxes/ui/src/auth/types';
 
 type Props = {
   configsMap: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  verifyEmail: (email: string, address?: string, name?: string) => void;
+  verifyEmail: (email: string) => void;
   removeVerifiedEmail: (email: string) => void;
   sendTestEmail: (from: string, to: string, content: string) => void;
   verifiedEmails: string[];
+  verifiedUsers: IUserDoc[];
 };
 
 type State = {
@@ -30,8 +33,6 @@ type State = {
   accessKeyId?: string;
   region?: string;
   emailToVerify?: string;
-  name?: string;
-  address?: string;
   testFrom?: string;
   testTo?: string;
   testContent?: string;
@@ -79,15 +80,10 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   onVerifyEmail = () => {
-    const {VERSION} = getVersion();
-    const { emailToVerify, name, address } = this.state;
-
-    if (VERSION === 'saas' && (!emailToVerify || !name || !address)) {
-      return Alert.error('Complete all required fields!')
-    }
+    const { emailToVerify } = this.state;
 
     if (emailToVerify) {
-      return this.props.verifyEmail(emailToVerify, address, name);
+      return this.props.verifyEmail(emailToVerify);
     }
 
     return Alert.error('Write your email to verify!');
@@ -243,14 +239,12 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   render() {
-    const { VERSION } = getVersion();
-
     return (
       <ContentBox id={'EngageSettingsMenu'}>
         <CollapseContent
           beforeTitle={<Icon icon='settings' />}
           transparent={true}
-          title='General settings'
+          title={__('General settings')}
         >
           <Form renderContent={this.renderContent} />
         </CollapseContent>
@@ -261,28 +255,14 @@ class EngageSettingsContent extends React.Component<Props, State> {
           title={__('Verify the email addresses that you send email from')}
         >
           {this.renderVerifiedEmails()}
-          {VERSION && VERSION === 'saas' && (
-            <>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <FormControl
-                type='input'
-                onChange={this.onChangeCommon.bind(this, 'name')}
-              />
 
-              <ControlLabel required={true}>Address</ControlLabel>
-              <FormControl
-                type='input'
-                onChange={this.onChangeCommon.bind(this, 'address')}
-              />
-            </>
-          )}
+          <Verify>
+            <ControlLabel required={true}>Email</ControlLabel>
+            <FormControl
+              type='email'
+              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+            />
 
-          <ControlLabel required={true}>Email</ControlLabel>
-          <FormControl
-            type='email'
-            onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
-          />
-          <ModalFooter>
             <Button
               onClick={this.onVerifyEmail}
               btnStyle='success'
@@ -290,7 +270,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             >
               Verify
             </Button>
-          </ModalFooter>
+          </Verify>
         </CollapseContent>
         <CollapseContent
           beforeTitle={<Icon icon='envelope-upload' />}
@@ -302,7 +282,18 @@ class EngageSettingsContent extends React.Component<Props, State> {
               <ControlLabel>From</ControlLabel>
               <FormControl
                 placeholder='from@email.com'
-                onChange={this.onChangeCommon.bind(this, 'testFrom')}
+                componentclass='select'
+                value={this.state.testFrom}
+                options={[
+                  { value: '', label: '' },
+                  ...this.props.verifiedEmails.map((email) => ({
+                    value: email,
+                    label: email,
+                  })),
+                ]}
+                onChange={(e: any) =>
+                  this.setState({ testFrom: e.currentTarget.value })
+                }
               />
             </FormGroup>
 
@@ -310,7 +301,18 @@ class EngageSettingsContent extends React.Component<Props, State> {
               <ControlLabel>To</ControlLabel>
               <FormControl
                 placeholder='to@email.com'
-                onChange={this.onChangeCommon.bind(this, 'testTo')}
+                componentclass='select'
+                value={this.state.testTo}
+                options={[
+                  { value: '', label: '' },
+                  ...this.props.verifiedUsers.map((user) => ({
+                    value: user.email,
+                    label: user.email,
+                  })),
+                ]}
+                onChange={(e: any) =>
+                  this.setState({ testTo: e.currentTarget.value })
+                }
               />
             </FormGroup>
           </FlexRow>

@@ -1,11 +1,14 @@
 import { Document, Schema, Model } from 'mongoose';
 
-import { PAYMENT_STATUS } from '../../api/constants';
+import { CURRENCIES, PAYMENT_STATUS } from '../../api/constants';
 import { field } from './utils';
+
+
 
 export interface IInvoice {
   invoiceNumber: string;
   amount: number;
+  currency: string;
   phone: string;
   email: string;
   description?: string;
@@ -18,7 +21,7 @@ export interface IInvoice {
   resolvedAt?: Date;
   redirectUri?: string;
   paymentIds: string[];
-
+  callback?: string;
   data?: any;
 }
 export interface IInvoiceDocument extends IInvoice, Document {
@@ -29,6 +32,7 @@ export const invoiceSchema = new Schema({
   _id: field({ pkey: true }),
   invoiceNumber: field({ type: String }),
   amount: field({ type: Number }),
+  currency: field({ type: String, enum: CURRENCIES, default: 'MNT' }),
   phone: field({ type: String }),
   email: field({ type: String }),
   paymentIds: field({ type: [String] }),
@@ -40,10 +44,11 @@ export const invoiceSchema = new Schema({
   customerId: field({ type: String }),
   contentType: field({ type: String }),
   contentTypeId: field({ type: String }),
-  createdAt: field({ type: Date, default: new Date() }),
+  createdAt: field({ type: Date, default: Date.now }),
   resolvedAt: field({ type: Date }),
   data: field({ type: Schema.Types.Mixed }),
   apiResponse: field({ type: Schema.Types.Mixed }),
+  callback: field({ type: String }),
 });
 
 invoiceSchema.index({ invoiceNumber: 1 });

@@ -26,7 +26,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Alert from '@erxes/ui/src/utils/Alert/index';
-import { __, router } from '@erxes/ui/src/utils/core';
+import { __, isEnabled, router } from '@erxes/ui/src/utils/core';
 import { Transition } from '@headlessui/react';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -37,7 +37,7 @@ import ActionsForm from '../forms/actions/ActionsForm';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
 import Histories from '../histories/Wrapper';
 import AutomationEditor from './RFEditor';
-import { generatePostion } from './utils';
+import { checkAutomationChanged, generatePostion } from './utils';
 
 type Props = {
   automation: IAutomation;
@@ -68,6 +68,7 @@ type State = {
   selectedContentId?: string;
   automationNotes: IAutomationNote[];
   awaitingNodeId?: string;
+  workFlowActions: { workflowId: string; actions: IAction[] }[];
 };
 
 class Editor extends React.Component<Props, State> {
@@ -81,6 +82,7 @@ class Editor extends React.Component<Props, State> {
       name: automation.name,
       actions: JSON.parse(JSON.stringify(automation.actions || [])),
       triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
+      workFlowActions: [],
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'triggers',
@@ -156,7 +158,8 @@ class Editor extends React.Component<Props, State> {
           description: t.description,
           actionId: t.actionId,
           position: t.position,
-          isCustom: t.isCustom
+          isCustom: t.isCustom,
+          workflowId: t.workflowId
         })),
         actions: actions.map((a) => ({
           id: a.id,
@@ -166,7 +169,8 @@ class Editor extends React.Component<Props, State> {
           icon: a.icon,
           label: a.label,
           description: a.description,
-          position: a.position
+          position: a.position,
+          workflowId: a.workflowId
         }))
       };
 
@@ -247,9 +251,9 @@ class Editor extends React.Component<Props, State> {
   };
 
   onConnection = (info) => {
-    const { triggers, actions } = this.state;
+    const { triggers, actions, workFlowActions } = this.state;
 
-    connection(triggers, actions, info, info.targetId);
+    connection(triggers, actions, info, info.targetId, workFlowActions);
 
     this.setState({ triggers, actions });
   };
@@ -425,6 +429,7 @@ class Editor extends React.Component<Props, State> {
                 activeAction.id
               )}
               actionsConst={actionsConst}
+              triggersConst={triggersConst}
               propertyTypesConst={propertyTypesConst}
             />
           </>
@@ -522,6 +527,27 @@ class Editor extends React.Component<Props, State> {
     });
   };
 
+  addWorkFlowAction = (workflowId: string, actions: IAction[]) => {
+    const { workFlowActions } = this.state;
+
+    if (
+      !workFlowActions.some((workflow) => workflow.workflowId === workflowId)
+    ) {
+      this.setState({
+        workFlowActions: [...workFlowActions, { workflowId, actions }]
+      });
+    }
+  };
+  removeWorkFlowAction = (workflowId: string) => {
+    const { workFlowActions } = this.state;
+
+    this.setState({
+      workFlowActions: workFlowActions.filter(
+        (workflow) => workflow.workflowId !== workflowId
+      )
+    });
+  };
+
   renderConfirmation() {
     const { id, queryParams, location, navigate, saveLoading, automation } =
       this.props;
@@ -533,10 +559,7 @@ class Editor extends React.Component<Props, State> {
 
     const when = queryParams.isCreate
       ? !!id
-      : JSON.stringify(triggers) !==
-          JSON.stringify(automation.triggers || []) ||
-        JSON.stringify(actions) !== JSON.stringify(automation.actions || []) ||
-        automation.name !== this.state.name;
+      : checkAutomationChanged(triggers, actions, automation, name);
 
     return (
       <Confirmation
@@ -585,7 +608,7 @@ class Editor extends React.Component<Props, State> {
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
-          {this.renderTemplateModal()}
+          {isEnabled('template') && this.renderTemplateModal()}
           <Button
             btnStyle="success"
             size="small"
@@ -600,7 +623,7 @@ class Editor extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { triggers, actions, showDrawer } = this.state;
+    const { triggers, actions, showDrawer, workFlowActions } = this.state;
     const {
       automation,
       constants: { triggersConst, actionsConst },
@@ -628,6 +651,7 @@ class Editor extends React.Component<Props, State> {
         automation={automation}
         triggers={triggers}
         actions={actions}
+        workFlowActions={workFlowActions}
         constants={this.props.constants}
         automationNotes={automationNotes}
         showDrawer={showDrawer}
@@ -637,6 +661,9 @@ class Editor extends React.Component<Props, State> {
         onConnection={this.onConnection}
         onChangePositions={this.onChangeItemPosition}
         addAction={this.addAction}
+        handelSave={this.handleSubmit}
+        addWorkFlowAction={this.addWorkFlowAction}
+        removeWorkFlowAction={this.removeWorkFlowAction}
       />
     );
   }
@@ -669,12 +696,7 @@ class Editor extends React.Component<Props, State> {
         </PageContent>
 
         <div ref={this.setWrapperRef}>
-          <Transition
-            show={showDrawer}
-            // timeout={300}
-            className="slide-in-right"
-            // unmountOnExit={true}
-          >
+          <Transition show={showDrawer} className="slide-in-right">
             <RightDrawerContainer>
               {this.renderTabContent()}
             </RightDrawerContainer>

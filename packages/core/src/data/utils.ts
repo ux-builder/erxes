@@ -1,29 +1,26 @@
-import utils from '@erxes/api-utils/src';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import * as AWS from 'aws-sdk';
-import * as fileType from 'file-type';
-import * as admin from 'firebase-admin';
-import * as fs from 'fs';
-import * as Handlebars from 'handlebars';
-import * as jimp from 'jimp';
-import * as nodemailer from 'nodemailer';
-import * as path from 'path';
-import * as xlsxPopulate from 'xlsx-populate';
-import * as FormData from 'form-data';
-import fetch from 'node-fetch';
-import { IModels } from '../connectionResolver';
-import { IUserDocument } from '../db/models/definitions/users';
-import { debugBase, debugError } from '../debuggers';
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage,
-} from '../messageBroker';
-import { graphqlPubsub } from '../pubsub';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
-import redis from '@erxes/api-utils/src/redis';
-import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import utils from "@erxes/api-utils/src";
+import { USER_ROLES } from "@erxes/api-utils/src/constants";
+import * as AWS from "aws-sdk";
+import * as fileType from "file-type";
+import * as admin from "firebase-admin";
+import * as fs from "fs";
+import * as Handlebars from "handlebars";
+import * as jimp from "jimp";
+import * as nodemailer from "nodemailer";
+import * as path from "path";
+import * as xlsxPopulate from "xlsx-populate";
+import * as FormData from "form-data";
+import fetch from "node-fetch";
+import { IModels } from "../connectionResolver";
+import { IUserDocument } from "../db/models/definitions/users";
+import { debugBase, debugError } from "../debuggers";
+import { sendCommonMessage } from "../messageBroker";
+import { graphqlPubsub } from "../pubsub";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import redis from "@erxes/api-utils/src/redis";
+import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
+import { randomAlphanumeric } from "@erxes/api-utils/src/random";
+import { isImage } from "@erxes/api-utils/src/commonUtils";
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -46,7 +43,7 @@ export const readFile = async (filename: string) => {
     __dirname,
     `../private/emailTemplates/${filename}.html`,
   );
-  return fs.promises.readFile(filePath, 'utf8');
+  return fs.promises.readFile(filePath, "utf8");
 };
 
 /**
@@ -78,37 +75,37 @@ export const sendEmail = async (
     transportMethod,
   } = params;
 
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
   const DEFAULT_EMAIL_SERVICE = await getConfig(
-    'DEFAULT_EMAIL_SERVICE',
-    'SES',
+    "DEFAULT_EMAIL_SERVICE",
+    "SES",
     models,
   );
-  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
+  const defaultTemplate = await getConfig("COMPANY_EMAIL_TEMPLATE", "", models);
   const defaultTemplateType = await getConfig(
-    'COMPANY_EMAIL_TEMPLATE_TYPE',
-    '',
+    "COMPANY_EMAIL_TEMPLATE_TYPE",
+    "",
     models,
   );
-  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
-  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
+  const COMPANY_EMAIL_FROM = await getConfig("COMPANY_EMAIL_FROM", "", models);
+  const AWS_SES_CONFIG_SET = await getConfig("AWS_SES_CONFIG_SET", "", models);
   const AWS_SES_ACCESS_KEY_ID = await getConfig(
-    'AWS_SES_ACCESS_KEY_ID',
-    '',
+    "AWS_SES_ACCESS_KEY_ID",
+    "",
     models,
   );
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-    'AWS_SES_SECRET_ACCESS_KEY',
-    '',
+    "AWS_SES_SECRET_ACCESS_KEY",
+    "",
     models,
   );
 
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
 
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: "VERSION" });
 
   // do not send email it is running in test mode
-  if (NODE_ENV === 'test') {
+  if (NODE_ENV === "test") {
     return;
   }
 
@@ -118,34 +115,17 @@ export const sendEmail = async (
 
   try {
     transporter = await createTransporter(
-      { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
+      { ses: DEFAULT_EMAIL_SERVICE === "SES" },
       models,
     );
 
-    if (VERSION === 'saas') {
-      const serverId = getEnv({ name: 'SOCKETLABS_SERVER_ID' });
-      const password = getEnv({ name: 'SOCKETLABS_PASSWORD' });
+    if (transportMethod === "sendgrid" || (VERSION && VERSION === "saas")) {
+      sendgridMail = require("@sendgrid/mail");
 
-      transporter = nodemailer.createTransport({
-        host: 'smtp.socketlabs.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: `server${serverId}`,
-          pass: password,
-        },
-      });
-    }
-
-    if (transportMethod === 'sendgrid') {
-      sendgridMail = require('@sendgrid/mail');
-
-      const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
+      const SENDGRID_API_KEY = getEnv({ name: "SENDGRID_API_KEY", subdomain });
 
       sendgridMail.setApiKey(SENDGRID_API_KEY);
     }
-
-
   } catch (e) {
     return debugError(e.message);
   }
@@ -162,8 +142,8 @@ export const sendEmail = async (
 
     if (organization.isWhiteLabel) {
       data.whiteLabel = true;
-      data.organizationName = organization.name || '';
-      data.organizationDomain = organization.domain || '';
+      data.organizationName = organization.name || "";
+      data.organizationDomain = organization.domain || "";
 
       hasCompanyFromEmail = true;
     } else {
@@ -184,9 +164,9 @@ export const sendEmail = async (
     } else if (
       !defaultTemplate ||
       !defaultTemplateType ||
-      (defaultTemplateType && defaultTemplateType.toString() === 'simple')
+      (defaultTemplateType && defaultTemplateType.toString() === "simple")
     ) {
-      html = await applyTemplate(data, 'base');
+      html = await applyTemplate(data, "base");
     } else if (defaultTemplate) {
       html = Handlebars.compile(defaultTemplate.toString())(data || {});
     }
@@ -200,7 +180,7 @@ export const sendEmail = async (
         fromEmail ||
         (hasCompanyFromEmail
           ? `Noreply <${COMPANY_EMAIL_FROM}>`
-          : 'noreply@erxes.io'),
+          : "noreply@erxes.io"),
       to: toEmail,
       subject: title,
       html,
@@ -214,54 +194,44 @@ export const sendEmail = async (
     let headers: { [key: string]: string } = {};
 
     if (models && subdomain) {
-      const emailDelivery = await sendLogsMessage({
-        subdomain,
-        action: 'emailDeliveries.create',
-        data: {
-          kind: 'transaction',
-          to: toEmail,
-          from: mailOptions.from,
-          subject: title,
-          body: html,
-          status: 'pending',
-        },
-        isRPC: true,
-      });
+      const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
+        kind: "transaction",
+        to: [toEmail],
+        from: mailOptions.from,
+        subject: title || "",
+        body: html,
+        status: "pending",
+      })) as any;
 
       headers = {
-        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
+        "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",
         EmailDeliveryId: emailDelivery && emailDelivery._id,
       };
     }
 
     if (AWS_SES_ACCESS_KEY_ID && AWS_SES_SECRET_ACCESS_KEY) {
-      headers['X-SES-CONFIGURATION-SET'] = AWS_SES_CONFIG_SET || 'erxes-saas';
+      headers["X-SES-CONFIGURATION-SET"] = AWS_SES_CONFIG_SET || "erxes-saas";
     }
 
     mailOptions.headers = headers;
 
     try {
-      if (VERSION === 'saas' && mailOptions.subject === 'Reset password') {
-        sendgridMail = require('@sendgrid/mail');
-        const SENDGRID_API_KEY = getEnv({
-          name: 'SENDGRID_API_KEY',
-          subdomain,
-        });
+      if (sendgridMail) {
+        await sendgridMail.send(mailOptions).then(
+          () => {},
+          (error) => {
+            console.error(error);
 
-        sendgridMail.setApiKey(SENDGRID_API_KEY);
-        return sendgridMail.send(mailOptions);
+            if (error.response) {
+              console.error(error.response.body);
+            }
+          },
+        );
+      } else {
+        await transporter.sendMail(mailOptions);
       }
-
-      return transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          debugError(`Error sending email: ${error}`);
-        }
-        if (info) {
-          debugBase(`Email sent: ${info.response}`);
-        }
-      });
     } catch (e) {
-      debugError(e);
+      debugError(`Error sending email: ${e.message}`);
     }
   }
 };
@@ -272,16 +242,16 @@ export const sendEmail = async (
 export const createTransporter = async ({ ses }, models?: IModels) => {
   if (ses) {
     const AWS_SES_ACCESS_KEY_ID = await getConfig(
-      'AWS_SES_ACCESS_KEY_ID',
-      '',
+      "AWS_SES_ACCESS_KEY_ID",
+      "",
       models,
     );
     const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-      'AWS_SES_SECRET_ACCESS_KEY',
-      '',
+      "AWS_SES_SECRET_ACCESS_KEY",
+      "",
       models,
     );
-    const AWS_REGION = await getConfig('AWS_REGION', '', models);
+    const AWS_REGION = await getConfig("AWS_REGION", "", models);
 
     AWS.config.update({
       region: AWS_REGION,
@@ -290,15 +260,15 @@ export const createTransporter = async ({ ses }, models?: IModels) => {
     });
 
     return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+      SES: new AWS.SES({ apiVersion: "2010-12-01" }),
     });
   }
 
-  const MAIL_SERVICE = await getConfig('MAIL_SERVICE', '', models);
-  const MAIL_PORT = await getConfig('MAIL_PORT', '', models);
-  const MAIL_USER = await getConfig('MAIL_USER', '', models);
-  const MAIL_PASS = await getConfig('MAIL_PASS', '', models);
-  const MAIL_HOST = await getConfig('MAIL_HOST', '', models);
+  const MAIL_SERVICE = await getConfig("MAIL_SERVICE", "", models);
+  const MAIL_PORT = await getConfig("MAIL_PORT", "", models);
+  const MAIL_USER = await getConfig("MAIL_USER", "", models);
+  const MAIL_PASS = await getConfig("MAIL_PASS", "", models);
+  const MAIL_HOST = await getConfig("MAIL_HOST", "", models);
 
   let auth;
 
@@ -317,32 +287,32 @@ export const createTransporter = async ({ ses }, models?: IModels) => {
   });
 };
 
-export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
+export const uploadsFolderPath = path.join(__dirname, "../private/uploads");
 
 export const initFirebase = async (
   models: IModels,
   customConfig?: string,
   customName?: string,
 ): Promise<void> => {
-  let codeString = 'value';
+  let codeString = "value";
 
   // get google application credentials JSON
   if (customConfig) {
     codeString = customConfig;
   } else {
     const config = await models.Configs.findOne({
-      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+      code: "GOOGLE_APPLICATION_CREDENTIALS_JSON",
     });
 
     if (!config) {
       throw new Error(
-        'Cannot find google application credentials JSON configuration',
+        "Cannot find google application credentials JSON configuration",
       );
     }
     codeString = config.value;
   }
 
-  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+  if (codeString[0] === "{" && codeString[codeString.length - 1] === "}") {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
@@ -351,7 +321,7 @@ export const initFirebase = async (
           {
             credential: admin.credential.cert(serviceAccount),
           },
-          customName || '[DEFAULT]',
+          customName || "[DEFAULT]",
         );
       } catch (e) {
         debugError(`initFireBase error: ${e.message}`);
@@ -365,14 +335,14 @@ export const initFirebase = async (
  */
 export const checkFile = async (models: IModels, file, source?: string) => {
   if (!file) {
-    throw new Error('Invalid file');
+    throw new Error("Invalid file");
   }
 
   const { size } = file;
 
   // 20mb
   if (size > 20 * 1024 * 1024) {
-    return 'Too large file';
+    return "Too large file";
   }
 
   // read file
@@ -382,85 +352,94 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   const ft = fileType(buffer);
 
   const unsupportedMimeTypes = [
-    'text/csv',
-    'image/svg+xml',
-    'text/plain',
-    'application/vnd.ms-excel',
-    'audio/mp3',
+    "text/csv",
+    "image/svg+xml",
+    "text/plain",
+    "application/vnd.ms-excel",
+    "audio/mp3",
   ];
 
   const oldMsOfficeDocs = [
-    'application/msword',
-    'application/vnd.ms-excel',
-    'application/vnd.ms-powerpoint',
+    "application/msword",
+    "application/vnd.ms-excel",
+    "application/vnd.ms-powerpoint",
   ];
 
   // allow csv, svg to be uploaded
   if (!ft && unsupportedMimeTypes.includes(file.type)) {
-    return 'ok';
+    return "ok";
   }
 
   if (!ft) {
-    return 'Invalid file type';
+    return "Invalid file type";
   }
 
-  const { mime } = ft;
+  let { mime } = ft;
+
+  if (mime === "application/zip" && file.name.endsWith(".hwpx")) {
+    mime = "application/haansoft-hwpml";
+  }
+
+  if (mime === "application/x-msi" && file.name.endsWith(".hwp")) {
+    mime = "application/haansoft-hwp";
+  }
 
   // allow old ms office docs to be uploaded
-  if (mime === 'application/x-msi' && oldMsOfficeDocs.includes(file.type)) {
-    return 'ok';
+  if (mime === "application/x-msi" && oldMsOfficeDocs.includes(file.type)) {
+    return "ok";
   }
 
   const defaultMimeTypes = [
-    'image/png',
-    'image/jpeg',
-    'image/jpg',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/pdf',
-    'image/gif',
-    'audio/mp4',
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/pdf",
+    "image/gif",
+    "audio/mp4",
+    "audio/vnd.wave",
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
-    source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES',
-    '',
+    source === "widgets" ? "WIDGETS_UPLOAD_FILE_TYPES" : "UPLOAD_FILE_TYPES",
+    "",
     models,
   );
-
+  console.log(UPLOAD_FILE_TYPES, "UPLOAD_FILE_TYPES", source, "mime:", mime);
   if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime))) {
     if (!defaultMimeTypes.includes(mime)) {
-      return 'Invalid configured file type';
+      return "Invalid configured file type";
     }
   }
 
-  return 'ok';
+  return "ok";
 };
 
 /**
  * Create AWS instance
  */
 export const createAWS = async (models?: IModels) => {
-  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
+  const AWS_ACCESS_KEY_ID = await getConfig("AWS_ACCESS_KEY_ID", "", models);
   const AWS_SECRET_ACCESS_KEY = await getConfig(
-    'AWS_SECRET_ACCESS_KEY',
-    '',
+    "AWS_SECRET_ACCESS_KEY",
+    "",
     models,
   );
-  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  const AWS_BUCKET = await getConfig("AWS_BUCKET", "", models);
   const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
-    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
-    '',
+    "AWS_COMPATIBLE_SERVICE_ENDPOINT",
+    "",
     models,
   );
   const AWS_FORCE_PATH_STYLE = await getConfig(
-    'AWS_FORCE_PATH_STYLE',
-    '',
+    "AWS_FORCE_PATH_STYLE",
+    "",
     models,
   );
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
-    throw new Error('AWS credentials are not configured');
+    throw new Error("AWS credentials are not configured");
   }
 
   const options: {
@@ -473,7 +452,7 @@ export const createAWS = async (models?: IModels) => {
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   };
 
-  if (AWS_FORCE_PATH_STYLE === 'true') {
+  if (AWS_FORCE_PATH_STYLE === "true") {
     options.s3ForcePathStyle = true;
   }
 
@@ -490,18 +469,18 @@ export const createAWS = async (models?: IModels) => {
  */
 const createGCS = async (models?: IModels) => {
   const GOOGLE_APPLICATION_CREDENTIALS = await getConfig(
-    'GOOGLE_APPLICATION_CREDENTIALS',
-    '',
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    "",
     models,
   );
-  const GOOGLE_PROJECT_ID = await getConfig('GOOGLE_PROJECT_ID', '', models);
-  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
+  const GOOGLE_PROJECT_ID = await getConfig("GOOGLE_PROJECT_ID", "", models);
+  const BUCKET = await getConfig("GOOGLE_CLOUD_STORAGE_BUCKET", "", models);
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
-    throw new Error('Google Cloud Storage credentials are not configured');
+    throw new Error("Google Cloud Storage credentials are not configured");
   }
 
-  const Storage = require('@google-cloud/storage').Storage;
+  const Storage = require("@google-cloud/storage").Storage;
 
   // initializing Google Cloud Storage
   return new Storage({
@@ -514,74 +493,53 @@ const createGCS = async (models?: IModels) => {
  * Create Google Cloud Storage instance
  */
 const createCFR2 = async (models?: IModels) => {
-  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    'CLOUDFLARE_ACCOUNT_ID',
-    '',
-    models,
-  );
-  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
-    'CLOUDFLARE_ACCESS_KEY_ID',
-    '',
-    models,
-  );
-  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
-    'CLOUDFLARE_SECRET_ACCESS_KEY',
-    '',
-    models,
-  );
+  const {
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_ACCESS_KEY_ID,
+    CLOUDFLARE_SECRET_ACCESS_KEY,
+  } = await getFileUploadConfigs(models);
+
   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
   if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
-    throw new Error('Cloudflare Credentials are not configured');
+    throw new Error("Cloudflare Credentials are not configured");
   }
 
   const options: {
     endpoint?: string;
     accessKeyId: string;
     secretAccessKey: string;
-    signatureVersion: 'v4';
+    signatureVersion: "v4";
     region: string;
   } = {
     endpoint: CLOUDFLARE_ENDPOINT,
     accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
     secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
-    signatureVersion: 'v4',
-    region: 'auto',
+    signatureVersion: "v4",
+    region: "auto",
   };
 
   return new AWS.S3(options);
 };
 
-const uploadToCFImages = async (
+export const uploadToCFImages = async (
   file: any,
   forcePrivate?: boolean,
   models?: IModels,
 ) => {
   const sanitizedFilename = sanitizeFilename(file.name);
 
-  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    'CLOUDFLARE_ACCOUNT_ID',
-    '',
-    models,
-  );
-
-  const CLOUDFLARE_API_TOKEN = await getConfig(
-    'CLOUDFLARE_API_TOKEN',
-    '',
-    models,
-  );
-
-  const CLOUDFLARE_BUCKET_NAME = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
-  );
+  const {
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_API_TOKEN,
+    CLOUDFLARE_BUCKET_NAME,
+  } = await getFileUploadConfigs(models);
 
   const IS_PUBLIC = forcePrivate
     ? false
-    : await getConfig('FILE_SYSTEM_PUBLIC', 'false', models);
+    : await getConfig("FILE_SYSTEM_PUBLIC", "false", models);
 
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: "VERSION" });
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
   const headers = {
@@ -589,19 +547,19 @@ const uploadToCFImages = async (
   };
 
   let fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
-  const extension = fileName.split('.').pop();
+  const extension = fileName.split(".").pop();
 
-  if (extension && ['JPEG', 'JPG', 'PNG'].includes(extension)) {
+  if (extension && ["JPEG", "JPG", "PNG"].includes(extension)) {
     const baseName = fileName.slice(0, -(extension.length + 1));
     fileName = `${baseName}.${extension.toLowerCase()}`;
   }
 
   const formData = new FormData();
-  formData.append('file', fs.createReadStream(file.path));
-  formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
+  formData.append("file", fs.createReadStream(file.path));
+  formData.append("id", `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
 
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: formData,
   });
@@ -609,15 +567,15 @@ const uploadToCFImages = async (
   const data = await response.json();
 
   if (!data.success) {
-    throw new Error('Error uploading file to Cloudflare Images');
+    throw new Error("Error uploading file to Cloudflare Images 1");
   }
 
   if (data.result.variants.length === 0) {
-    throw new Error('Error uploading file to Cloudflare Images');
+    throw new Error("Error uploading file to Cloudflare Images 2");
   }
 
-  if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
-    return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
+  if (!IS_PUBLIC || IS_PUBLIC === "false" || VERSION === "saas") {
+    return CLOUDFLARE_BUCKET_NAME + "/" + fileName;
   }
 
   return data.result.variants[0];
@@ -627,17 +585,8 @@ const uploadToCFImages = async (
 const uploadToCFStream = async (file: any, models?: IModels) => {
   const sanitizedFilename = sanitizeFilename(file.name);
 
-  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    'CLOUDFLARE_ACCOUNT_ID',
-    '',
-    models,
-  );
-
-  const CLOUDFLARE_API_TOKEN = await getConfig(
-    'CLOUDFLARE_API_TOKEN',
-    '',
-    models,
-  );
+  const { CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN } =
+    await getFileUploadConfigs(models);
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/stream`;
   const headers = {
@@ -647,11 +596,11 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
   const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
 
   const formData = new FormData();
-  formData.append('file', fs.createReadStream(file.path));
-  formData.append('id', fileName);
+  formData.append("file", fs.createReadStream(file.path));
+  formData.append("id", fileName);
 
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: formData,
   });
@@ -659,7 +608,7 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
   const data = await response.json();
 
   if (!data.success) {
-    throw new Error('Error uploading file to Cloudflare Stream');
+    throw new Error("Error uploading file to Cloudflare Stream");
   }
 
   return data.result.playback.hls;
@@ -674,47 +623,43 @@ export const uploadFileCloudflare = async (
   forcePrivate: boolean = false,
   models?: IModels,
 ): Promise<string> => {
+  const fileObj = file;
   const IS_PUBLIC = forcePrivate
     ? false
-    : await getConfig('FILE_SYSTEM_PUBLIC', 'false');
-  const sanitizedFilename = sanitizeFilename(file.name);
+    : await getConfig("FILE_SYSTEM_PUBLIC", "false");
+  const sanitizedFilename = sanitizeFilename(fileObj.name);
 
-  const CLOUDFLARE_BUCKET = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
-  );
+  const { CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_USE_CDN } =
+    await getFileUploadConfigs(models);
 
-  const CLOUDFLARE_USE_CDN = await getConfig(
-    'CLOUDFLARE_USE_CDN',
-    'true',
-    models,
-  );
+  const detectedType = fileType(fs.readFileSync(fileObj.path));
 
-  const detectedType = fileType(fs.readFileSync(file.path));
-
-  if (
-    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
-    detectedType &&
-    isImage(detectedType.mime) &&
-    !['image/heic', 'image/heif'].includes(detectedType.mime)
-  ) {
-    return uploadToCFImages(file, forcePrivate, models);
+  if (path.extname(fileObj.name).toLowerCase() === `.jfif`) {
+    fileObj.name = fileObj.name.replace(".jfif", ".jpeg");
   }
 
   if (
-    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    (CLOUDFLARE_USE_CDN === "true" || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isImage(detectedType.mime) &&
+    !["image/heic", "image/heif"].includes(detectedType.mime)
+  ) {
+    return uploadToCFImages(fileObj, forcePrivate, models);
+  }
+
+  if (
+    (CLOUDFLARE_USE_CDN === "true" || CLOUDFLARE_USE_CDN === true) &&
     detectedType &&
     isVideo(detectedType.mime)
   ) {
-    return uploadToCFStream(file, models);
+    return uploadToCFStream(fileObj, models);
   }
 
   // generate unique name
   const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
 
-  // read file
-  const buffer = await fs.readFileSync(file.path);
+  // read fileObj
+  const buffer = await fs.readFileSync(fileObj.path);
 
   // initialize r2
   const r2 = await createCFR2(models);
@@ -724,11 +669,11 @@ export const uploadFileCloudflare = async (
   const response: any = await new Promise((resolve, reject) => {
     r2.upload(
       {
-        ContentType: file.type,
-        Bucket: CLOUDFLARE_BUCKET,
+        ContentType: fileObj.type,
+        Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: fileName,
         Body: buffer,
-        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL: IS_PUBLIC === "true" ? "public-read" : undefined,
       },
       (err, res) => {
         if (err) {
@@ -739,7 +684,7 @@ export const uploadFileCloudflare = async (
       },
     );
   });
-  return IS_PUBLIC === 'true' ? response.Location : fileName;
+  return IS_PUBLIC === "true" ? response.Location : fileName;
 };
 /*
  * Save binary data to amazon s3
@@ -753,9 +698,9 @@ export const uploadFileAWS = async (
 
   const IS_PUBLIC = forcePrivate
     ? false
-    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
-  const AWS_PREFIX = await getConfig('AWS_PREFIX', '', models);
-  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+    : await getConfig("FILE_SYSTEM_PUBLIC", "true", models);
+  const AWS_PREFIX = await getConfig("AWS_PREFIX", "", models);
+  const AWS_BUCKET = await getConfig("AWS_BUCKET", "", models);
 
   // initialize s3
   const s3 = await createAWS(models);
@@ -775,7 +720,7 @@ export const uploadFileAWS = async (
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL: IS_PUBLIC === "true" ? "public-read" : undefined,
       },
       (err, res) => {
         if (err) {
@@ -787,7 +732,7 @@ export const uploadFileAWS = async (
     );
   });
 
-  return IS_PUBLIC === 'true' ? response.Location : fileName;
+  return IS_PUBLIC === "true" ? response.Location : fileName;
 };
 
 /*
@@ -797,13 +742,9 @@ export const deleteFileCloudflare = async (
   fileName: string,
   models?: IModels,
 ) => {
-  const CLOUDFLARE_BUCKET = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
-  );
+  const { CLOUDFLARE_BUCKET_NAME } = await getFileUploadConfigs(models);
 
-  const params = { Bucket: CLOUDFLARE_BUCKET, Key: fileName };
+  const params = { Bucket: CLOUDFLARE_BUCKET_NAME, Key: fileName };
 
   // initialize r2
   const r2 = await createCFR2(models);
@@ -813,7 +754,7 @@ export const deleteFileCloudflare = async (
       if (err) {
         return reject(err);
       }
-      return resolve('ok');
+      return resolve("ok");
     });
   });
 };
@@ -822,7 +763,7 @@ export const deleteFileCloudflare = async (
  * Delete file from amazon s3
  */
 export const deleteFileAWS = async (fileName: string, models?: IModels) => {
-  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  const AWS_BUCKET = await getConfig("AWS_BUCKET", "", models);
 
   const params = { Bucket: AWS_BUCKET, Key: fileName };
 
@@ -835,7 +776,7 @@ export const deleteFileAWS = async (fileName: string, models?: IModels) => {
         return reject(err);
       }
 
-      return resolve('ok');
+      return resolve("ok");
     });
   });
 };
@@ -884,8 +825,8 @@ export const uploadFileGCS = async (
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.name);
 
-  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
+  const BUCKET = await getConfig("GOOGLE_CLOUD_STORAGE_BUCKET", "", models);
+  const IS_PUBLIC = await getConfig("FILE_SYSTEM_PUBLIC", "", models);
 
   // initialize GCS
   const storage = await createGCS(models);
@@ -903,7 +844,7 @@ export const uploadFileGCS = async (
       file.path,
       {
         metadata: { contentType: file.type },
-        public: IS_PUBLIC === 'true',
+        public: IS_PUBLIC === "true",
       },
       (err, res) => {
         if (err) {
@@ -919,7 +860,7 @@ export const uploadFileGCS = async (
 
   const { metadata, name } = response;
 
-  return IS_PUBLIC === 'true' ? metadata.mediaLink : name;
+  return IS_PUBLIC === "true" ? metadata.mediaLink : name;
 };
 
 const deleteFileLocal = async (fileName: string) => {
@@ -929,13 +870,13 @@ const deleteFileLocal = async (fileName: string) => {
         return reject(error);
       }
 
-      return resolve('deleted');
+      return resolve("deleted");
     });
   });
 };
 
 const deleteFileGCS = async (fileName: string, models?: IModels) => {
-  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
+  const BUCKET = await getConfig("GOOGLE_CLOUD_STORAGE_BUCKET", "", models);
 
   // initialize GCS
   const storage = await createGCS(models);
@@ -952,7 +893,7 @@ const deleteFileGCS = async (fileName: string, models?: IModels) => {
           return reject(err);
         }
 
-        return resolve('ok');
+        return resolve("ok");
       });
   });
 };
@@ -966,30 +907,21 @@ const readFromCFImages = async (
   width?: number,
   models?: IModels,
 ) => {
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: "VERSION" });
 
-  const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
-    'CLOUDFLARE_ACCOUNT_HASH',
-    '',
-    models,
-  );
-
-  const CLOUDFLARE_BUCKET_NAME = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
-  );
+  const { CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_ACCOUNT_HASH } =
+    await getFileUploadConfigs(models);
 
   let fileName = key;
 
-  if (!VERSION || VERSION !== 'saas') {
+  if (!VERSION || VERSION !== "saas") {
     if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
       fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
     }
   }
 
   if (!CLOUDFLARE_ACCOUNT_HASH) {
-    throw new Error('Cloudflare Account Hash is not configured');
+    throw new Error("Cloudflare Account Hash is not configured");
   }
 
   let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/public`;
@@ -1014,27 +946,23 @@ const readFromCFImages = async (
 };
 
 const readFromCR2 = async (key: string, models?: IModels) => {
-  const CLOUDFLARE_R2_BUCKET = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
-  );
+  const { CLOUDFLARE_BUCKET_NAME } = await getFileUploadConfigs(models);
 
   const r2 = await createCFR2(models);
 
   return new Promise((resolve, reject) => {
     r2.getObject(
       {
-        Bucket: CLOUDFLARE_R2_BUCKET,
+        Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: key,
       },
       (error, response) => {
         if (error) {
           if (
-            error.code === 'NoSuchKey' &&
-            error.message.includes('key does not exist')
+            error.code === "NoSuchKey" &&
+            error.message.includes("key does not exist")
           ) {
-            console.log('file does not exist with key: ', key);
+            console.error("file does not exist with key: ", key);
 
             return resolve(null);
           }
@@ -1045,6 +973,119 @@ const readFromCR2 = async (key: string, models?: IModels) => {
         return resolve(response.Body);
       },
     );
+  });
+};
+
+/**
+ * Create Azure Blob Storage instance
+ */
+const createAzureBlobStorage = async (models?: IModels) => {
+  const AZURE_STORAGE_CONNECTION_STRING = await getConfig(
+    "AZURE_STORAGE_CONNECTION_STRING",
+    "",
+    models,
+  );
+  const AZURE_STORAGE_CONTAINER = await getConfig(
+    "AZURE_STORAGE_CONTAINER",
+    "",
+    models,
+  );
+
+  if (!AZURE_STORAGE_CONNECTION_STRING || !AZURE_STORAGE_CONTAINER) {
+    throw new Error("Azure Blob Storage credentials are not configured");
+  }
+
+  const BlobServiceClient = require("@azure/storage-blob").BlobServiceClient;
+
+  // Initialize Azure Blob Storage
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING,
+  );
+
+  // return a specific container client
+  return blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER);
+};
+
+/*
+ * Delete file from Azure storage
+ */
+export const deleteFileAzure = async (fileName: string, models?: IModels) => {
+  try {
+    // Initialize the Azure Blob container client
+    const containerClient = await createAzureBlobStorage(models); // Assuming this function provides a container client
+
+    // Get the blob client for the specified file key
+    const blobClient = containerClient.getBlobClient(fileName);
+
+    // Check if the blob exists
+    const exists = await blobClient.exists();
+    if (!exists) {
+      console.log(`File with key ${fileName} does not exist.`);
+      return;
+    }
+
+    // Delete the blob
+    await blobClient.delete();
+    console.log(
+      `File with key ${fileName} successfully deleted from Azure Blob Storage.`,
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+/*
+ * Save file to azure blob storage
+ */
+
+export const uploadFileAzure = async (
+  file: {
+    name: string;
+    path: string;
+    type: string;
+  },
+  models: IModels,
+): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
+  const IS_PUBLIC = await getConfig("FILE_SYSTEM_PUBLIC", "true", models);
+
+  // initialize Azure Blob Storage
+  const containerClient = await createAzureBlobStorage(models);
+
+  // generate unique name
+  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+
+  // Create a block blob for the file
+  const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+
+  // Upload data to the blob
+  const response = await blockBlobClient.uploadFile(file.path, {
+    blobHTTPHeaders: { blobContentType: file.type },
+  });
+
+  if (!response) {
+    throw new Error("Error uploading file to Azure Blob Storage");
+  }
+
+  // Return either the blob's URL or its name, depending on public status
+  return IS_PUBLIC === "true" ? blockBlobClient.url : fileName;
+};
+
+/**
+ * Converts a readable stream from Azure Blob Storage into a Buffer.
+ *
+ * @param {NodeJS.ReadableStream} stream - The readable stream from Azure Blob Storage.
+ * @returns {Promise<Buffer>} A promise that resolves to a Buffer containing the stream data.
+ */
+const azureStreamToBuffer = (
+  stream: NodeJS.ReadableStream,
+): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
   });
 };
 
@@ -1071,7 +1112,7 @@ export const readFileRequest = async ({
     if (meta && meta.readFileHook) {
       await sendCommonMessage({
         subdomain,
-        action: 'readFileHook',
+        action: "readFileHook",
         isRPC: true,
         serviceName,
         data: { key, userId },
@@ -1079,16 +1120,12 @@ export const readFileRequest = async ({
     }
   }
 
-  const UPLOAD_SERVICE_TYPE = await getConfig(
-    'UPLOAD_SERVICE_TYPE',
-    'AWS',
-    models,
-  );
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(models);
 
-  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+  if (UPLOAD_SERVICE_TYPE === "GCS") {
     const GCS_BUCKET = await getConfig(
-      'GOOGLE_CLOUD_STORAGE_BUCKET',
-      '',
+      "GOOGLE_CLOUD_STORAGE_BUCKET",
+      "",
       models,
     );
     const storage = await createGCS(models);
@@ -1103,8 +1140,8 @@ export const readFileRequest = async ({
     return contents;
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  if (UPLOAD_SERVICE_TYPE === "AWS") {
+    const AWS_BUCKET = await getConfig("AWS_BUCKET", "", models);
     const s3 = await createAWS(models);
 
     return new Promise((resolve, reject) => {
@@ -1116,8 +1153,8 @@ export const readFileRequest = async ({
         (error, response) => {
           if (error) {
             if (
-              error.code === 'NoSuchKey' &&
-              error.message.includes('key does not exist')
+              error.code === "NoSuchKey" &&
+              error.message.includes("key does not exist")
             ) {
               debugBase(
                 `Error occurred when fetching s3 file with key: "${key}"`,
@@ -1133,24 +1170,32 @@ export const readFileRequest = async ({
     });
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    const CLOUDFLARE_USE_CDN = await getConfig(
-      'CLOUDFLARE_USE_CDN',
-      'false',
-      models,
-    );
+  if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
+    const { CLOUDFLARE_USE_CDN } = await getFileUploadConfigs(models);
 
     if (
-      (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+      (CLOUDFLARE_USE_CDN === "true" || CLOUDFLARE_USE_CDN === true) &&
       isImage(key)
     ) {
       return readFromCFImages(key, width, models);
     }
 
-    return readFromCR2(sanitizedFileKey, models);
+    return readFromCR2(key, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'local') {
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    const containerClient = await createAzureBlobStorage(models);
+    const blobClient = containerClient.getBlobClient(key);
+    const response = await blobClient.download();
+
+    if (!response.readableStreamBody) {
+      throw new Error("No readable stream found in response");
+    }
+
+    return azureStreamToBuffer(response.readableStreamBody);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === "local") {
     return new Promise((resolve, reject) => {
       fs.readFile(
         `${uploadsFolderPath}/${sanitizedFileKey}`,
@@ -1175,40 +1220,41 @@ export const uploadFile = async (
   fromEditor = false,
   models: IModels,
 ): Promise<any> => {
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
-  const VERSION = getEnv({ name: 'VERSION' });
-  const UPLOAD_SERVICE_TYPE = await getConfig(
-    'UPLOAD_SERVICE_TYPE',
-    'AWS',
-    models,
-  );
+  const IS_PUBLIC = await getConfig("FILE_SYSTEM_PUBLIC", "", models);
+  const VERSION = getEnv({ name: "VERSION" });
 
-  let nameOrLink = '';
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(models);
 
-  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+  let nameOrLink = "";
+
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    nameOrLink = await uploadFileAzure(file, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === "AWS") {
     nameOrLink = await uploadFileAWS(file, false, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+  if (UPLOAD_SERVICE_TYPE === "GCS") {
     nameOrLink = await uploadFileGCS(file, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+  if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
     nameOrLink = await uploadFileCloudflare(
       file,
-      VERSION === 'saas' ? true : false,
+      VERSION === "saas" ? true : false,
       models,
     );
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'local') {
+  if (UPLOAD_SERVICE_TYPE === "local") {
     nameOrLink = await uploadFileLocal(file);
   }
 
   if (fromEditor) {
     const editorResult = { fileName: file.name, uploaded: 1, url: nameOrLink };
 
-    if (IS_PUBLIC !== 'true') {
+    if (IS_PUBLIC !== "true") {
       editorResult.url = `${apiUrl}/read-file?key=${nameOrLink}`;
     }
 
@@ -1225,24 +1271,28 @@ export const deleteFile = async (
   const sanitizedFilename = sanitizeFilename(fileName);
 
   const UPLOAD_SERVICE_TYPE = await getConfig(
-    'UPLOAD_SERVICE_TYPE',
-    'AWS',
+    "UPLOAD_SERVICE_TYPE",
+    "AWS",
     models,
   );
 
-  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+  if (UPLOAD_SERVICE_TYPE === "AWS") {
     return deleteFileAWS(fileName, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+  if (UPLOAD_SERVICE_TYPE === "GCS") {
     return deleteFileGCS(fileName, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+  if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
     return deleteFileCloudflare(fileName, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'local') {
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    return deleteFileAzure(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === "local") {
     return deleteFileLocal(sanitizedFilename);
   }
 };
@@ -1275,8 +1325,8 @@ export const registerOnboardHistory = ({
 }) =>
   models.OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
-      if (status === 'created') {
-        graphqlPubsub.publish('onboardingChanged', {
+      if (status === "created") {
+        graphqlPubsub.publish("onboardingChanged", {
           onboardingChanged: { userId: user._id, type },
         });
       }
@@ -1315,15 +1365,15 @@ export const getConfig = async (
 };
 
 export const resetConfigsCache = async () => {
-  await redis.set('configs_erxes_api', '');
+  await redis.set("configs_erxes_api", "");
 };
 
 export const getCoreDomain = () => {
   const NODE_ENV = process.env.NODE_ENV;
 
-  return NODE_ENV === 'production'
-    ? 'https://erxes.io'
-    : 'http://localhost:3500';
+  return NODE_ENV === "production"
+    ? "https://erxes.io"
+    : "http://localhost:3500";
 };
 
 export const routeErrorHandling = (fn, callback?: any) => {
@@ -1343,23 +1393,23 @@ export const routeErrorHandling = (fn, callback?: any) => {
 };
 
 export const isUsingElk = () => {
-  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+  const ELK_SYNCER = getEnv({ name: "ELK_SYNCER", defaultValue: "true" });
 
-  return ELK_SYNCER === 'false' ? false : true;
+  return ELK_SYNCER === "false" ? false : true;
 };
 
 export const checkPremiumService = async (type) => {
   try {
-    const domain = getEnv({ name: 'DOMAIN' })
-      .replace('https://', '')
-      .replace('http://', '');
+    const domain = getEnv({ name: "DOMAIN" })
+      .replace("https://", "")
+      .replace("http://", "");
 
     const response = await fetch(
       `${getCoreDomain()}/check-premium-service?` +
         new URLSearchParams({ domain, type }),
     ).then((r) => r.text());
 
-    return response === 'yes';
+    return response === "yes";
   } catch (e) {
     return false;
   }
@@ -1378,7 +1428,7 @@ export const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   num = num.toString();
 
   while (num.length < size) {
-    num = '0' + num;
+    num = "0" + num;
   }
 
   return num;
@@ -1423,7 +1473,7 @@ export const sendMobileNotification = async (
     await initFirebase(models, customConfig);
   }
   const additionalConfigs = await models.Configs.findOne({
-    code: 'GOOGLE_APP_ADDITIONAL_CREDS_JSON',
+    code: "GOOGLE_APP_ADDITIONAL_CREDS_JSON",
   });
 
   if (admin.apps.length === 1 && additionalConfigs) {
@@ -1438,7 +1488,7 @@ export const sendMobileNotification = async (
     const xs = await models.Users.find({
       _id: { $in: receivers },
       role: { $ne: USER_ROLES.SYSTEM },
-    }).distinct('deviceTokens');
+    }).distinct("deviceTokens");
 
     for (let x of xs) {
       if (x) {
@@ -1467,7 +1517,7 @@ export const sendMobileNotification = async (
             .catch(async (e) => {
               debugError(`Error occurred during firebase send: ${e.message}`);
 
-              if (!e.message.includes('SenderId mismatch')) {
+              if (!e.message.includes("SenderId mismatch")) {
                 await models.Users.updateOne(
                   { deviceTokens: token },
                   { $pull: { deviceTokens: token } },
@@ -1480,50 +1530,81 @@ export const sendMobileNotification = async (
   }
 };
 
-export const getFileUploadConfigs = async (models: IModels) => {
-  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
+export const getFileUploadConfigs = async (models?: IModels) => {
+  const VERSION = getEnv({ name: "VERSION" });
+
+  if (VERSION && VERSION === "saas") {
+    return {
+      UPLOAD_SERVICE_TYPE: getEnv({ name: "UPLOAD_SERVICE_TYPE" }),
+      CLOUDFLARE_BUCKET_NAME: getEnv({ name: "CLOUDFLARE_BUCKET_NAME" }),
+      CLOUDFLARE_ACCOUNT_ID: getEnv({ name: "CLOUDFLARE_ACCOUNT_ID" }),
+      CLOUDFLARE_ACCESS_KEY_ID: getEnv({ name: "CLOUDFLARE_ACCESS_KEY_ID" }),
+      CLOUDFLARE_SECRET_ACCESS_KEY: getEnv({
+        name: "CLOUDFLARE_SECRET_ACCESS_KEY",
+      }),
+      CLOUDFLARE_API_TOKEN: getEnv({ name: "CLOUDFLARE_API_TOKEN" }),
+      CLOUDFLARE_USE_CDN: getEnv({ name: "CLOUDFLARE_USE_CDN" }),
+      CLOUDFLARE_ACCOUNT_HASH: getEnv({ name: "CLOUDFLARE_ACCOUNT_HASH" }),
+    };
+  }
+
+  const AWS_ACCESS_KEY_ID = await getConfig("AWS_ACCESS_KEY_ID", "", models);
   const AWS_SECRET_ACCESS_KEY = await getConfig(
-    'AWS_SECRET_ACCESS_KEY',
-    '',
+    "AWS_SECRET_ACCESS_KEY",
+    "",
     models,
   );
-  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  const AWS_BUCKET = await getConfig("AWS_BUCKET", "", models);
   const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
-    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
-    '',
+    "AWS_COMPATIBLE_SERVICE_ENDPOINT",
+    "",
     models,
   );
   const AWS_FORCE_PATH_STYLE = await getConfig(
-    'AWS_FORCE_PATH_STYLE',
-    '',
+    "AWS_FORCE_PATH_STYLE",
+    "",
     models,
   );
 
   const UPLOAD_SERVICE_TYPE = await getConfig(
-    'UPLOAD_SERVICE_TYPE',
-    'AWS',
+    "UPLOAD_SERVICE_TYPE",
+    "AWS",
     models,
   );
 
   const CLOUDFLARE_BUCKET_NAME = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
+    "CLOUDFLARE_BUCKET_NAME",
+    "",
     models,
   );
 
   const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    'CLOUDFLARE_ACCOUNT_ID',
-    '',
+    "CLOUDFLARE_ACCOUNT_ID",
+    "",
     models,
   );
   const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
-    'CLOUDFLARE_ACCESS_KEY_ID',
-    '',
+    "CLOUDFLARE_ACCESS_KEY_ID",
+    "",
     models,
   );
   const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
-    'CLOUDFLARE_SECRET_ACCESS_KEY',
-    '',
+    "CLOUDFLARE_SECRET_ACCESS_KEY",
+    "",
+    models,
+  );
+
+  const CLOUDFLARE_API_TOKEN = await getConfig(
+    "CLOUDFLARE_API_TOKEN",
+    "",
+    models,
+  );
+
+  const CLOUDFLARE_USE_CDN = await getConfig("CLOUDFLARE_USE_CDN", "", models);
+
+  const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
+    "CLOUDFLARE_ACCOUNT_HASH",
+    "",
     models,
   );
 
@@ -1538,11 +1619,14 @@ export const getFileUploadConfigs = async (models: IModels) => {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_ACCESS_KEY_ID,
     CLOUDFLARE_SECRET_ACCESS_KEY,
+    CLOUDFLARE_API_TOKEN,
+    CLOUDFLARE_USE_CDN,
+    CLOUDFLARE_ACCOUNT_HASH,
   };
 };
 
 export const saveValidatedToken = (token: string, user: IUserDocument) => {
-  return redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
+  return redis.set(`user_token_${user._id}_${token}`, 1, "EX", 24 * 60 * 60);
 };
 
 /*
@@ -1559,20 +1643,7 @@ export const handleUnsubscription = async (
   const { cid, uid } = query;
 
   if (cid) {
-    await sendContactsMessage({
-      subdomain,
-      action: 'customers.updateOne',
-      data: {
-        selector: {
-          _id: cid,
-        },
-        modifier: {
-          $set: { isSubscribed: 'No' },
-        },
-      },
-      isRPC: true,
-      defaultValue: {},
-    });
+    await models.Customers.updateOne({ _id: cid }, { isSubscribed: "No" });
   }
 
   if (uid) {
@@ -1580,7 +1651,7 @@ export const handleUnsubscription = async (
       {
         _id: uid,
       },
-      { $set: { isSubscribed: 'No' } },
+      { $set: { isSubscribed: "No" } },
     );
   }
 };
@@ -1594,7 +1665,7 @@ export const resizeImage = async (
     let image = await jimp.read(`${file.path}`);
 
     if (!image) {
-      throw new Error('Error reading image');
+      throw new Error("Error reading image");
     }
 
     if (maxWidth && image.getWidth() > maxWidth) {
@@ -1612,20 +1683,131 @@ export const resizeImage = async (
   }
 };
 
-export const isImage = (mimetypeOrName: string) => {
-  const extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
-
-  // extract extension from file name
-  const extension = mimetypeOrName.split('.').pop();
-  if (extensions.includes(extension || '')) {
-    return true;
-  }
-
-  return mimetypeOrName.includes('image');
+export const isVideo = (mimeType: string) => {
+  return mimeType.includes("video");
 };
 
-export const isVideo = (mimeType: string) => {
-  return mimeType.includes('video');
+export const countDocuments = async (
+  subdomain: string,
+  type: string,
+  _ids: string[],
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    action: "tag",
+    serviceName,
+    data: {
+      type: contentType,
+      _ids,
+      action: "count",
+    },
+    isRPC: true,
+  });
+};
+
+export const getContentTypes = async (serviceName) => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map((type) => `${serviceName}:${type.type}`);
+};
+
+export const tagObject = async (
+  models: IModels,
+  subdomain: string,
+  type: string,
+  tagIds: string[],
+  targetIds: string[],
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  if (serviceName === "core") {
+    const modelMap = {
+      customer: models.Customers,
+      user: models.Users,
+      company: models.Companies,
+      form: models.Forms,
+      product: models.Products,
+    };
+    await modelMap[contentType].updateMany(
+      { _id: { $in: targetIds } },
+      { $set: { tagIds } },
+    );
+    return modelMap[contentType].find({ _id: { $in: targetIds } }).lean();
+  }
+
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "tag",
+    data: {
+      tagIds,
+      targetIds,
+      type: contentType,
+      action: "tagObject",
+    },
+    isRPC: true,
+  });
+};
+
+export const fixRelatedItems = async ({
+  subdomain,
+  type,
+  sourceId,
+  destId,
+  action,
+}: {
+  subdomain: string;
+  type: string;
+  sourceId: string;
+  destId?: string;
+  action: string;
+}) => {
+  const [serviceName, contentType] = type.split(":");
+
+  sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "fixRelatedItems",
+    data: {
+      sourceId,
+      destId,
+      type: contentType,
+      action,
+    },
+  });
+};
+
+export async function handleTagsPublishChange(
+  services,
+  serviceNameFromType,
+  subdomain,
+  targetIds,
+) {
+  for (const serviceName of services) {
+    if (serviceName !== serviceNameFromType) continue;
+
+    const service = await getService(serviceName);
+    const meta = service.config?.meta || {};
+
+    if (meta?.tags?.publishChangeAvailable) {
+      await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: "publishChange",
+        data: {
+          targetIds,
+          type: "tag",
+        },
+      });
+    }
+  }
+}
+
+export const extractServiceName = (type: string) => {
+  return (type || "").split(":")[0];
 };
 
 export const getEnv = utils.getEnv;

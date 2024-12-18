@@ -191,6 +191,7 @@ export type Config = {
   googleClientId?: string;
   facebookAppId?: string;
   erxesAppToken?: string;
+  language?: string;
 };
 
 interface ICommonFields {
@@ -315,6 +316,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  publishedUser: IUser;
   viewCount?: number;
 }
 
@@ -432,8 +434,6 @@ export interface IProduct {
 
   uom?: string;
   subUoms?: any[];
-  taxType?: string;
-  taxCode?: string;
 }
 
 export interface IPaymentsData {

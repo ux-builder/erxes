@@ -1,11 +1,15 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
+  pdfAttachmentType,
+  pdfAttachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
   ${attachmentType}
   ${attachmentInput}
+  ${pdfAttachmentType}
+  ${pdfAttachmentInput}
   
   extend type Brand @key(fields: "_id") {
     _id: String! @external
@@ -45,6 +49,10 @@ export const types = `
     viewCount: Int
     attachments: [Attachment]
     image: Attachment
+    pdfAttachment: PdfAttachment
+    publishedUserId:String
+    publishedUser:User
+    scheduledDate: Date
 
     forms: [FormCode]
   }
@@ -62,7 +70,8 @@ export const types = `
     categoryId: String
     image: AttachmentInput
     attachments: [AttachmentInput]
-
+    pdfAttachment: PdfAttachmentInput
+    scheduledDate: Date
     forms: [FormCodeInput]
   }
 
@@ -71,7 +80,7 @@ export const types = `
     code: String
     title: String
     description: String
-    articles: [KnowledgeBaseArticle]
+    articles(status: String): [KnowledgeBaseArticle]
     icon: String
     createdBy: String
     createdDate: Date
@@ -81,7 +90,7 @@ export const types = `
 
     firstTopic: KnowledgeBaseTopic
     authors: [User]
-    numOfArticles: Float
+    numOfArticles(status: String): Float
     countArticles:Int
   }
 
@@ -100,7 +109,7 @@ export const types = `
 
     firstTopic: KnowledgeBaseTopic
     authors: [User]
-    numOfArticles: Float
+    numOfArticles(status: String): Float
 
     childrens: [KnowledgeBaseCategory]
   }
@@ -161,10 +170,10 @@ export const queries = `
   knowledgeBaseCategoriesTotalCount(topicIds: [String], codes: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String]): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int, status: String): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String]): Int
+  knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String): Int
 `;
 
 export const mutations = `
@@ -179,4 +188,5 @@ export const mutations = `
   knowledgeBaseArticlesAdd(doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
   knowledgeBaseArticlesEdit(_id: String!, doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
   knowledgeBaseArticlesRemove(_id: String!): JSON
+  knowledgeBaseArticlesIncrementViewCount(_id: String!): JSON
 `;

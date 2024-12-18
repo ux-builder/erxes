@@ -1,21 +1,19 @@
 import {
   sendCommonMessage,
   sendCoreMessage,
-  sendEmailTemplateMessage,
-  sendLogsMessage,
-  sendSegmentsMessage,
-} from '../messageBroker';
-import { EMAIL_RECIPIENTS_TYPES } from '../constants';
-import { getEnv } from '../utils';
-import * as AWS from 'aws-sdk';
-import * as nodemailer from 'nodemailer';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+  sendSegmentsMessage
+} from "../messageBroker";
+import { EMAIL_RECIPIENTS_TYPES } from "../constants";
+import { getEnv } from "../utils";
+import * as AWS from "aws-sdk";
+import * as nodemailer from "nodemailer";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 import {
-  isEnabled,
   getServices,
   getService,
-} from '@erxes/api-utils/src/serviceDiscovery';
-import { putActivityLog } from '../logUtils';
+  isEnabled
+} from "@erxes/api-utils/src/serviceDiscovery";
+import { putActivityLog } from "../logUtils";
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes = [...EMAIL_RECIPIENTS_TYPES];
@@ -31,7 +29,7 @@ export const getEmailRecipientTypes = async () => {
 
       reciepentTypes = [
         ...reciepentTypes,
-        ...emailRecipIentTypes.map((eTR) => ({ ...eTR, serviceName })),
+        ...emailRecipIentTypes.map(eTR => ({ ...eTR, serviceName }))
       ];
     }
   }
@@ -40,17 +38,19 @@ export const getEmailRecipientTypes = async () => {
 
 const generateEmails = (entry, key?) => {
   if (Array.isArray(entry)) {
-    return entry
-      .map((item) => item[key])
-      .filter((value) =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-      );
+    if (key) {
+      entry = entry.map(item => item[key]);
+    }
+
+    return entry.filter(value =>
+      value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+    );
   }
 
-  if (typeof entry === 'string') {
+  if (typeof entry === "string") {
     return entry
-      .split(', ')
-      .filter((value) =>
+      .split(", ")
+      .filter(value =>
         value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
       );
   }
@@ -61,16 +61,16 @@ const generateEmails = (entry, key?) => {
 const getTeamMemberEmails = async ({ subdomain, params }) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
-        ...params,
-      },
+        ...params
+      }
     },
-    isRPC: true,
+    isRPC: true
   });
 
-  return generateEmails(users, 'email');
+  return generateEmails(users, "email");
 };
 
 const getAttributionEmails = async ({
@@ -80,12 +80,12 @@ const getAttributionEmails = async ({
   target,
   execution,
   value,
-  key,
+  key
 }) => {
   let emails: string[] = [];
-  const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-  const attributes = matches.map((match) =>
-    match.replace(/\{\{\s*|\s*\}\}/g, '')
+  const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
+  const attributes = matches.map(match =>
+    match.replace(/\{\{\s*|\s*\}\}/g, "")
   );
   const relatedValueProps = {};
 
@@ -94,27 +94,27 @@ const getAttributionEmails = async ({
   }
 
   for (const attribute of attributes) {
-    if (attribute === 'triggerExecutors') {
+    if (attribute === "triggerExecutors") {
       const excutorEmails = await getSegmentEmails({
         subdomain,
         serviceName,
         contentType,
-        execution,
+        execution
       });
       emails = [...emails, ...excutorEmails];
     }
 
     relatedValueProps[attribute] = {
-      key: 'email',
+      key: "email",
       filter: {
-        key: 'registrationToken',
-        value: null,
-      },
+        key: "registrationToken",
+        value: null
+      }
     };
 
-    if (['customers', 'companies'].includes(attribute)) {
+    if (["customers", "companies"].includes(attribute)) {
       relatedValueProps[attribute] = {
-        key: 'primaryEmail',
+        key: "primaryEmail"
       };
       target[attribute] = null;
     }
@@ -123,65 +123,67 @@ const getAttributionEmails = async ({
   const replacedContent = await sendCommonMessage({
     subdomain,
     serviceName,
-    action: 'automations.replacePlaceHolders',
+    action: "automations.replacePlaceHolders",
     data: {
       target: { ...target, type: contentType },
       config: {
-        [key]: value,
+        [key]: value
       },
-      relatedValueProps,
+      relatedValueProps
     },
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
-  return [...emails, ...generateEmails(replacedContent[key])];
+  const generatedEmails = generateEmails(replacedContent[key]);
+
+  return [...emails, ...generatedEmails];
 };
 
 const getSegmentEmails = async ({
   subdomain,
   serviceName,
   contentType,
-  execution,
+  execution
 }) => {
   const { triggerConfig, targetId } = execution;
   const contentTypeIds = await sendSegmentsMessage({
     subdomain,
-    action: 'fetchSegment',
+    action: "fetchSegment",
     data: {
       segmentId: triggerConfig.contentId,
       options: {
         defaultMustSelector: [
           {
             match: {
-              _id: targetId,
-            },
-          },
-        ],
-      },
+              _id: targetId
+            }
+          }
+        ]
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
-  if (contentType === 'user') {
+  if (contentType === "user") {
     return getTeamMemberEmails({
       subdomain,
-      params: { _id: { $in: contentTypeIds } },
+      params: { _id: { $in: contentTypeIds } }
     });
   }
 
   return await sendCommonMessage({
     subdomain,
     serviceName,
-    action: 'automations.getRecipientsEmails',
+    action: "automations.getRecipientsEmails",
     data: {
       type: contentType,
       config: {
-        [`${contentType}Ids`]: contentTypeIds,
-      },
+        [`${contentType}Ids`]: contentTypeIds
+      }
     },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -197,56 +199,96 @@ const generateFromEmail = (sender, fromUserEmail) => {
   return null;
 };
 
+const replaceDocuments = async (subdomain, content, target) => {
+  if (!isEnabled("documents")) {
+    return content;
+  }
+
+  // Regular expression to match `documents.<id>` within `{{ }}`
+  const documentIds = [
+    ...content.matchAll(/\{\{\s*document\.([a-zA-Z0-9_]+)\s*\}\}/g)
+  ].map(match => match[1]);
+
+  if (!!documentIds?.length) {
+    for (const documentId of documentIds) {
+      const response = await sendCommonMessage({
+        serviceName: "documents",
+        subdomain,
+        action: "printDocument",
+        data: {
+          ...target,
+          _id: documentId,
+          itemId: target._id
+        },
+        isRPC: true,
+        defaultValue: ""
+      });
+
+      content = content.replace(`{{ document.${documentId} }}`, response);
+    }
+  }
+
+  return content;
+};
+
 export const generateDoc = async ({
   subdomain,
   target,
   execution,
   triggerType,
-  config,
+  config
 }) => {
   const { templateId, fromUserId, sender } = config;
-  const [serviceName, type] = triggerType.split(':');
+  const [serviceName, type] = triggerType.split(":");
+  const version = getEnv({ name: "VERSION" });
+  const DEFAULT_AWS_EMAIL = "support@erxes.io";
 
-  const template = await sendEmailTemplateMessage({
+  const template = await sendCoreMessage({
     subdomain,
-    action: 'findOne',
+    action: "emailTemplatesFindOne",
     data: {
-      _id: templateId,
+      _id: templateId
     },
     isRPC: true,
-    defaultValue: null,
+    defaultValue: null
   });
 
-  const fromUser = fromUserId
-    ? await sendCoreMessage({
-        subdomain,
-        action: 'users.findOne',
-        data: {
-          _id: fromUserId,
-        },
-        isRPC: true,
-        defaultValue: null,
-      })
-    : null;
+  let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-  const replacedContent = (template?.content || '').replace(
-    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
-    '{{ $1 }}'
+  if (fromUserId) {
+    const fromUser = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: {
+        _id: fromUserId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    fromUserEmail = fromUser?.email;
+  }
+
+  let replacedContent = (template?.content || "").replace(
+    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, "g"),
+    "{{ $1 }}"
   );
+
+  replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
   const { subject, content } = await sendCommonMessage({
     subdomain,
     serviceName,
-    action: 'automations.replacePlaceHolders',
+    action: "automations.replacePlaceHolders",
     data: {
       target,
       config: {
         subject: config.subject,
-        content: replacedContent,
-      },
+        content: replacedContent
+      }
     },
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
   const toEmails = await getRecipientEmails({
@@ -254,19 +296,18 @@ export const generateDoc = async ({
     config,
     triggerType,
     target,
-    execution,
+    execution
   });
 
   if (!toEmails?.length) {
-    return { error: 'Recieving emails not found' };
+    return { error: "Recieving emails not found" };
   }
 
   return {
     title: subject,
-    fromUser,
-    fromEmail: generateFromEmail(sender, fromUser?.email),
-    toEmails: toEmails.filter((email) => fromUser?.email !== email),
-    customHtml: content,
+    fromEmail: generateFromEmail(sender, fromUserEmail),
+    toEmails: toEmails.filter(email => fromUserEmail !== email),
+    customHtml: content
   };
 };
 
@@ -275,34 +316,34 @@ export const getRecipientEmails = async ({
   config,
   triggerType,
   target,
-  execution,
+  execution
 }) => {
   let toEmails: string[] = [];
   const reciepentTypes: any = await getEmailRecipientTypes();
 
-  const reciepentTypeKeys = reciepentTypes.map((rT) => rT.name);
+  const reciepentTypeKeys = reciepentTypes.map(rT => rT.name);
 
   for (const key of Object.keys(config)) {
-    if (reciepentTypeKeys.includes(key)) {
-      const [serviceName, contentType] = triggerType.split(':');
+    if (reciepentTypeKeys.includes(key) && !!config[key]) {
+      const [serviceName, contentType] = triggerType.split(":");
 
       const { type, ...reciepentType } = reciepentTypes.find(
-        (rT) => rT.name === key
+        rT => rT.name === key
       );
 
-      if (type === 'teamMember') {
+      if (type === "teamMember") {
         const emails = await getTeamMemberEmails({
           subdomain,
           params: {
-            _id: { $in: config[key] || [] },
-          },
+            _id: { $in: config[key] || [] }
+          }
         });
 
         toEmails = [...toEmails, ...emails];
         continue;
       }
 
-      if (type === 'attributionMail') {
+      if (type === "attributionMail") {
         const emails = await getAttributionEmails({
           subdomain,
           serviceName,
@@ -310,14 +351,14 @@ export const getRecipientEmails = async ({
           target,
           execution,
           value: config[key],
-          key: type,
+          key: type
         });
 
         toEmails = [...toEmails, ...emails];
         continue;
       }
 
-      if (type === 'customMail') {
+      if (type === "customMail") {
         const emails = config[key] || [];
 
         toEmails = [...toEmails, ...emails];
@@ -328,12 +369,12 @@ export const getRecipientEmails = async ({
         const emails = await sendCommonMessage({
           subdomain,
           serviceName: reciepentType.serviceName,
-          action: 'automations.getRecipientsEmails',
+          action: "automations.getRecipientsEmails",
           data: {
             type,
-            config,
+            config
           },
-          isRPC: true,
+          isRPC: true
         });
 
         toEmails = [...toEmails, ...emails];
@@ -349,19 +390,18 @@ const setActivityLog = async ({
   subdomain,
   triggerType,
   target,
-  user,
-  responses,
+  responses
 }) => {
   for (const response of responses || []) {
     if (response?.messageId) {
       await putActivityLog(subdomain, {
-        action: 'putActivityLog',
+        action: "putActivityLog",
         data: {
           contentType: triggerType,
           contentId: target._id,
-          createdBy: 'automation',
-          action: 'sendEmail',
-        },
+          createdBy: "automation",
+          action: "sendEmail"
+        }
       });
     }
   }
@@ -372,71 +412,82 @@ export const handleEmail = async ({
   target,
   execution,
   triggerType,
-  config,
+  config
 }) => {
-  const { fromUser, ...params }: any = await generateDoc({
+  const params = await generateDoc({
     subdomain,
     triggerType,
     target,
     config,
-    execution,
+    execution
   });
 
   if (!params) {
-    return { error: 'Something went wrong fetching data' };
+    return { error: "Something went wrong fetching data" };
   }
 
   try {
     const responses = await sendEmails({
       subdomain,
-      params: params,
+      params
     });
 
     await setActivityLog({
       subdomain,
       triggerType,
       target,
-      user: fromUser,
-      responses,
+      responses
     });
 
-    delete params?.customHtml;
     return { ...params, responses };
   } catch (err) {
     return { error: err.message };
   }
 };
 
+const getConfig = (configs, code) => {
+  const version = getEnv({ name: "VERSION" });
+
+  if (version === "saas") {
+    return getEnv({ name: code });
+  }
+
+  return configs[code] || "";
+};
+
 const createTransporter = async ({ ses }, configs) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = configs['AWS_SES_ACCESS_KEY_ID'] || '';
-    const AWS_SES_SECRET_ACCESS_KEY =
-      configs['AWS_SES_SECRET_ACCESS_KEY'] || '';
-    const AWS_REGION = configs['AWS_REGION'] || '';
+    const AWS_SES_ACCESS_KEY_ID = getConfig(configs, "AWS_SES_ACCESS_KEY_ID");
+
+    const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+      configs,
+      "AWS_SES_SECRET_ACCESS_KEY"
+    );
+    const AWS_REGION = getConfig(configs, "AWS_REGION");
 
     AWS.config.update({
       region: AWS_REGION,
       accessKeyId: AWS_SES_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY
     });
 
     return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+      SES: new AWS.SES({ apiVersion: "2010-12-01" })
     });
   }
 
-  const MAIL_SERVICE = configs['MAIL_SERVICE'] || '';
-  const MAIL_PORT = configs['MAIL_PORT'] || '';
-  const MAIL_USER = configs['MAIL_USER'] || '';
-  const MAIL_PASS = configs['MAIL_PASS'] || '';
-  const MAIL_HOST = configs['MAIL_HOST'] || '';
+  const MAIL_SERVICE = configs["MAIL_SERVICE"] || "";
+  const MAIL_PORT = configs["MAIL_PORT"] || "";
+  const MAIL_USER = configs["MAIL_USER"] || "";
+  const MAIL_PASS = configs["MAIL_PASS"] || "";
+  const MAIL_HOST = configs["MAIL_HOST"] || "";
 
   let auth;
 
   if (MAIL_USER && MAIL_PASS) {
     auth = {
       user: MAIL_USER,
-      pass: MAIL_PASS,
+      pass: MAIL_PASS
     };
   }
 
@@ -444,13 +495,13 @@ const createTransporter = async ({ ses }, configs) => {
     service: MAIL_SERVICE,
     host: MAIL_HOST,
     port: MAIL_PORT,
-    auth,
+    auth
   });
 };
 
 const sendEmails = async ({
   subdomain,
-  params,
+  params
 }: {
   subdomain: string;
   params: any;
@@ -459,40 +510,41 @@ const sendEmails = async ({
 
   const configs = await sendCoreMessage({
     subdomain,
-    action: 'getConfigs',
+    action: "getConfigs",
     data: {},
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const VERSION = getEnv({ name: 'VERSION' });
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
 
-  const DEFAULT_EMAIL_SERVICE = configs['DEFAULT_EMAIL_SERVICE'] || 'SES';
-  const COMPANY_EMAIL_FROM = configs['COMPANY_EMAIL_FROM'] || '';
-  const AWS_SES_CONFIG_SET = configs['AWS_SES_CONFIG_SET'] || '';
-  const AWS_SES_ACCESS_KEY_ID = configs['AWS_SES_ACCESS_KEY_ID'] || '';
-  const AWS_SES_SECRET_ACCESS_KEY = configs['AWS_SES_SECRET_ACCESS_KEY'] || '';
+  const DEFAULT_EMAIL_SERVICE = configs["DEFAULT_EMAIL_SERVICE"] || "SES";
+  const COMPANY_EMAIL_FROM = configs["COMPANY_EMAIL_FROM"] || "";
+  const AWS_SES_CONFIG_SET = getConfig(configs, "AWS_SES_CONFIG_SET");
+  const AWS_SES_ACCESS_KEY_ID = getConfig(configs, "AWS_SES_ACCESS_KEY_ID");
+  const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+    configs,
+    "AWS_SES_SECRET_ACCESS_KEY"
+  );
 
   if (!fromEmail && !COMPANY_EMAIL_FROM) {
-    throw new Error('From Email is required');
+    throw new Error("From Email is required");
   }
 
-  if (NODE_ENV === 'test') {
-    return;
+  if (NODE_ENV === "test") {
+    throw new Error("Node environment is required");
   }
 
   let transporter;
 
-  if (VERSION !== 'saas') {
-    try {
-      transporter = await createTransporter(
-        { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
-        configs
-      );
-    } catch (e) {
-      return debugError(e.message);
-    }
+  try {
+    transporter = await createTransporter(
+      { ses: DEFAULT_EMAIL_SERVICE === "SES" },
+      configs
+    );
+  } catch (e) {
+    debugError(e.message);
+    throw new Error(e.message);
   }
 
   const responses: any[] = [];
@@ -502,35 +554,31 @@ const sendEmails = async ({
       to: toEmail,
       subject: title,
       html: customHtml,
-      attachments,
+      attachments
     };
     let headers: { [key: string]: string } = {};
 
-    if (
-      !!AWS_SES_ACCESS_KEY_ID?.length &&
-      !!AWS_SES_SECRET_ACCESS_KEY.length &&
-      (await isEnabled('logs'))
-    ) {
-      const emailDelivery = await sendLogsMessage({
+    if (!!AWS_SES_ACCESS_KEY_ID?.length && !!AWS_SES_SECRET_ACCESS_KEY.length) {
+      const emailDelivery = await sendCoreMessage({
         subdomain,
-        action: 'emailDeliveries.create',
+        action: "emailDeliveries.create",
         data: {
-          kind: 'transaction',
+          kind: "transaction",
           to: toEmail,
           from: fromEmail,
           subject: title,
           body: customHtml,
-          status: 'pending',
+          status: "pending"
         },
-        isRPC: true,
+        isRPC: true
       });
 
       headers = {
-        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery && emailDelivery._id,
+        "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",
+        EmailDeliveryId: emailDelivery && emailDelivery._id
       };
     } else {
-      headers['X-SES-CONFIGURATION-SET'] = 'erxes';
+      headers["X-SES-CONFIGURATION-SET"] = "erxes";
     }
 
     mailOptions.headers = headers;
@@ -540,15 +588,8 @@ const sendEmails = async ({
     }
 
     try {
-      if (VERSION === 'saas') {
-        const response = await sendWithSendgrid(subdomain, mailOptions);
-
-        responses.push({ messageId: response['x-message-id'], toEmail });
-      } else {
-        const info = await transporter.sendMail(mailOptions);
-
-        responses.push({ messageId: info.messageId, toEmail });
-      }
+      const info = await transporter.sendMail(mailOptions);
+      responses.push({ messageId: info.messageId, toEmail });
     } catch (error) {
       responses.push({ fromEmail, toEmail, error });
       debugError(error);
@@ -556,25 +597,4 @@ const sendEmails = async ({
   }
 
   return responses;
-};
-
-export const sendWithSendgrid = async (subdomain, doc) => {
-  const sendgridMail = require('@sendgrid/mail');
-  const SENDGRID_API_KEY = await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code: 'SENDGRID_API_KEY' },
-    isRPC: true,
-  });
-
-  sendgridMail.setApiKey(SENDGRID_API_KEY);
-
-  try {
-    const [response] = await sendgridMail.send(doc);
-
-    return response.headers;
-  } catch (e) {
-    console.error(e);
-    return;
-  }
 };

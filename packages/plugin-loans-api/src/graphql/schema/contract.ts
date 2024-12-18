@@ -24,11 +24,11 @@ export const types = () => `
   }
 
   type LoanContract {
-    _id: String!
+    _id: String
     contractTypeId: String
     number: String
-    branchId:String
-    classification:String
+    branchId: String
+    classification: String
     status: String
     description: String
     createdBy: String
@@ -87,17 +87,17 @@ export const types = () => `
     relContractId: String
     relContract: RecContract
     dealId: String
-    hasTransaction:Boolean
-    nextPaymentDate:Date
-    nextPayment:Float
-    payedAmountSum:Float
-    loanBalanceAmount:Float
-    expiredDays:Float
-    loanTransactionHistory:JSON
-    storeInterest:JSON
-    currency:String
-    storedInterest:Float
-    lastStoredDate:Date
+    hasTransaction: Boolean
+    nextPaymentDate: Date
+    nextPayment: Float
+    payedAmountSum: Float
+    loanBalanceAmount: Float
+    expiredDays: Float
+    loanTransactionHistory: JSON
+    storeInterest: JSON
+    currency: String
+    storedInterest: Float
+    lastStoredDate: Date
     isPayFirstMonth: Boolean
     downPayment: Float
     skipAmountCalcMonth: Float
@@ -108,8 +108,8 @@ export const types = () => `
     useFee: Boolean
     loanPurpose: String
     leaseType: String
-    commitmentInterest:Float
-    endDate:Date
+    commitmentInterest: Float
+    endDate: Date
     customFieldsData: JSON
     savingContractId: String
     holidayType: String
@@ -151,10 +151,12 @@ export const types = () => `
 const queryParams = `
   page: Int
   perPage: Int
-  ids: [String]
-  searchValue: String
   sortField: String
   sortDirection: Int
+
+  searchValue: String
+  ids: [String]
+  excludeIds: Boolean,
   contractTypeId: String
   conformityMainType: String
   conformityMainTypeId: String
@@ -162,10 +164,10 @@ const queryParams = `
   conformityIsRelated: Boolean
   isExpired: String
   repaymentDate: String
-  startStartDate:Date
-  endStartDate:Date
-  startCloseDate:Date
-  endCloseDate:Date
+  startStartDate: Date
+  endStartDate: Date
+  startCloseDate: Date
+  endCloseDate: Date
   dealId: String
   customerId: String
   leaseAmount: Float
@@ -179,6 +181,8 @@ const queryParams = `
   status: String
   leaseType: String
   leaseTypes: [String]
+
+  dealIds: [String]
 `;
 
 export const queries = `
@@ -190,13 +194,14 @@ export const queries = `
   cpContractDetail(_id: String!): LoanContract
   closeInfo(contractId: String, date: Date): CloseInfo
   contractsAlert(date: Date): [LoanAlert]
+  convertToContract(id: String!, contentType: String): JSON
 `;
 
 const commonFields = `
   contractTypeId: String
   number: String
-  branchId:String
-  classification:String
+  branchId: String
+  classification: String
   status: String
   description: String
   createdBy: String
@@ -235,7 +240,7 @@ const commonFields = `
   relContractId: String
   dealId: String
   skipInterestCalcMonth: Float
-  currency:String
+  currency: String
   isPayFirstMonth: Boolean
   downPayment: Float
   skipAmountCalcMonth: Float
@@ -281,7 +286,7 @@ export const mutations = `
   contractsAdd(${commonFields}): LoanContract
   clientLoanContractsAdd(${commonFields}${clientFields}): LoanContract
   contractsEdit(_id: String!, ${commonFields}): LoanContract
-  contractsDealEdit(_id: String!, ${commonFields}): LoanContract
+  contractsDealEdit(_id: String!, dealId: String): LoanContract
   contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): LoanContract
   contractsRemove(contractIds: [String]): [String]
   getProductsData(contractId: String): CollateralsDataResponse

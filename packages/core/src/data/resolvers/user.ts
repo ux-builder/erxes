@@ -4,22 +4,27 @@ import {
   DEFAULT_CONSTANT_VALUES,
   USER_ROLES,
 } from '@erxes/api-utils/src/constants';
-import { IContext } from '../../connectionResolver';
-import { IUserDocument } from '../../db/models/definitions/users';
-import { getUserActionsMap } from '@erxes/api-utils/src';
-import { getConfigs, getEnv } from '../utils';
 import {
   coreModelExperiences,
-  // getOrgPromoCodes,
   getOrganizationDetail,
   getPlugin,
 } from '@erxes/api-utils/src/saas/saas';
+import { getConfigs, getEnv } from '../utils';
+
+import { IContext } from '../../connectionResolver';
+import { IUserDocument } from '../../db/models/definitions/users';
 import { calcUsage } from '@erxes/api-utils/src/saas/chargeUtils';
 import { getRelatedOrganizations } from '../../organizations';
+import { getUserActionsMap } from '@erxes/api-utils/src';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
     const user = await models.Users.findOne({ _id });
+    
+    if (!user) {
+      return null;
+    }
+
     return user;
   },
 
@@ -72,6 +77,7 @@ export default {
     let contactRemaining = remainingAmount <= 0 ? false : true;
 
     if (experience) {
+      organization.experience = experience;
       const expContactLimit = experience.pluginLimits
         ? experience.pluginLimits[contactPlugin.type] || 0
         : 0;

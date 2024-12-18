@@ -16,6 +16,7 @@ export const types = `
     invoiceNumber: String
 
     amount: Float
+    currency: String
     remainingAmount: Float
     
     phone: String
@@ -52,6 +53,8 @@ const mutationParams = `
   redirectUri: String
   paymentIds: [String]
   data: JSON
+  callback: String
+  currency: String
 `;
 
 export const mutations = `
@@ -60,8 +63,6 @@ export const mutations = `
   invoiceUpdate(_id: String!, ${mutationParams}): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
-
-  
 `;
 
 export const queries = `

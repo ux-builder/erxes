@@ -42,12 +42,6 @@ export const slotFilterAtom = atom<string | null>(null)
 export const refetchUserAtom = atom<boolean>(false)
 
 export const refetchOrderAtom = atomWithStorage<boolean>("refetchOrder", false)
-export const paymentDataAtom = atomWithStorage<null | {
-  kind: string
-  qrData: string
-  amount: number
-}>("paymentData", null)
-export const invoiceIdAtom = atom<null | string>(null)
 
 // dialog
 
@@ -60,6 +54,16 @@ export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 export const orderCollapsibleAtom = atom<boolean>(false)
 
 export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
+
+export const printOnlyNewItemsAtom = atomWithStorage<boolean>(
+  "printOnlyNew",
+  false
+)
+
+export const categoriesToPrintAtom = atomWithStorage<string[]>(
+  "categoriesToPrint",
+  []
+)
 
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "mobileTab",

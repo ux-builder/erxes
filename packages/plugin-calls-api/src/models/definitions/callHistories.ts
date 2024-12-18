@@ -9,7 +9,7 @@ export interface ICallHistory {
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  sessionId: string;
+  timeStamp: number | string;
   modifiedAt: Date;
   createdAt: Date;
   createdBy: string;
@@ -20,7 +20,9 @@ export interface ICallHistory {
   endedBy: string;
 }
 
-export interface ICallHistoryDocument extends ICallHistory, Document {}
+export interface ICallHistoryDocument extends ICallHistory, Document {
+  _id: string;
+}
 
 export const callHistorySchema = new Schema({
   operatorPhone: field({ type: String, label: 'operator number' }),
@@ -43,6 +45,7 @@ export const callHistorySchema = new Schema({
       'cancelled',
       'active',
       'transfered',
+      'cancelledToAnswered',
     ],
     default: 'missed',
   }),
@@ -50,7 +53,12 @@ export const callHistorySchema = new Schema({
     type: String,
     label: 'call accepted operator id',
   }),
-  sessionId: field({ type: String, label: 'call session id' }),
+  timeStamp: field({
+    type: Number,
+    label: 'call timestamp',
+    unique: true,
+    index: true,
+  }),
   modifiedAt: field({ type: Date, label: 'modified date' }),
   createdAt: field({ type: Date, label: 'created date', default: new Date() }),
   createdBy: field({ type: String, label: 'created By' }),

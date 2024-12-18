@@ -1,9 +1,9 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from "@erxes/ui-cards/src/conformity";
+} from "@erxes/ui-sales/src/conformity";
 
-const contractFields = `
+export const contractFields = `
   _id
   contractTypeId
   number
@@ -42,7 +42,6 @@ const contractFields = `
   relContractId
   skipInterestCalcMonth
   dealId
-  nextPayment
   currency
   classification
   expiredDays
@@ -87,6 +86,11 @@ const selectContractFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
+  $sortField: String
+  $sortDirection: Int
+
+  $ids: [String]
+  $excludeIds: Boolean
   $searchValue: String
   $isExpired: String
   $repaymentDate: String
@@ -96,8 +100,6 @@ const listParamsDef = `
   $endCloseDate:Date
   $dealId: String
   $customerId: String
-  $sortField: String
-  $sortDirection: Int
   $contractTypeId: String
   $leaseAmount: Float
   $interestRate: Float
@@ -107,16 +109,22 @@ const listParamsDef = `
   $closeDate: Date
   $closeDateType:String
   $branchId:String
+
+  $dealIds: [String]
 `;
 
 const listParamsMainDef = `
   ${listParamsDef}
-  $ids: [String]
 `;
 
 const listParamsValue = `
   page: $page
   perPage: $perPage
+  sortField: $sortField
+  sortDirection: $sortDirection
+
+  ids: $ids
+  excludeIds: $excludeIds
   searchValue: $searchValue
   isExpired: $isExpired
   repaymentDate: $repaymentDate
@@ -126,8 +134,6 @@ const listParamsValue = `
   endCloseDate: $endCloseDate
   dealId: $dealId
   customerId: $customerId
-  sortField: $sortField
-  sortDirection: $sortDirection
   contractTypeId: $contractTypeId
   leaseAmount: $leaseAmount
   interestRate: $interestRate
@@ -137,11 +143,12 @@ const listParamsValue = `
   closeDate: $closeDate
   closeDateType: $closeDateType
   branchId: $branchId
+
+  dealIds: $dealIds
 `;
 
 const listParamsMainValue = `
   ${listParamsValue}
-  ids: $ids
 `;
 
 export const contracts = `
@@ -245,7 +252,6 @@ export const contractsMain = `
     contractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
-        nextPayment
         customers {
           code
           firstName
@@ -273,7 +279,6 @@ export const contractDetailFields = `
   contractType {
     code
     name
-    productCategoryIds
     leaseType
   }
 
@@ -322,6 +327,8 @@ export const contractDetail = `
     contractDetail(_id: $_id) {
       ${contractFields}
       ${contractDetailFields}
+      nextPayment
+      payedAmountSum
     }
   }
 `;
@@ -371,6 +378,12 @@ export const scheduleYears = `
     }
   }
 `;
+
+export const convertToContract = `
+  query convertToContract($id: String!, $contentType: String) {
+    convertToContract(id: $id, contentType: $contentType)
+  }
+`
 
 export const closeInfo = `
   query closeInfo($contractId: String, $date: Date) {
@@ -426,5 +439,6 @@ export default {
   documents,
   contractsAlert,
   savingContracts,
-  getPolarisData
+  getPolarisData,
+  convertToContract
 };

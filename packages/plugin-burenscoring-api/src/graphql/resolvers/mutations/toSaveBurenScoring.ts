@@ -18,33 +18,34 @@ const burenScoringMutations = {
           data: {
             uuid: extRes.data.uuid || "",
             requestId: extRes.data.requestId || "",
-            detail: extRes.data.detail
+            detail: extRes.data.detail,
           },
-          message: extRes.message || ""
+          message: extRes.message || "",
         },
         restInquiryResponse: {
           customer: inquiryRes.customer || {},
           inquiry: inquiryRes.inquiry || [],
           groupedPurposes: inquiryRes.groupedPurposes || [],
-          histories: inquiryRes.histories || []
+          histories: inquiryRes.histories || [],
         },
         score: doc.score || 0,
         customerId: doc.customerId || "",
         reportPurpose: doc.reportPurpose || "",
         keyword: doc.keyword,
-        vendor: doc.vendor
+        vendor: doc.vendor,
       };
     }
     const models = await generateModels(subdomain);
     return await models.BurenScorings.createBurenScoring(subdomain, data);
   },
+
   toCheckScore: async (
     _root,
     {
       customerId,
       keyword,
       reportPurpose,
-      vendor
+      vendor,
     }: {
       customerId: string;
       keyword: string;
@@ -61,7 +62,7 @@ const burenScoringMutations = {
     const scoring = await burenConfig.getScoring({
       keyword,
       reportPurpose,
-      vendor
+      vendor,
     });
 
     if (
@@ -75,21 +76,21 @@ const burenScoringMutations = {
           data: {
             uuid: extRes.data.uuid || "",
             requestId: extRes.data.requestId || "",
-            detail: extRes.data.detail
+            detail: extRes.data.detail,
           },
-          message: extRes.message || ""
+          message: extRes.message || "",
         },
         restInquiryResponse: {
           customer: inquiryRes.customer || {},
           inquiry: inquiryRes.inquiry || [],
           groupedPurposes: inquiryRes.groupedPurposes || [],
-          histories: inquiryRes.histories || []
+          histories: inquiryRes.histories || [],
         },
         score: scoring.score || 0,
         customerId: customerId || "",
         reportPurpose: reportPurpose || "",
         keyword: keyword,
-        vendor: scoring.vendor || "AND_SCORING"
+        vendor: scoring.vendor || "AND_SCORING",
       };
       const models = await generateModels(subdomain);
 
@@ -97,7 +98,7 @@ const burenScoringMutations = {
     } else {
       throw new Error(scoring.message);
     }
-  }
+  },
 };
 
 export default burenScoringMutations;

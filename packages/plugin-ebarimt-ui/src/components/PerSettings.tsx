@@ -5,12 +5,14 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  SelectWithSearch
 } from "@erxes/ui/src/components";
-import { FlexBetween } from '@erxes/ui-settings/src/styles';
-import { FormColumn, FormWrapper, } from "@erxes/ui/src/styles/main";
+import { queries } from '../graphql'
+import { FlexBetween, FlexRow } from "@erxes/ui-settings/src/styles";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import { DISTRICTS } from "../constants";
 import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
@@ -29,36 +31,36 @@ const PerSettings: React.FC<Props> = (props: Props) => {
   const [state, setState] = useState({ config: config });
 
   const onChangeBoard = (boardId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, boardId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
   const onChangePipeline = (pipelineId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, pipelineId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
   const onChangeStage = (stageId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, stageId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const key = state.config.stageId;
 
@@ -72,7 +74,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     save({ ...configsMap, stageInEbarimt });
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(currentConfigKey);
@@ -83,11 +85,11 @@ const PerSettings: React.FC<Props> = (props: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, [code]: value };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
@@ -96,12 +98,13 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     onChangeConfig(code, e.target.value);
   };
 
-  const renderInput = (key: string, title?: string, description?: string) => {
+  const renderInput = (key: string, title?: string, description?: string, type?: string) => {
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
+          componentclass={type}
           defaultValue={state.config[key]}
           onChange={onChangeInput.bind(this, key)}
           required={true}
@@ -109,6 +112,12 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       </FormGroup>
     );
   };
+
+  const generateRuleOptions = (array) => array.map(item => ({
+    value: item._id,
+    label: item.title || ''
+  }));
+
 
   const renderCheckbox = (
     key: string,
@@ -138,7 +147,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       <FormWrapper>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{"Title"}</ControlLabel>
+            <ControlLabel>{__("Title")}</ControlLabel>
             <FormControl
               defaultValue={state.config["title"]}
               onChange={onChangeInput.bind(this, "title")}
@@ -160,16 +169,22 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               onChangeStage={onChangeStage}
             />
           </FormGroup>
-          {renderInput('posNo', 'pos No', '')}
-          {renderInput('branchNo', 'branch No', '')}
+          {renderInput("companyName", "company Name")}
+          {renderInput('headerText', 'Header text', '', 'textarea')}
+          {renderInput('footerText', 'Footer text', '', 'textarea')}
           {renderCheckbox(
-            'skipPutData',
-            'skip Ebarimt',
-            'When checked only  print inner bill'
+            "withDescription",
+            "with description",
+            "When checked ebarimt with deals description"
+          )}
+          {renderCheckbox(
+            "skipPutData",
+            "skip Ebarimt",
+            "When checked only  print inner bill"
           )}
         </FormColumn>
         <FormColumn>
-          {renderInput("companyName", "company Name")}
+          {renderInput('posNo', 'pos No', '')}
           {renderInput('companyRD', 'company RD', '')}
           {renderInput('merchantTin', 'merchantTin', '')}
           <FlexBetween>
@@ -177,13 +192,19 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               <ControlLabel>Branch of Provice / District</ControlLabel>
               <FormControl
                 componentclass="select"
-                value={(state.config['districtCode'] as string)?.substring(0, 2) || ''}
+                value={
+                  (state.config["districtCode"] as string)?.substring(0, 2) ||
+                  ""
+                }
                 options={[
-                  { value: '', label: '' },
-                  ...DISTRICTS.map(d => ({ value: d.branchCode, label: d.branchName }))
+                  { value: "", label: "" },
+                  ...DISTRICTS.map(d => ({
+                    value: d.branchCode,
+                    label: d.branchName
+                  }))
                 ]}
-                onChange={(e) => {
-                  onChangeConfig('districtCode', (e.target as any).value)
+                onChange={e => {
+                  onChangeConfig("districtCode", (e.target as any).value);
                 }}
                 required={true}
               />
@@ -192,20 +213,31 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               <ControlLabel>SUB Provice / District</ControlLabel>
               <FormControl
                 componentclass="select"
-                value={(state.config['districtCode'] as string)?.substring(2, 4) || ''}
+                value={
+                  (state.config["districtCode"] as string)?.substring(2, 4) ||
+                  ""
+                }
                 options={[
-                  { value: '', label: '' },
-                  ...(DISTRICTS.find(d => (
-                    d.branchCode === (state.config['districtCode'] as string)?.substring(0, 2)
-                  ))?.subBranches || []).map(sd => (
-                    { value: sd.subBranchCode, label: sd.subBranchName })
-                  )
+                  { value: "", label: "" },
+                  ...(
+                    DISTRICTS.find(
+                      d =>
+                        d.branchCode ===
+                        (state.config["districtCode"] as string)?.substring(
+                          0,
+                          2
+                        )
+                    )?.subBranches || []
+                  ).map(sd => ({
+                    value: sd.subBranchCode,
+                    label: sd.subBranchName
+                  }))
                 ]}
-                onChange={(e) => {
+                onChange={e => {
                   onChangeConfig(
-                    'districtCode',
-                    `${(state.config['districtCode'] as string)?.substring(0, 2)}${(e.target as any).value}`
-                  )
+                    "districtCode",
+                    `${(state.config["districtCode"] as string)?.substring(0, 2)}${(e.target as any).value}`
+                  );
                 }}
                 required={true}
               />
@@ -213,17 +245,58 @@ const PerSettings: React.FC<Props> = (props: Props) => {
             <FormGroup>
               <ControlLabel>District Code</ControlLabel>
               <FormControl
-                value={state.config['districtCode']}
-                onChange={onChangeInput.bind(this, 'districtCode')}
+                value={state.config["districtCode"]}
+                onChange={onChangeInput.bind(this, "districtCode")}
                 required={true}
               />
             </FormGroup>
           </FlexBetween>
           {renderInput('defaultGSCode', 'default united code', '')}
-          {renderCheckbox('hasVat', 'has Vat', '')}
-          {renderInput('vatPercent', 'vat Percent', '')}
-          {renderCheckbox('hasCitytax', 'has Citytax', '')}
-          {renderInput('cityTaxPercent', 'cityTax Percent', '')}
+          {renderInput('branchNo', 'branch No', '')}
+          <FlexRow>
+            {renderCheckbox('hasVat', 'has Vat', '')}
+            {state.config.hasVat && renderInput('vatPercent', 'vat Percent', '') || <></>}
+          </FlexRow>
+          {state.config.hasVat && (
+            <FormGroup>
+              <ControlLabel>Another rules of products on vat</ControlLabel>
+              <SelectWithSearch
+                label={'reverseVatRules'}
+                queryName="ebarimtProductRules"
+                name={'reverseVatRules'}
+                initialValue={state.config['reverseVatRules']}
+                generateOptions={generateRuleOptions}
+                onSelect={ids => {
+                  onChangeConfig("reverseVatRules", ids);
+                }}
+                filterParams={{ kind: 'vat' }}
+                customQuery={queries.ebarimtProductRules}
+                multi={true}
+              />
+            </FormGroup>
+          ) || <></>}
+          <FlexRow>
+            {renderCheckbox('hasCitytax', 'has all Citytax', '')}
+            {state.config.hasCitytax && renderInput('cityTaxPercent', 'cityTax Percent', '') || <></>}
+          </FlexRow>
+          {!state.config.hasCitytax && (
+            <FormGroup>
+              <ControlLabel>Another rules of products on citytax</ControlLabel>
+              <SelectWithSearch
+                label={'reverseCtaxRules'}
+                queryName="ebarimtProductRules"
+                name={'reverseCtaxRules'}
+                initialValue={state.config['reverseCtaxRules']}
+                generateOptions={generateRuleOptions}
+                onSelect={ids => {
+                  onChangeConfig("reverseCtaxRules", ids);
+                }}
+                filterParams={{ kind: 'ctax' }}
+                customQuery={queries.ebarimtProductRules}
+                multi={true}
+              />
+            </FormGroup>
+          ) || <></>}
         </FormColumn>
       </FormWrapper>
       <ModalFooter>

@@ -8,6 +8,7 @@ import React from "react";
 import asyncComponent from "modules/common/components/AsyncComponent";
 import dayjs from "dayjs";
 import { getVersion } from "@erxes/ui/src/utils/core";
+import { NavigateFunction, Location } from "react-router-dom";
 
 const MainBar = asyncComponent(
   () =>
@@ -20,9 +21,11 @@ interface IProps {
   currentUser?: IUser;
   children: React.ReactNode;
   isShownIndicator: boolean;
-  enabledServices: any;
-  navigate: any;
-  location: any;
+  enabledServices: {
+    [key: string]: boolean;
+  };
+  navigate: NavigateFunction;
+  location: Location;
   closeLoadingBar: () => void;
 }
 
@@ -108,12 +111,14 @@ class MainLayout extends React.Component<IProps, State> {
               "links.linkedIn": links.linkedIn || "",
               "links.twitter": links.twitter || "",
               "links.facebook": links.facebook || "",
+              "links.whatsapp": links.whatsapp || "",
               "links.github": links.github || "",
               "links.youtube": links.youtube || "",
               "links.website": links.website || "",
               isSubscribed: currentUser.isSubscribed,
             },
             companyData: {
+              name,
               organizationName: name,
               organizationSubDomain: subdomain,
               organizationPlan: plan,
@@ -134,8 +139,12 @@ class MainLayout extends React.Component<IProps, State> {
             "https://w.office.erxes.io/build/messengerWidget.bundle.js";
           script.async = true;
 
-          const entry = document.getElementsByTagName("script")[0] as any;
-          entry.parentNode.insertBefore(script, entry);
+          const entry = document.getElementsByTagName(
+            "script"
+          )[0] as HTMLScriptElement;
+          entry.parentNode
+            ? entry.parentNode.insertBefore(script, entry)
+            : null;
         })();
       } else {
         const { REACT_APP_HIDE_MESSENGER } = getEnv();
@@ -157,8 +166,12 @@ class MainLayout extends React.Component<IProps, State> {
           const script = document.createElement("script");
           script.src =
             "https://w.office.erxes.io/build/messengerWidget.bundle.js";
-          const entry = document.getElementsByTagName("script")[0];
-          (entry as any).parentNode.insertBefore(script, entry);
+          const entry = document.getElementsByTagName(
+            "script"
+          )[0] as HTMLScriptElement;
+          entry.parentNode
+            ? entry.parentNode.insertBefore(script, entry)
+            : null;
         }
       }
 
@@ -182,6 +195,25 @@ class MainLayout extends React.Component<IProps, State> {
       wootricScript.onload = () => {
         (window as any).wootric("run");
       };
+
+      // Userback code
+      (window as any).Userback = {
+        access_token:
+          "6472|21123|TunTSMTJVrfaq926JJ4H5PqgrGAW1R9UG8VWTZNfuooH7ed2NU",
+        email: currentUser.email,
+        widget_settings: {
+          autohide: true,
+        },
+      };
+
+      const userBackScript = document.createElement("script");
+
+      userBackScript.src = "https://static.userback.io/widget/v1.js";
+
+      document.body.appendChild(userBackScript);
+
+      // click-jack attack defense
+      bustIframe();
     } // end currentUser checking
 
     if (enabledServices && Object.keys(enabledServices).length !== 0) {

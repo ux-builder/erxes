@@ -19,6 +19,7 @@ interface IListArgs {
   sortField: string;
   sortDirection: number;
   tagIds: string[];
+  triggerTypes: string[];
 }
 
 interface IHistoriesParams {
@@ -33,7 +34,7 @@ interface IHistoriesParams {
 }
 
 const generateFilter = (params: IListArgs) => {
-  const { status, searchValue, tagIds } = params;
+  const { status, searchValue, tagIds, triggerTypes, ids } = params;
 
   const filter: any = { status: { $nin: [STATUSES.ARCHIVED, 'template'] } };
 
@@ -49,12 +50,28 @@ const generateFilter = (params: IListArgs) => {
     filter.tagIds = { $in: tagIds };
   }
 
+  if (triggerTypes?.length) {
+    filter['triggers.type'] = { $in: triggerTypes };
+  }
+
+  if (ids?.length) {
+    filter._id = { $in: ids };
+  }
+
   return filter;
 };
 
 const generateHistoriesFilter = (params: any) => {
-  const { automationId, triggerType, triggerId, status, beginDate, endDate } =
-    params;
+  const {
+    automationId,
+    triggerType,
+    triggerId,
+    status,
+    beginDate,
+    endDate,
+    targetId,
+    targetIds
+  } = params;
   const filter: any = { automationId };
 
   if (status) {
@@ -75,6 +92,14 @@ const generateHistoriesFilter = (params: any) => {
 
   if (endDate) {
     filter.createdAt = { $lte: endDate };
+  }
+
+  if (targetId) {
+    filter.targetId = targetId;
+  }
+
+  if (targetIds?.length) {
+    filter.targetId = { $in: targetIds };
   }
 
   return filter;

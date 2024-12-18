@@ -25,7 +25,7 @@ import { sendCoreMessage } from '../../messageBroker';
 const timeclockQueries = {
   async absences(_root, queryParams, { models, subdomain, user }: IContext) {
     return models.Absences.find(
-      await generateFilter(queryParams, subdomain, models, 'absence', user),
+      await generateFilter(queryParams, subdomain, models, 'absence', user)
     );
   },
 
@@ -38,14 +38,14 @@ const timeclockQueries = {
   },
 
   // show supervisod branches, departments, users of those only
-  timeclockBranches(_root, {}, { subdomain, user }: IContext) {
-    return sendCoreMessage({
+  async timeclockBranches(_root, {}, { subdomain, user }: IContext) {
+    return await sendCoreMessage({
       subdomain,
       action: `branches.find`,
       data: {
-        query: {
-          supervisorId: user._id,
-        },
+        // query: {
+        //   supervisorId: user._id
+        // }
       },
       isRPC: true,
       defaultValue: [],
@@ -57,7 +57,7 @@ const timeclockQueries = {
       subdomain,
       action: `departments.find`,
       data: {
-        supervisorId: user._id,
+        // supervisorId: user._id
       },
       isRPC: true,
       defaultValue: [],
@@ -67,7 +67,7 @@ const timeclockQueries = {
   async timeclocksPerUser(
     _root,
     { userId, startDate, endDate, shiftActive },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     const getUserId = userId || user._id;
 
@@ -100,14 +100,14 @@ const timeclockQueries = {
   async timeclocksMain(
     _root,
     queryParams,
-    { subdomain, models, user }: IContext,
+    { subdomain, models, user }: IContext
   ) {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
       models,
       'timeclock',
-      user,
+      user
     );
 
     // if there's no common user, return empty list
@@ -146,14 +146,14 @@ const timeclockQueries = {
   async timelogsMain(
     _root,
     queryParams,
-    { subdomain, models, user }: IContext,
+    { subdomain, models, user }: IContext
   ) {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
       models,
       'timelog',
-      user,
+      user
     );
     const totalCount = await models.TimeLogs.countDocuments(selector);
 
@@ -172,7 +172,11 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  async timeLogsPerUser(_root, { userId, startDate, endDate }, { models }: IContext) {
+  async timeLogsPerUser(
+    _root,
+    { userId, startDate, endDate },
+    { models }: IContext
+  ) {
     const timeField = {
       timelog: {
         $gte: fixDate(startDate),
@@ -185,17 +189,17 @@ const timeclockQueries = {
     }).sort({ timelog: 1 });
   },
 
-  async  schedulesMain(
+  async schedulesMain(
     _root,
     queryParams,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
       models,
       'schedule',
-      user,
+      user
     );
 
     // if there's no common user, return empty list
@@ -203,12 +207,18 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = await models.Schedules.countDocuments(selector);
+    // const totalCount = models.Schedules.countDocuments(selector);
 
-    const list = await paginate(models.Schedules.find(selector), {
-      perPage: queryParams.perPage,
-      page: queryParams.page,
-    });
+    // const findSchedules = ;
+
+    const findSchedules = await models.Schedules.find(selector);
+    const totalCount = findSchedules.length;
+
+    const list = paginateArray(
+      findSchedules,
+      queryParams.perPage,
+      queryParams.page
+    );
 
     return { list, totalCount };
   },
@@ -242,22 +252,17 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  async scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
-    const getUserId = userId ? userId : user._id;
-    return models.ScheduleConfigOrder.findOne({ userId: getUserId });
-  },
-
   async requestsMain(
     _root,
     queryParams,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
       models,
       'absence',
-      user,
+      user
     );
     const totalCount = await models.Absences.countDocuments(selector);
 
@@ -298,7 +303,7 @@ const timeclockQueries = {
   async timeclockReportByUser(
     _root,
     { selectedUser, selectedMonth, selectedYear, selectedDate },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     const userId = selectedUser || user._id;
 
@@ -307,7 +312,7 @@ const timeclockQueries = {
       userId,
       selectedMonth,
       selectedYear,
-      selectedDate,
+      selectedDate
     );
   },
 
@@ -324,7 +329,7 @@ const timeclockQueries = {
       reportType,
       isCurrentUserAdmin,
     },
-    { subdomain, user }: IContext,
+    { subdomain, user }: IContext
   ) {
     let filterGiven = false;
     let totalTeamMemberIds;
@@ -349,7 +354,7 @@ const timeclockQueries = {
         subdomain,
         userIds,
         branchIds,
-        departmentIds,
+        departmentIds
       );
 
       totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
@@ -374,7 +379,7 @@ const timeclockQueries = {
           paginateArray(totalTeamMemberIds, perPage, page),
           startDate,
           endDate,
-          false,
+          false
         );
 
         for (const userId of Object.keys(reportPreliminary)) {
@@ -408,7 +413,7 @@ const timeclockQueries = {
         const structuresDict = await returnDepartmentsBranchesDict(
           subdomain,
           totalBranchIdsOfMembers,
-          totalDeptIdsOfMembers,
+          totalDeptIdsOfMembers
         );
 
         const reportFinal: any = await timeclockReportFinal(
@@ -416,7 +421,7 @@ const timeclockQueries = {
           paginatedTeamMemberIds,
           startDate,
           endDate,
-          false,
+          false
         );
 
         for (const userId of Object.keys(reportFinal)) {
@@ -455,7 +460,7 @@ const timeclockQueries = {
           paginateArray(totalTeamMemberIds, perPage, page),
           startDate,
           endDate,
-          false,
+          false
         );
 
         for (const userId of Object.keys(reportPivot)) {
@@ -483,7 +488,7 @@ const timeclockQueries = {
       perPage,
       isCurrentUserAdmin,
     },
-    { subdomain, models, user }: IContext,
+    { subdomain, models, user }: IContext
   ) {
     let filterGiven = false;
     let totalTeamMemberIds;
@@ -498,7 +503,7 @@ const timeclockQueries = {
         subdomain,
         userIds,
         branchIds,
-        departmentIds,
+        departmentIds
       );
 
       totalTeamMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
@@ -508,7 +513,7 @@ const timeclockQueries = {
         totalTeamMemberIds = await findTimeclockTeamMemberIds(
           models,
           startDate,
-          endDate,
+          endDate
         );
         totalTeamMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
       } else {
@@ -522,7 +527,7 @@ const timeclockQueries = {
       list: await timeclockReportByUsers(
         paginateArray(totalTeamMemberIds, perPage, page),
         models,
-        { startDate, endDate },
+        { startDate, endDate }
       ),
       totalCount: totalTeamMemberIds.length,
     };

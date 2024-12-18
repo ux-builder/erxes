@@ -39,7 +39,14 @@ export const types = `
     profilePic: String
     integrationId: String
   }
-
+  type FacebookPosts {
+    message: String
+    created_time: String
+    picture: String
+    full_picture:String
+    permalink_url: String
+    id: String
+  }
   type FacebookComment {
     ${commonCommentAndMessageFields}
     commentId: String
@@ -114,6 +121,8 @@ export const types = `
     profileUrl:String
     greetText:String
     tag:String
+    isEnabledBackBtn:Boolean
+    backButtonText:String
   }
 `;
 
@@ -138,7 +147,9 @@ export const queries = `
   facebootMessengerBotsTotalCount:Int
   facebootMessengerBot(_id:String):FacebookMessengerBot
   facebookGetBotPosts(botId:String):JSON
+  facebookGetPosts(channelIds: [String], brandIds: [String], limit: Int): [FacebookPosts]
   facebookGetBotPost(botId:String,postId:String):JSON
+  facebookGetBotAds(botId:String):JSON
 `;
 
 const commonBotParams = `
@@ -147,7 +158,9 @@ const commonBotParams = `
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
   greetText:String
-  tag:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
 `;
 
 export const mutations = `

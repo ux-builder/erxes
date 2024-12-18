@@ -13,6 +13,8 @@ export interface ILink {
   [key: string]: string;
 }
 
+
+
 export interface IUser {
   createdAt?: Date;
   code?: string;
@@ -61,7 +63,7 @@ export interface IContext {
     IntegrationsAPI: any;
     HelpersApi: any;
   };
-  dataLoaders: any;
+  dataLoaders: any; 
 }
 
 export interface IColumnLabel {
@@ -159,4 +161,9 @@ export interface IAttachment {
   url: string;
   size: number;
   type: string;
+}
+
+export interface IPdfAttachment {
+  pdf?: IAttachment;
+  pages: IAttachment[];
 }

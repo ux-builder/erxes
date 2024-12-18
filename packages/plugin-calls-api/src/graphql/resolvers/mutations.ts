@@ -9,6 +9,7 @@ import { sendInboxMessage } from '../../messageBroker';
 import { updateConfigs } from '../../helpers';
 import { getOrCreateCustomer } from '../../store';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { redlock } from '../../redlock';
 
 export interface ISession {
   sessionCode: string;
@@ -136,12 +137,9 @@ const callsMutations = {
       user,
     );
 
-    return models.CallHistory.getCallHistory(history.sessionId);
+    return models.CallHistory.getCallHistory(history);
   },
 
-  /**
-   * Updates a history
-   */
   async callHistoryEdit(
     _root,
     { ...doc }: ICallHistoryEdit & { inboxIntegrationId: string },
@@ -151,11 +149,18 @@ const callsMutations = {
     const history = await models.CallHistory.findOne({
       _id,
     });
-
     if (history && history.callStatus === 'active') {
       let callStatus = doc.callStatus;
       if (doc.transferedCallStatus) {
         callStatus = 'transfered';
+      }
+
+      await models.CallHistory.deleteMany({
+        timeStamp: doc.timeStamp,
+        callStatus: 'cancelled',
+      });
+      if (doc.timeStamp === 0) {
+        doc.timeStamp = Date.now().toString();
       }
       await models.CallHistory.updateOne(
         { _id },
@@ -179,10 +184,33 @@ const callsMutations = {
         },
         user,
       );
+
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+
+      await models.CallHistory.updateMany(
+        {
+          customerPhone: doc.customerPhone,
+          createdAt: {
+            $gte: startOfDay,
+            $lt: endOfDay,
+          },
+          callStatus: 'cancelled',
+        },
+        {
+          $set: {
+            modifiedAt: new Date(),
+            modifiedBy: user._id,
+            callStatus: 'cancelledToAnswered',
+          },
+        },
+      );
       const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
       if (
         callRecordUrl &&
-        callRecordUrl !== 'Check transfered call record url!'
+        callRecordUrl !== 'Check the transferred call record URL!'
       ) {
         await models.CallHistory.updateOne(
           { _id },
@@ -190,10 +218,111 @@ const callsMutations = {
         );
         return callRecordUrl;
       }
-      if (callRecordUrl === 'Check transfered call record url!') {
+      if (callRecordUrl === 'Check the transferred call record URL!') {
         return callRecordUrl;
       }
       return 'success';
+    } else if (
+      doc.callStatus === 'cancelled' &&
+      doc.timeStamp &&
+      doc.timeStamp !== 0
+    ) {
+      const cancelledCall = await models.CallHistory.findOne({
+        timeStamp: doc.timeStamp,
+      });
+      if (cancelledCall) {
+        return 'Already exists this history';
+      }
+      const integration = await models.Integrations.findOne({
+        inboxId: doc.inboxIntegrationId,
+      }).lean();
+      if (!integration) throw new Error('Integration not found');
+
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if (!operator) throw new Error('Operator not found');
+
+      const lockKey = `${subdomain}:call:history:${doc.timeStamp}`;
+      let lock;
+
+      try {
+        lock = await redlock.lock(lockKey, 60000);
+        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+
+        const oldHistory = await models.CallHistory.findOne({
+          customerPhone: doc.customerPhone,
+          callStatus: doc.callStatus,
+          createdAt: { $gte: twoMinutesAgo },
+        });
+
+        if (oldHistory) return 'Call history already exists';
+
+        const history = new models.CallHistory({
+          ...doc,
+          extentionNumber: operator.gsUsername,
+          operatorPhone: integration.phone,
+          createdAt: new Date(),
+          createdBy: doc.endedBy ? user._id : null,
+          updatedBy: doc.endedBy ? user._id : null,
+        });
+
+        await history.save();
+
+        let customer = await models.Customers.findOne({
+          primaryPhone: doc.customerPhone,
+        });
+        if (!customer || !customer.erxesApiId) {
+          customer = await getOrCreateCustomer(models, subdomain, doc);
+        }
+
+        // Update conversation via API
+        try {
+          const apiConversationResponse = await sendInboxMessage({
+            subdomain,
+            action: 'integrations.receive',
+            data: {
+              action: 'create-or-update-conversation',
+              payload: JSON.stringify({
+                customerId: customer?.erxesApiId,
+                integrationId: integration.inboxId,
+                content: doc.callType || '',
+                conversationId: history.conversationId,
+                updatedAt: new Date(),
+                owner: '',
+              }),
+            },
+            isRPC: true,
+          });
+
+          history.conversationId = apiConversationResponse._id;
+          await history.save();
+        } catch (e) {
+          await models.CallHistory.deleteOne({ _id: history._id });
+          throw new Error(`Failed to update conversation: ${e.message}`);
+        }
+
+        await sendInboxMessage({
+          subdomain,
+          action: 'conversationClientMessageInserted',
+          data: {
+            ...history.toObject(),
+            conversationId: history.conversationId,
+          },
+        });
+
+        return 'Successfully edited';
+      } catch (e) {
+        throw new Error(`Error processing call history: ${e.message}`);
+      } finally {
+        if (lock) {
+          try {
+            await lock.unlock();
+          } catch (unlockError) {
+            console.error('Failed to release lock:', unlockError);
+          }
+        }
+      }
     } else {
       throw new Error(`You cannot edit`);
     }
@@ -201,12 +330,12 @@ const callsMutations = {
 
   async callHistoryEditStatus(
     _root,
-    { callStatus, sessionId }: { callStatus: String; sessionId: String },
+    { callStatus, timeStamp }: { callStatus: string; timeStamp: number },
     { user, models }: IContext,
   ) {
-    if (sessionId && sessionId !== '') {
+    if (timeStamp && timeStamp !== 0) {
       await models.CallHistory.updateOne(
-        { sessionId },
+        { timeStamp },
         {
           $set: {
             callStatus,
@@ -326,33 +455,23 @@ const callsMutations = {
       isAddExtention: false,
       isGetExtension: true,
     };
-    console.log('11');
 
     const {
       response: listBridgedChannelsResponse,
       extentionNumber: extension,
     } = await sendToGrandStream(models, listBridgedChannelsPayload, user);
     let channel = '';
-    console.log('22', extension, extensionNumber);
     if (listBridgedChannelsResponse?.response) {
       const channels = listBridgedChannelsResponse.response.channel;
-      console.log('33');
       if (channels) {
-        console.log('44');
-
         const filteredChannels = channels.filter((ch) => {
           if (direction === 'incoming') {
-            console.log('55');
             return ch.callerid2 === extension;
           } else {
-            console.log('66');
-
             return ch.callerid1 === extension;
           }
         });
         if (filteredChannels.length > 0) {
-          console.log('77');
-
           if (direction === 'incoming') {
             channel = filteredChannels[0].channel2 || '';
           } else {
@@ -378,14 +497,12 @@ const callsMutations = {
       isConvertToJson: true,
       isAddExtention: false,
     };
-    console.log('88');
 
     const callTransferResponse = await sendToGrandStream(
       models,
       callTransferPayload,
       user,
     );
-    console.log('99');
 
     if (callTransferResponse?.response?.need_apply) {
       return callTransferResponse?.response?.need_apply;

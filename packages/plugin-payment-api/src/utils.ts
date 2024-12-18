@@ -14,6 +14,8 @@ import { storepayCallbackHandler } from './api/storepay/api';
 import { generateModels } from './connectionResolver';
 import { ITransactionDocument } from './models/definitions/transactions';
 import redisUtils from './redisUtils';
+import { stripeCallbackHandler } from './api/stripe/api';
+import { minupayCallbackHandler } from './api/minupay/api';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -54,8 +56,21 @@ export const callbackHandler = async (req, res) => {
       case PAYMENTS.golomt.kind:
         transaction = await golomtCallbackHandler(models, data);
         break;
+      case PAYMENTS.stripe.kind:
+        transaction = await stripeCallbackHandler(models, data);
+        break;
+      case PAYMENTS.minupay.kind:
+        transaction = await minupayCallbackHandler(models, data);
+        break;
       default:
         return res.status(400).send('Invalid kind');
+    }
+
+    if (
+      transaction.status === PAYMENT_STATUS.CANCELLED ||
+      transaction.status === PAYMENT_STATUS.FAILED
+    ) {
+      return res.status(400).send('Payment failed or cancelled');
     }
 
     if (transaction.status === PAYMENT_STATUS.PAID) {
@@ -113,9 +128,27 @@ export const callbackHandler = async (req, res) => {
                 status: 'paid',
               },
             });
+
+            if (invoice.callback) {
+              try {
+                await fetch(invoice.callback, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    _id: invoice._id,
+                    amount: invoice.amount,
+                    status: 'paid',
+                  }),
+                });
+              } catch (e) {
+                console.error('Error: ', e);
+              }
+            }
           }
         } catch (e) {
-          console.error("Error: ",e);
+          console.error('Error: ', e);
         }
       }
     }

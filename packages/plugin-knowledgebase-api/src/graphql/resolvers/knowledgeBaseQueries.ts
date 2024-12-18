@@ -38,6 +38,10 @@ const buildQuery = (args: any) => {
     qry._id = { $in: args.ids };
   }
 
+  if (args?.status) {
+    qry.status = args.status;
+  }
+
   return qry;
 };
 
@@ -55,10 +59,14 @@ const knowledgeBaseQueries = {
       articleIds: string[];
       codes: string[];
       topicIds: string[];
+      sortField?: string;
+      sortDirection?: number;
+      status?: string;
     },
     { models }: IContext
   ) {
     const selector: any = buildQuery(args);
+    let sort: any = { createdDate: -1 };
 
     const pageArgs = { page: args.page, perPage: args.perPage };
 
@@ -72,9 +80,11 @@ const knowledgeBaseQueries = {
       delete selector.topicIds;
     }
 
-    const articles = models.KnowledgeBaseArticles.find(selector).sort({
-      createdDate: -1,
-    });
+    if (args.sortField) {
+      sort = { [args.sortField]: args.sortDirection };
+    }
+
+    const articles = models.KnowledgeBaseArticles.find(selector).sort(sort);
 
     return paginate(articles, pageArgs);
   },
@@ -110,7 +120,7 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args: { categoryIds: string[]; codes: string[] },
+    args,
     { models }: IContext
   ) {
     const qry: any = buildQuery(args);

@@ -4,20 +4,23 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   callHistorySchema,
+  ICallHistory,
   ICallHistoryDocument,
 } from './definitions/callHistories';
 
 export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
-  getCallHistory(sessionId: string): Promise<ICallHistoryDocument>;
+  getCallHistory(history: ICallHistory): Promise<ICallHistoryDocument>;
   getCallHistories(selector, user: IUser): Promise<ICallHistoryDocument>;
   getHistoriesCount(selector, user: IUser): Promise<ICallHistoryDocument>;
 }
 
 export const loadCallHistoryClass = (models: IModels) => {
   class CallHistory {
-    public static async getCallHistory(sessionId) {
-      const history = await models.CallHistory.findOne({ sessionId });
-      return history;
+    public static async getCallHistory({ _id, callType, timeStamp }) {
+      if (callType === 'outgoing') {
+        return await models.CallHistory.findOne({ _id });
+      }
+      return await models.CallHistory.findOne({ timeStamp });
     }
     public static async getCallHistories(selector, user) {
       const integration = await models.Integrations.getIntegration(
@@ -37,8 +40,10 @@ export const loadCallHistoryClass = (models: IModels) => {
 
       historyFilter.extentionNumber = operator.gsUsername;
 
-      if (selector?.callStatus === 'missed') {
-        historyFilter.callStatus = { $ne: 'connected' };
+      if (selector?.callStatus === 'cancelled') {
+        historyFilter.callStatus = { $eq: 'cancelled' };
+        delete historyFilter.extentionNumber;
+        historyFilter.operatorPhone = integration.phone;
       } else {
         delete historyFilter.callStatus;
         delete selector.callStatus;
@@ -94,6 +99,6 @@ export const loadCallHistoryClass = (models: IModels) => {
   }
 
   callHistorySchema.loadClass(CallHistory);
-
+  callHistorySchema.index({ timeStamp: 1 }, { unique: true });
   return callHistorySchema;
 };
