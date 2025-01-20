@@ -1,4 +1,4 @@
-name: Plugin {sample} UI CI
+name: Plugin activedirectory UI CI
 
 on:
   push:
@@ -22,9 +22,9 @@ on:
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
       - "packages/ui-tags/**"
-      - "packages/ui-{sample}/**"
-      - "packages/plugin-{sample}-ui/**"
-      - ".github/workflows/plugin-{sample}-ui.yaml"
+      - "packages/ui-activedirectory/**"
+      - "packages/plugin-activedirectory-ui/**"
+      - ".github/workflows/plugin-activedirectory-ui.yaml"
   pull_request:
     branches:
       - dev
@@ -46,9 +46,9 @@ on:
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
       - "packages/ui-tags/**"
-      - "packages/ui-{sample}/**"
-      - "packages/plugin-{sample}-ui/**"
-      - ".github/workflows/plugin-{sample}-ui.yaml"
+      - "packages/ui-activedirectory/**"
+      - "packages/plugin-activedirectory-ui/**"
+      - ".github/workflows/plugin-activedirectory-ui.yaml"
 
 jobs: 
   ui:
@@ -78,7 +78,7 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cd packages/plugin-{sample}-ui
+          cd packages/plugin-activedirectory-ui
           yarn build
           cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
@@ -93,6 +93,6 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'v2' || github.ref == 'refs/heads/v2')
         run: |
-          tar -cf build.tar --directory=packages/plugin-{sample}-ui/dist .
-          cp build.tar packages/plugin-{sample}-ui/dist
-          aws s3 sync packages/plugin-{sample}-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-{sample}-ui --delete
+          tar -cf build.tar --directory=packages/plugin-activedirectory-ui/dist .
+          cp build.tar packages/plugin-activedirectory-ui/dist
+          aws s3 sync packages/plugin-activedirectory-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-activedirectory-ui --delete

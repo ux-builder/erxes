@@ -1,10 +1,222 @@
 # Changelog
 
+## [2.3.2](https://github.com/erxes/erxes/compare/2.3.1...2.3.2) (2025-01-06)
+
+
+### Bug Fixes
+
+* **automations:** add condition ignore when value has string with arithmetic methods ([7cb39d4](https://github.com/erxes/erxes/commit/7cb39d4660a9054fb530c3ec02785ac691ae2cdb))
+
+## [2.3.1](https://github.com/erxes/erxes/compare/2.3.0...2.3.1) (2025-01-05)
+
+
+### Bug Fixes
+
+* **coreui:** add some settings menu in goto navigation ([aaf1a55](https://github.com/erxes/erxes/commit/aaf1a55f65a9d68f4781b6699de83986dd55a589))
+
+## [2.3.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2025-01-03)
+
+
+### Features
+
+* Active directory improve ([#5855](https://github.com/erxes/erxes/issues/5855)) ([2db39ab](https://github.com/erxes/erxes/commit/2db39ab6761fe9fbb5c768e51e660dc48e703bb4))
+
+
+### Bug Fixes
+
+* sales pipeline deal payment form, and payment data syncerkhet ([184690a](https://github.com/erxes/erxes/commit/184690a035cc25b7472ce8ecacbebeb09b47d4f3))
+
+## [2.3.0-rc.1](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2024-12-23)
+
+
+### Features
+
+* add plugin sync active directory ([#5854](https://github.com/erxes/erxes/issues/5854)) ([41cca44](https://github.com/erxes/erxes/commit/41cca44b658dd535709cfa9f1dd2734b80d61a47))
+
+
+### Bug Fixes
+
+* **activedirectory:** release.yaml ([8ba7086](https://github.com/erxes/erxes/commit/8ba708661164eb830352e116dcec0a0858f5351e))
+
+## [2.3.0-rc.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2024-12-19)
+
+
+### Features
+
+* **whatsapp:** chatbot v1 ([4d074e6](https://github.com/erxes/erxes/commit/4d074e67a030e295691a15e5555a65fce552551e))
+
+## [2.2.2](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2024-12-27)
+
+
+### Bug Fixes
+
+* **gateway:** can't set  user logintoken sessioncode in userMiddleware ([5b4c2d3](https://github.com/erxes/erxes/commit/5b4c2d3155b6cd556487ab21595cc6641bc91f75))
+* posclient use header ([49a41da](https://github.com/erxes/erxes/commit/49a41da9af9a2035b315500b7c942642a586f2ff))
+* **segments:** get just content type is lead if source is engages ([280815d](https://github.com/erxes/erxes/commit/280815d60e4436d9241628cdfda87d27c786bb52))
+
+## [2.3.0-rc.1](https://github.com/erxes/erxes/compare/2.3.0-rc.0...2.3.0-rc.1) (2024-12-23)
+
+
+### Features
+
+* add plugin sync active directory ([#5854](https://github.com/erxes/erxes/issues/5854)) ([41cca44](https://github.com/erxes/erxes/commit/41cca44b658dd535709cfa9f1dd2734b80d61a47))
+
+
+### Bug Fixes
+
+* **activedirectory:** release.yaml ([8ba7086](https://github.com/erxes/erxes/commit/8ba708661164eb830352e116dcec0a0858f5351e))
+
+## [2.3.0-rc.0](https://github.com/erxes/erxes/compare/2.3.0-rc.0...2.3.0-rc.1) (2024-12-19)
+
+
+### Features
+
+* **whatsapp:** chatbot v1 ([4d074e6](https://github.com/erxes/erxes/commit/4d074e67a030e295691a15e5555a65fce552551e))
+
+## [2.2.1](https://github.com/erxes/erxes/compare/2.3.0-rc.0...2.3.0-rc.1) (2024-12-20)
+
+
+### Features
+
+* inventories safeRemainder with census items ([19eb27d](https://github.com/erxes/erxes/commit/19eb27dc678ecd747b5285b0618d56be8e91d8b2))
+* posclient qrmenu backend ([8482dab](https://github.com/erxes/erxes/commit/8482dab481964a0038c9d693de6517c7819fd30c))
+
+
+### Bug Fixes
+
+* ebarimt product tax rule find ([4f266b0](https://github.com/erxes/erxes/commit/4f266b0507444e6745ac5373f8cd38b1dbcb330b))
+
+## [2.2.1](https://github.com/erxes/erxes/compare/2.2.0...2.2.1) (2024-12-20)
+
+
+### Features
+
+* inventories safeRemainder with census items ([19eb27d](https://github.com/erxes/erxes/commit/19eb27dc678ecd747b5285b0618d56be8e91d8b2))
+* posclient qrmenu backend ([8482dab](https://github.com/erxes/erxes/commit/8482dab481964a0038c9d693de6517c7819fd30c))
+
+
+### Bug Fixes
+
+* ebarimt product tax rule find ([4f266b0](https://github.com/erxes/erxes/commit/4f266b0507444e6745ac5373f8cd38b1dbcb330b))
+
+## [2.2.0](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-19)
+
+## [2.2.0-rc.11](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-16)
+
+
+### Bug Fixes
+
+* syncpolaris add keepAlive ([15446de](https://github.com/erxes/erxes/commit/15446dec4f473624eca7d11183bce1bdfc26339a))
+
+## [2.2.0-rc.10](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-14)
+
+## [2.2.0-rc.9](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-12)
+
+
+### Bug Fixes
+
+* syncpolaris pull settings ([61caefa](https://github.com/erxes/erxes/commit/61caefae0e6ab3e2af4d1fa6675cbdfc528f9561))
+* userMiddleware exclude deviceTokens ([16ddc72](https://github.com/erxes/erxes/commit/16ddc72a578916e9ba535f7478f5bacf4536833b))
+
+## [2.2.0-rc.8](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-10)
+
+## [2.2.0-rc.7](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-10)
+
+## [2.1.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-10)
+
+## [2.2.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-10)
+
+## [2.2.0-rc.5](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-09)
+
+
+### Features
+
+* **cards:** add new permission feat which shows cards based on branch ([780b192](https://github.com/erxes/erxes/commit/780b192e25aa056e28779cad4b34cc514a2de9e6))
+
+## [2.2.0-rc.4](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-06)
+
+## [2.2.0-rc.3](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-06)
+
+## [2.2.0-rc.2](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-05)
+
+
+### Bug Fixes
+
+* wrong type field ([8417647](https://github.com/erxes/erxes/commit/8417647ca323d06128d579f490837504d79cb1df))
+
+## [2.2.0-rc.1](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-04)
+
+
+### Features
+
+* syncpolaris pull polaris config and save ([#5819](https://github.com/erxes/erxes/issues/5819)) ([88cf624](https://github.com/erxes/erxes/commit/88cf62415075b575d99665d36082ba977af0930d))
+
+## [2.2.0-rc.0](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-03)
+
+
+### Features
+
+* add Accountings plugin ([#5058](https://github.com/erxes/erxes/issues/5058)) ([40e07bf](https://github.com/erxes/erxes/commit/40e07bf9c200b2609810eea91941b01af015c622))
+* Cars plugin log improve ([3aa8fcf](https://github.com/erxes/erxes/commit/3aa8fcf772c2162abd5179d983e6b071a1bdf130))
+* **instagram:** add chatbot integration for Messenger, Comments, and Ads management  ([18ab33e](https://github.com/erxes/erxes/commit/18ab33e82742249d5a0217055e0ecb7703a1a248))
+* **whatsapp:** v1  ([8f82337](https://github.com/erxes/erxes/commit/8f82337a9b597903f0b75f355ed224fd642ebc11))
+
+
+### Bug Fixes
+
+* accountings account query ([c638d14](https://github.com/erxes/erxes/commit/c638d14cfe7e6f89e67805ec2da49065ccd21db6))
+* accountings form refetch ([34fbd13](https://github.com/erxes/erxes/commit/34fbd13263b93ae0caadd066b6f07393dc61497f))
+* accountings schema ([359bef1](https://github.com/erxes/erxes/commit/359bef11a6d51ff6855715c288315944b77371b7))
+* accountings schema resolver ([eb98ac5](https://github.com/erxes/erxes/commit/eb98ac59670e1e534ec29f037b814b9b7b31f563))
+* accountings transactions filter ptrStatus ([3fe64ac](https://github.com/erxes/erxes/commit/3fe64ac959c531d156ec97036ef4941d46842e7e))
+* check push customer ([87b62fc](https://github.com/erxes/erxes/commit/87b62fc30155f2be9fe8641bc3906c89be6026d8))
+* **core:** can't export data ([9592e98](https://github.com/erxes/erxes/commit/9592e9884e93f51e964188824cb52f7a3aaf2649))
+* **goal:** tags type fixed ([021e720](https://github.com/erxes/erxes/commit/021e72041b950dea1f8ae7ee81c76b25a35c1e7d))
+* **imap:** not showed signature and other little bugs ([467aec6](https://github.com/erxes/erxes/commit/467aec6f8a760d102dd5cdeb7c52665c4ab5edc8))
+* not check enabled contacts on pos-api ([8f7bebd](https://github.com/erxes/erxes/commit/8f7bebdf3c373adeabff86d5366d7830f7831cc7))
+* **whatsapp:** change callback url ([e6ac87d](https://github.com/erxes/erxes/commit/e6ac87deeaf8dc238a5aeb503753a071fa302a25))
+* **whatsapp:** debug  ([fe950a8](https://github.com/erxes/erxes/commit/fe950a8b71c177c4a3030c468c935341623c2773))
+* **whatsapp:** remove some types ([4115fd5](https://github.com/erxes/erxes/commit/4115fd5f7fcf5551c9a6260180ea885a676ee90c))
+* **whatsapp:** Whats app log ([#5809](https://github.com/erxes/erxes/issues/5809)) ([b97edb3](https://github.com/erxes/erxes/commit/b97edb317a05276c1670636683af5b1ce9118bd6))
+
+
+### Performance Improvements
+
+* accounting ([#5823](https://github.com/erxes/erxes/issues/5823)) ([db3fa98](https://github.com/erxes/erxes/commit/db3fa98bffa4a1850347b34cd416b6aa422ee72a))
+
+## [2.1.6](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-18)
+
+
+### Bug Fixes
+
+* posclient add header erxes-pos-token ([66d8b4c](https://github.com/erxes/erxes/commit/66d8b4c57b59703e81a6efb6b05e5055369491fa))
+* **saas:** can't get contact remain from bundle ([215d5b2](https://github.com/erxes/erxes/commit/215d5b2378823bc2a7fa0521c045ed8cdc4dd595))
+* **saas:** debug ([4064d80](https://github.com/erxes/erxes/commit/4064d80e3b231d2dde6ad0980dee35c76859bf6d))
+
+## [2.1.5](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-17)
+
+
+### Features
+
+* **cms:** introduce cms plugin ([#5848](https://github.com/erxes/erxes/issues/5848)) ([97caf5b](https://github.com/erxes/erxes/commit/97caf5b67a66341de728fd4aef2625ab514c3557))
+
+
+### Bug Fixes
+
+* coreui ci up ([419a1d4](https://github.com/erxes/erxes/commit/419a1d4449d815f0f9606e0b23894fe77f6b3a23))
+* sales documents ([8b700e5](https://github.com/erxes/erxes/commit/8b700e589f28b5c82539a564b7ee86f2d88c55b2))
+
+## [2.1.6](https://github.com/erxes/erxes/compare/2.1.5...2.1.6) (2024-12-18)
 ## [2.2.0-rc.11](https://github.com/erxes/erxes/compare/2.2.0-rc.10...2.2.0-rc.11) (2024-12-16)
 
 
 ### Bug Fixes
 
+* posclient add header erxes-pos-token ([66d8b4c](https://github.com/erxes/erxes/commit/66d8b4c57b59703e81a6efb6b05e5055369491fa))
+* **saas:** can't get contact remain from bundle ([215d5b2](https://github.com/erxes/erxes/commit/215d5b2378823bc2a7fa0521c045ed8cdc4dd595))
+* **saas:** debug ([4064d80](https://github.com/erxes/erxes/commit/4064d80e3b231d2dde6ad0980dee35c76859bf6d))
+
+## [2.1.5](https://github.com/erxes/erxes/compare/2.1.4...2.1.5) (2024-12-17)
 * **automations:** can't set first form when not selected any form ([07410da](https://github.com/erxes/erxes/commit/07410da62e67f89f4b852ca75c89b177c0686b37))
 * syncpolaris add keepAlive ([15446de](https://github.com/erxes/erxes/commit/15446dec4f473624eca7d11183bce1bdfc26339a))
 
@@ -31,6 +243,7 @@
 
 ### Features
 
+* **cms:** introduce cms plugin ([#5848](https://github.com/erxes/erxes/issues/5848)) ([97caf5b](https://github.com/erxes/erxes/commit/97caf5b67a66341de728fd4aef2625ab514c3557))
 * **cards:** add new permission feat which shows cards based on branch ([780b192](https://github.com/erxes/erxes/commit/780b192e25aa056e28779cad4b34cc514a2de9e6))
 
 ## [2.2.0-rc.4](https://github.com/erxes/erxes/compare/2.2.0-rc.10...2.2.0-rc.11) (2024-12-06)
@@ -42,6 +255,11 @@
 
 ### Bug Fixes
 
+* **automations:** can't set first form when not selected any form ([07410da](https://github.com/erxes/erxes/commit/07410da62e67f89f4b852ca75c89b177c0686b37))
+* coreui ci up ([419a1d4](https://github.com/erxes/erxes/commit/419a1d4449d815f0f9606e0b23894fe77f6b3a23))
+* sales documents ([8b700e5](https://github.com/erxes/erxes/commit/8b700e589f28b5c82539a564b7ee86f2d88c55b2))
+
+## [2.1.4](https://github.com/erxes/erxes/compare/2.1.3...2.1.4) (2024-12-16)
 * wrong type field ([8417647](https://github.com/erxes/erxes/commit/8417647ca323d06128d579f490837504d79cb1df))
 
 ## [2.2.0-rc.1](https://github.com/erxes/erxes/compare/2.2.0-rc.10...2.2.0-rc.11) (2024-12-04)
