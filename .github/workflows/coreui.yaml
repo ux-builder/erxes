@@ -66,8 +66,8 @@ jobs:
       - name: Configure OCI S3 compatible API credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/v1' || github.ref == 'refs/heads/staging')
         run: |
-          echo "OCI_S3_ACCESS_KEY=${{ secrets.OCI_S3_ACCESS_KEY }}" >> $GITHUB_ENV
-          echo "OCI_S3_SECRET_KEY=${{ secrets.OCI_S3_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.OCI_S3_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.OCI_S3_SECRET_KEY }}" >> $GITHUB_ENV
           echo "S3_ENDPOINT=https://${{ secrets.OCI_S3_NAMESPACE }}.compat.objectstorage.${{ secrets.OCI_S3_REGION }}.oraclecloud.com" >> $GITHUB_ENV
 
       - name: Deploy locales to OCI
