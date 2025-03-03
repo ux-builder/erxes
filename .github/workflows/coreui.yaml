@@ -70,18 +70,21 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=${{ secrets.OCI_S3_SECRET_KEY }}
           export S3_ENDPOINT="https://${{ secrets.OCI_S3_NAMESPACE }}.compat.objectstorage.${{ secrets.OCI_S3_REGION }}.oraclecloud.com"
 
+          echo "S3_ENDPOINT is set to: $S3_ENDPOINT"
+
       - name: Deploy locales to OCI
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' ||  github.ref == 'refs/heads/v1' || github.ref == 'refs/heads/staging')
         run: |
+          echo "Using S3_ENDPOINT: $S3_ENDPOINT"
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
-          aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar --endpoint-url $S3_ENDPOINT
+          aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar --endpoint-url "$S3_ENDPOINT"
 
       - name: Deploy Core UI to OCI
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' ||  github.ref == 'refs/heads/v1' || github.ref == 'refs/heads/staging')
         run: |
           tar -czf build.tar --directory=packages/core-ui/dist .
           cp build.tar packages/core-ui/dist
-          aws s3 sync packages/core-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/core-ui --endpoint-url $S3_ENDPOINT --delete
+          aws s3 sync packages/core-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/core-ui --endpoint-url "$S3_ENDPOINT" --delete
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' ||  github.ref == 'refs/heads/v1' || github.ref == 'refs/heads/staging')
