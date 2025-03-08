@@ -6,6 +6,8 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 import cpCustomerHandle from './cpCustomerHandle';
+import cronjobs from './cronjobs';
+import logUtils from './logUtils';
 
 export default {
   name: 'msdynamic',
@@ -17,6 +19,8 @@ export default {
   },
 
   meta: {
+    logs: { consumers: logUtils },
+    cronjobs,
     afterMutations,
     cpCustomerHandle,
   },

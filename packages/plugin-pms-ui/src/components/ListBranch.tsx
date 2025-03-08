@@ -29,7 +29,7 @@ type Props = {
   remove: (posId: string) => void;
   refetch?: () => void;
   counts: any; //*checkType
-  pmsLink: string;
+  link: string;
 };
 
 const List = (props: Props) => {
@@ -42,7 +42,7 @@ const List = (props: Props) => {
     bulk,
     toggleBulk,
     toggleAll,
-    pmsLink
+    link
   } = props;
 
   queryParams.loadingMainQuery = loading;
@@ -59,7 +59,7 @@ const List = (props: Props) => {
         toggleBulk={toggleBulk}
         branch={branch}
         remove={remove}
-        pmsLink={pmsLink}
+        link={link}
       />
     ));
   };
@@ -108,7 +108,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Pms')}
+          title={__('Pms 1.0')}
           breadcrumb={[
             { title: 'Settings', link: '/settings' },
             { title: __('Branch list') }

@@ -16,6 +16,7 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
+import { gql, useQuery } from '@apollo/client';
 
 type Props = {
   total: { [currency: string]: number };
@@ -25,11 +26,42 @@ type Props = {
   calcChangePay: () => void;
   changePayData: { [currency: string]: number };
   pipelineDetail: any;
+  dealQuery:IDeal
 };
 
 type State = {
   paymentsData: IPaymentsData;
+  checkOwnerScore: number | null
 };
+
+const scoreCampaignQuery = `
+  query checkOwnerScore($ownerId: String, $ownerType: String, $campaignId: String) {
+    checkOwnerScore(ownerId: $ownerId, ownerType: $ownerType, campaignId: $campaignId)
+  }
+`
+
+const OwnerScoreCampaignScore = ({type,dealQuery, onScoreFetched}:{type:any,dealQuery:IDeal, onScoreFetched: (score: number) => void}) =>{
+  if(!type?.scoreCampaignId || !(dealQuery?.customers ||[])?.length){
+    return null
+  }
+
+  const [customer] = dealQuery.customers || []
+
+  const {data} = useQuery(gql(scoreCampaignQuery),{variables:{ownerType:"customer",ownerId:customer._id,campaignId:type.scoreCampaignId}})
+
+  const {checkOwnerScore} = data || {}
+
+  React.useEffect(() => {
+    if (checkOwnerScore) {
+      onScoreFetched(checkOwnerScore);
+    }
+  }, [checkOwnerScore, onScoreFetched]);
+
+  return <div>
+    {`/Avaible score campaign score: ${checkOwnerScore}/`}
+  </div>
+
+}
 
 class PaymentForm extends React.Component<Props, State> {
   constructor(props) {
@@ -39,6 +71,7 @@ class PaymentForm extends React.Component<Props, State> {
 
     this.state = {
       paymentsData: payments || {},
+      checkOwnerScore: null,
     };
   }
 
@@ -78,6 +111,10 @@ class PaymentForm extends React.Component<Props, State> {
       <span>{option.label}</span>
     </div>
   );
+
+  handleScoreFetched = (score: number) => {
+    this.setState({ checkOwnerScore: score });
+  };
 
   renderPaymentsByType(type) {
     const { currencies, changePayData } = this.props;
@@ -141,7 +178,9 @@ class PaymentForm extends React.Component<Props, State> {
       <Flex key={type.name}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
+        <OwnerScoreCampaignScore type={type} dealQuery={this.props.dealQuery} onScoreFetched={this.handleScoreFetched}/>
         </ContentColumn>
+
         <ContentColumn>
           <FormControl
             value={paymentsData[NAME] ? paymentsData[NAME].amount : ''}

@@ -2,6 +2,57 @@ import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 import { colors, dimensions } from "@erxes/ui/src/styles/";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+
+export const CustomRangeContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  > div {
+    flex: 1;
+    margin-right: 8px;
+    input[type='text'] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
+export const FilterContainer = styled.div`
+  padding: 10px 20px;
+`;
+
+export const ExtraButtons = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 2px 0;
+
+  > div {
+    cursor: pointer;
+  }
+`;
+
+export const BoxContainer = styled(SidebarList)`
+
+  padding-top: 10px;
+
+  > li, > a > li {
+    padding: 6px 0 !important;
+  };
+
+  > a {
+    padding: 0;
+    font-weight: 500;
+  }
+`;
 
 export const LoyaltyAmount = styled.div`
   font-weight: 500;

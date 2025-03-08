@@ -1,4 +1,4 @@
-export const types = ({ products, knowledgeBase }) => `
+export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
   ${
     products
       ? `
@@ -41,6 +41,7 @@ export const types = ({ products, knowledgeBase }) => `
     customerId: String
     visitorId: String
     brand: Brand
+    ${cloudflareCalls ? 'callData: CloudflareCallsData' : ''}
   }
 
   type ConversationDetailResponse {
@@ -49,6 +50,11 @@ export const types = ({ products, knowledgeBase }) => `
     operatorStatus: String
     participatedUsers: [User]
     readUsers: [User]
+    botData:JSON
+    persistentMenus:JSON
+    botGreetMessage:String
+    fromBot:Boolean
+    getStarted:Boolean
     isOnline: Boolean
     supporters: [User]
   }
@@ -113,6 +119,7 @@ export const mutations = () => `
   widgetsInsertMessage(
     integrationId: String!
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     message: String,
@@ -123,11 +130,11 @@ export const mutations = () => `
 
   widgetBotRequest(
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!
-    payload: String!
     type: String!
     ): JSON
 
