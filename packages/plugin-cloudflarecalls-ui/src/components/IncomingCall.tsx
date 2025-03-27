@@ -13,11 +13,15 @@ import { renderFullName } from '@erxes/ui/src/utils/core';
 import { callActions } from '../utils';
 import { PullAudioTracks } from './PullAudioTracks';
 import {
+  Actions,
+  CallAction,
+  InCallFooter,
   IncomingActionButton,
   IncomingButtonContainer,
   IncomingCallNav,
   IncomingContainer,
   IncomingContent,
+  InnerActions,
   NameCardContainer,
   PhoneNumber,
 } from '../styles';
@@ -202,24 +206,32 @@ const IncomingCall = (props: Props) => {
     );
   }
 
-  if (status === 'accepted' && !hideIncomingCall) {
+  if (status === 'accepted') {
     const renderContent = () => (
       <>
         {renderUserInfo('incall')}
         <p>
           {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
         </p>
-        {callActions(
-          { isMuted: () => true },
-          toggleMic,
-          endCall,
-          erxesApiId,
-          true,
-          { direction: 'incoming' },
-          gotoDetail,
-          !!currentCallConversationId,
-          { onClickKeyPad: () => {} },
-        )}
+        <InCallFooter>
+          <Actions>
+            <InnerActions>
+              <div>
+                <CallAction onClick={gotoDetail} $disabled={false}>
+                  <Icon size={20} icon={'book-alt'} />
+                </CallAction>
+
+                {__('Detail')}
+              </div>
+            </InnerActions>
+            <div>
+              <CallAction onClick={endCall} $isDecline={true}>
+                <Icon size={20} icon="phone-slash" />
+              </CallAction>
+              {__('End Call')}
+            </div>
+          </Actions>
+        </InCallFooter>
       </>
     );
 
