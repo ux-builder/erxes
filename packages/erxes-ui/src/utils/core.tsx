@@ -456,7 +456,18 @@ export const can = (actionName: string, currentUser: IUser): boolean => {
   return actions[actionName] === true;
 };
 export const __ = (key: string, options?: any) => {
+  console.log(`번역 시도: ${key}`, T.texts); // 디버깅용 로그 추가
+  // 먼저 텍스트 객체에 키가 직접 존재하는지 확인 (마침표가 있는 키 처리)
+  if (key && key.includes(".") && T.texts && T.texts[key]) {
+    const value = T.texts[key];
+    const formatted = T.format(value, options);
+    return formatted ? formatted.toString() : "";
+  }
+
+  // 기존 방식으로 번역 시도
   const translation = T.translate(key, options);
+
+  console.log(`번역 결과: ${key} => ${translation}`);
 
   if (!translation) {
     return "";
