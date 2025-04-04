@@ -332,7 +332,6 @@ class ProductForm extends React.Component<Props, State> {
               <th style={avStyle}>{__("Unit price (global)")}</th>
               <th style={avStyle}>{__("Unit price percent")}</th>
               <th />
-              <th />
             </tr>
           </thead>
           <tbody id="products">
